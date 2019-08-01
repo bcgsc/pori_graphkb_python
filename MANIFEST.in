@@ -1,0 +1,3 @@
+
+recursive-include knowledgebase_match *
+include README.md
