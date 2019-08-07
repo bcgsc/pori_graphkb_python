@@ -6,6 +6,7 @@ __pycache__
 bin
 dist
 build
+.pytest_cache
 
 # common virtual environment names
 venv
@@ -18,4 +19,3 @@ env
 
 # misc
 .DS_STORE
-

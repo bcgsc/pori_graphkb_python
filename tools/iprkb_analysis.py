@@ -2,7 +2,7 @@ import csv
 import re
 
 
-from .graphkb import GraphKB
+from graphkb import GraphKB
 
 BASE_URL = 'http://creisle04.phage.bcgsc.ca:8080/api'
 IPRKB_DUMP = '/projects/vardb/downloads/ipr/select_kb_references_ident_as_kb_reference_uuid_kb_references_cr_201905281636.tsv'
@@ -131,7 +131,7 @@ def check_mdanderson(api, rows):
     print(missing_variant)
 
 
-api = GraphKB(BASE_URL)
+api = GraphKB(BASE_URL, cache_requests=True)
 api.login()
 
 rows = read_tsv(IPRKB_DUMP)
