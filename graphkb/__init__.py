@@ -4,9 +4,6 @@ import getpass
 import json
 import re
 
-BASE_URL = 'http://creisle04.phage.bcgsc.ca:8080/api'
-IPRKB_DUMP = '/projects/vardb/downloads/ipr/select_kb_references_ident_as_kb_reference_uuid_kb_references_cr_201905281636.tsv'
-
 
 class TestRegex:
     def __init__(self):
@@ -41,7 +38,7 @@ def match_pos_clause(attr, *possible_values):
 
 
 class GraphKB:
-    def __init__(self, url=BASE_URL, verbose=False, cache_requests=True):
+    def __init__(self, url, verbose=False, cache_requests=True):
         self.url = url
         self.verbose = verbose
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
