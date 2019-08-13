@@ -55,7 +55,7 @@ class GraphKB:
         Returns:
             dict: the json response as a pythno dict
         """
-        url = '{}/{}'.format(self.url, endpoint)
+        url = f'{self.url}/{endpoint}'
         if self.verbose:
             print(method, url)
         resp = requests.request(method, url, headers=self.headers, **kwargs)
@@ -65,22 +65,22 @@ class GraphKB:
         """Convenience method for making post requests"""
         return self.request(uri, method='POST', data=json.dumps(data), **kwargs)
 
-    def search(self, modelname, data={}, **kwargs):
+    def search(self, model_name, data={}, **kwargs):
         """Convenience method for making search requests
 
         Args:
-            modelname (str): the database model/class ex. diseases
+            model_name (str): the database model/class ex. diseases
             data (dict): the payload/data to send in the request
 
         Returns:
             dict: the json response as a pythno dict
         """
         data = json.dumps(data, sort_keys=True)
-        cache_key = ('search', modelname, data)
+        cache_key = ('search', model_name, data)
 
         if self.cache_requests and cache_key in self.request_cache:
             return self.request_cache[cache_key]
-        resp = self.request('{}/search'.format(modelname), method='POST', data=data, **kwargs)
+        resp = self.request(f'{model_name}/search', method='POST', data=data, **kwargs)
         if self.cache_requests:
             self.request_cache[cache_key] = resp
         return resp
@@ -113,6 +113,21 @@ class GraphKB:
     def search_for_gene(self, gene_name):
         """Given some gene name, search for it or deprecated/alias forms of it"""
         return self.search('features', data={'search': {'name': [gene_name]}})['result']
+
+    def match_exon_fusion(self, gene1, gene2, exon1=None, exon2=None):
+        genes1 = [g['@rid'] for g in self.search_for_gene(gene1)]
+        genes2 = [g['@rid'] for g in self.search_for_gene(gene2)]
+        [vocab] = [t['@rid'] for t in self.get('vocabulary', params={'name': 'fusion'})['result']]
+        # 2. Get the variants related to these genes
+        filters = [
+            {'attr': 'reference1', 'value': genes1, 'operator': 'in'},
+            {'attr': 'reference2', 'value': genes2, 'operator': 'in'},
+            {'attr': 'type', 'value': vocab},
+            {'attr': 'break1Start.pos', 'value': exon1},
+            {'attr': 'break2Start.pos', 'value': exon2},
+        ]
+        variants = self.search('variants', data={'where': filters})['result']
+        return variants
 
     def statements_by_gene_name(self, gene_name):
         """Given some gene name, loosely look for associated statements"""
@@ -169,10 +184,35 @@ class GraphKB:
 
         return {s['relevance']['name'] for s in statements}
 
-    def match_protein_variant(self, protein_variant):
+    def match_category_variant(
+        self, gene_name, category, zygosity=None, germline=None, strict=False
+    ):
+        genes = [g['@rid'] for g in self.search_for_gene(gene_name)]
+        if not strict:
+            types = [t['@rid'] for t in self.get_vocabulary([category])]
+        else:
+            types = [t['@rid'] for t in self.get('vocabulary', params={'name': category})['result']]
+        filters = [
+            {'attr': 'reference1', 'operator': 'in', 'value': genes},
+            {'attr': 'type', 'operator': 'in', 'value': types},
+        ]
+        if zygosity is not None:
+            filters.append({'attr': 'zygosity', 'value': zygosity})
+        if germline is not None:
+            filters.append({'attr': 'germline', 'value': bool(germline)})
+        # deletion
+        variants = self.search('categoryvariants', data={'where': filters})
+        return variants['result']
+
+    def match_protein_variant(self, protein_variant, zygosity=None, germline=None):
 
         filters = []
         gene_name = None
+
+        if zygosity is not None:
+            filters.append({'attr': 'zygosity', 'value': zygosity})
+        if germline is not None:
+            filters.append({'attr': 'germline', 'value': bool(germline)})
 
         if test_match(r'^(\w+):p\.([A-Z?])(\d+)([A-Z?*])$', protein_variant):
             # protein substitution/missense variant
@@ -230,10 +270,24 @@ class GraphKB:
             if alt_seq:
                 filters.append(match_pos_clause('untemplatedSeqSize', len(alt_seq)))
                 filters.append(match_clause('untemplatedSeq', alt_seq))
-        else:
-            raise NotImplementedError(
-                'missing logic to handle ({}) variant'.format(protein_variant)
+        elif test_match(r'^(\w+):p.([A-Z?])(\d+)([A-Z?])?fs(\*(\d+))?$', protein_variant):
+            [gene_name, ref_seq, pos, alt_seq, _, truncation] = test_match.groups()
+            filters.extend(
+                [
+                    {'attr': 'break1Start.pos', 'value': pos},
+                    {'attr': 'type.name', 'value': 'frameshift'},
+                ]
             )
+            if ref_seq:
+                filters.append(match_clause('refSeq', ref_seq))
+            # if alt_seq:
+            #     filters.append(match_pos_clause('untemplatedSeqSize', len(alt_seq)))
+            #     filters.append(match_clause('untemplatedSeq', alt_seq))
+            # if truncation:
+            #     filters.append({'attr': 'truncation', 'value': int(truncation)})
+
+        else:
+            raise NotImplementedError(f'missing logic to handle ({protein_variant}) variant')
 
         genes = [g['@rid'] for g in self.search_for_gene(gene_name)]
         filters.append({'attr': 'reference1', 'operator': 'in', 'value': genes})
