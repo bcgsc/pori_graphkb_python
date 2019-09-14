@@ -114,15 +114,28 @@ class GraphKB:
         """Given some gene name, search for it or deprecated/alias forms of it"""
         return self.search('features', data={'search': {'name': [gene_name]}})['result']
 
+    def match_fusion(self, gene1, gene2):
+        genes1 = [g['@rid'] for g in self.search_for_gene(gene1)]
+        genes2 = [g['@rid'] for g in self.search_for_gene(gene2)] if gene2 else None
+        vocab = [t['@rid'] for t in self.get('vocabulary', params={'name': '~fusion'})['result']]
+        # 2. Get the variants related to these genes
+        filters = [
+            {'attr': 'reference1', 'value': genes1, 'operator': 'in'},
+            {'attr': 'reference2', 'value': genes2, 'operator': 'in' if gene2 else 'IS'},
+            {'attr': 'type', 'operator': 'in', 'value': vocab},
+        ]
+        variants = self.search('variants', data={'where': filters})['result']
+        return variants
+
     def match_exon_fusion(self, gene1, gene2, exon1=None, exon2=None):
         genes1 = [g['@rid'] for g in self.search_for_gene(gene1)]
         genes2 = [g['@rid'] for g in self.search_for_gene(gene2)]
-        [vocab] = [t['@rid'] for t in self.get('vocabulary', params={'name': 'fusion'})['result']]
+        vocab = [t['@rid'] for t in self.get('vocabulary', params={'name': '~fusion'})['result']]
         # 2. Get the variants related to these genes
         filters = [
             {'attr': 'reference1', 'value': genes1, 'operator': 'in'},
             {'attr': 'reference2', 'value': genes2, 'operator': 'in'},
-            {'attr': 'type', 'value': vocab},
+            {'attr': 'type', 'value': vocab, 'operator': 'in'},
             {'attr': 'break1Start.pos', 'value': exon1},
             {'attr': 'break2Start.pos', 'value': exon2},
         ]
@@ -169,13 +182,13 @@ class GraphKB:
         """Given some gene name, search for it or deprecated/alias forms of it"""
         return self.search('vocabulary', data={'search': {'name': terms}})['result']
 
-    def gene_annotations(self, gene_name):
+    def gene_annotations(self, gene_name, relevance=['oncogenic', 'tumour suppressive']):
         genes = [g['@rid'].replace(r'^#', '') for g in self.search_for_gene(gene_name)]
         if not genes:
             return {}
         vocab = [
             v['@rid'].replace(r'^#', '')
-            for v in self.get_vocabulary(['oncogenic', 'tumour suppressive'])
+            for v in self.get_vocabulary(relevance)
         ]
         statements = self.get(
             'statements',
