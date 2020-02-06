@@ -47,7 +47,6 @@ class GraphKBConnection:
 
         while True:
             content = self.post('query', data={**requestBody, 'limit': limit, 'skip': len(result)})
-            print(content)
             records = content['result']
             result.extend(records)
             if len(records) < limit or not paginate:
