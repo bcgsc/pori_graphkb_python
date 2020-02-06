@@ -2,8 +2,12 @@ import requests
 import json
 
 
+DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
+DEFAULT_LIMIT = 1000
+
+
 class GraphKBConnection:
-    def __init__(self, url='https://graphkb-api.bcgsc.ca/api'):
+    def __init__(self, url=DEFAULT_URL):
         self.token = None
         self.url = url
         self.username = None
@@ -56,7 +60,7 @@ class GraphKBConnection:
     def refresh_login(self):
         self.login(self.username, self.password)
 
-    def query(self, requestBody={}, paginate=True, limit=1000):
+    def query(self, requestBody={}, paginate=True, limit=DEFAULT_LIMIT):
         result = []
 
         while True:
