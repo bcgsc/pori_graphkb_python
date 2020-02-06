@@ -28,6 +28,8 @@ class GraphKBConnection:
             self.login(self.username, self.password)
             resp = requests.request(method, url, headers=self.headers, **kwargs)
 
+        resp.raise_for_status()
+
         return resp.json()
 
     def post(self, uri, data={}, **kwargs):
