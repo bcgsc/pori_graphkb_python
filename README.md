@@ -1,6 +1,7 @@
 
-# Knowledgebase Match
+# GraphKB (Python)
 
+python adapter for querying the GraphKB API
 
 
 
@@ -11,7 +12,7 @@
 clone this repository
 
 ```
-git clone ssh://git@svn.bcgsc.ca:7999/dat/knowledgebase_match.git
+git clone ssh://git@svn.bcgsc.ca:7999/dat/graphkb_python.git
 cd knowledgebase_match
 ```
 
@@ -33,4 +34,3 @@ pip install -e .[dev]
 ```
 pytest tests
 ```
-
