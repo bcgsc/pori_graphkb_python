@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 # Dependencies required to use your package
-INSTALL_REQS = []
+INSTALL_REQS = ['requests==2.22.0']
 
 # Dependencies required only for running tests
 TEST_REQS = ['pytest', 'pytest-runner', 'pytest-cov']

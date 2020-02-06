@@ -25,7 +25,8 @@ class GraphKBConnection:
 
         if resp.status_code == 401 or resp.status_code == 403:
             # try to re-login if the token expired
-            self.login(self.username, self.password)
+
+            self.refresh_login()
             resp = requests.request(method, url, headers=self.headers, **kwargs)
 
         resp.raise_for_status()
@@ -40,9 +41,20 @@ class GraphKBConnection:
         self.username = username
         self.password = password
 
-        content = self.post('token', data={'username': self.username, 'password': self.password})
+        # use requests package directly to avoid recursion loop on login failure
+        resp = requests.request(
+            url=f'{self.url}/token',
+            method='POST',
+            headers=self.headers,
+            data=json.dumps({'username': username, 'password': password}),
+        )
+        resp.raise_for_status()
+        content = resp.json()
         self.token = content['kbToken']
         self.headers['Authorization'] = self.token
+
+    def refresh_login(self):
+        self.login(self.username, self.password)
 
     def query(self, requestBody={}, paginate=True, limit=1000):
         result = []
@@ -55,3 +67,9 @@ class GraphKBConnection:
                 break
 
         return result
+
+    def parse(self, hgvs_string, requireFeatures=False):
+        content = self.post(
+            'parse', data={'content': hgvs_string, 'requireFeatures': requireFeatures}
+        )
+        return content['result']
