@@ -79,7 +79,7 @@ def get_genes_from_variant_types(conn, types, source_record_ids=[]):
     Args:
         conn (GraphKBConnection): the graphkb connection object
         types (List.<str>): list of names of variant types
-        sources (List.<str>): list of sources ids to filter the
+        source_record_ids (List.<str>): list of sources ids to filter genes by
 
     Returns:
         List.<dict>: gene (Feature) records
