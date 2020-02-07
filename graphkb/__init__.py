@@ -94,3 +94,23 @@ class GraphKBConnection:
             'parse', data={'content': hgvs_string, 'requireFeatures': requireFeatures}
         )
         return content['result']
+
+    def get_records_by_id(self, record_ids):
+        if not record_ids:
+            return []
+        result = self.query({'target': record_ids})
+        if len(record_ids) != len(result):
+            raise AssertionError(
+                f'The number of Ids given ({len(record_ids)}) does not match the number of records fetched ({len(result)})'
+            )
+        return result
+
+    def get_record_by_id(self, record_id):
+        result = self.get_records_by_id([record_id])
+        return result[0]
+
+    def get_source(self, name):
+        source = self.query({'target': 'Source', 'filters': {'name': name}})
+        if len(source) != 1:
+            raise AssertionError(f'Unable to unqiuely identify source with name {name}')
+        return source[0]
