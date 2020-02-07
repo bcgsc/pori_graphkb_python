@@ -7,6 +7,9 @@ bin
 dist
 build
 .pytest_cache
+.coverage
+coverage.xml
+pytest.xml
 
 # common virtual environment names
 venv
