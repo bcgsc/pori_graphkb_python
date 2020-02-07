@@ -15,12 +15,14 @@ GENE_RETURN_PROPERTIES = [
     'sourceId',
     'sourceIdVersion',
     'source.name',
+    'source.@rid',
     'displayName',
     'biotype',
+    'deprecated',
 ]
 
 
-def get_oncokb_gene_list(conn, relevance):
+def _get_oncokb_gene_list(conn, relevance):
     source = conn.get_source(ONCOKB_SOURCE_NAME)['@rid']
 
     statements = conn.query(
@@ -47,31 +49,46 @@ def get_oncokb_gene_list(conn, relevance):
 def get_oncokb_oncogenes(conn):
     """
     Gets the list of oncogenes stored in GraphKB derived from OncoKB
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+
+    Returns:
+        List.<dict>: gene (Feature) records
     """
-    return get_oncokb_gene_list(conn, ONCOGENE)
+    return _get_oncokb_gene_list(conn, ONCOGENE)
 
 
 def get_oncokb_tumour_supressors(conn):
     """
     Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+
+    Returns:
+        List.<dict>: gene (Feature) records
     """
-    return get_oncokb_gene_list(conn, TUMOUR_SUPPRESSIVE)
+    return _get_oncokb_gene_list(conn, TUMOUR_SUPPRESSIVE)
 
 
-def get_genes_in_fusions(conn):
+def get_genes_from_variant_types(conn, types, source_record_ids=[]):
     """
-    Get a list of Genes involved in Fusion/Structural Variants
+    Retrieve a list of Genes which are found in variants on the given types
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+        types (List.<str>): list of names of variant types
+        sources (List.<str>): list of sources ids to filter the
+
+    Returns:
+        List.<dict>: gene (Feature) records
     """
     variants = conn.query(
         {
             'target': 'Variant',
             'filters': [
-                {
-                    'type': {
-                        'target': 'Vocabulary',
-                        'filters': {'name': FUSION_NAMES, 'operator': 'IN'},
-                    }
-                }
+                {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
             ],
             'returnProperties': ['reference1', 'reference2'],
         },
@@ -85,10 +102,10 @@ def get_genes_in_fusions(conn):
         if variant['reference2']:
             genes.add(variant['reference2'])
 
+    filters = [{'biotype': 'gene'}]
+
+    if source_record_ids:
+        filters.append({'source': source_record_ids, 'operator': 'IN'})
     return conn.query(
-        {
-            'target': list(genes),
-            'returnProperties': GENE_RETURN_PROPERTIES,
-            'filters': {'biotype': 'gene'},
-        }
+        {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters}
     )

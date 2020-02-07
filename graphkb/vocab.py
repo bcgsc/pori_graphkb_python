@@ -4,6 +4,14 @@ BASE_REDUCED_EXPRESSION = 'reduced expression'
 
 
 def get_term_tree(conn, base_term_name, **kwargs):
+    """
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+        base_term_name (str): the term to use as the base of the subclass tree
+
+    Returns:
+        List.<dict>: Vocabulary records
+    """
     return conn.query(
         {
             'target': 'Vocabulary',
@@ -17,6 +25,17 @@ def get_term_tree(conn, base_term_name, **kwargs):
 
 
 def get_term_by_name(conn, name, **kwargs):
+    """
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+        name (str): the name of the Vocabulary term to retrieve
+
+    Raises:
+        AssertionError: more than one term or no terms with that name were found
+
+    Returns:
+        List.<dict>: Vocabulary records
+    """
     result = conn.query(
         {
             'target': 'Vocabulary',
