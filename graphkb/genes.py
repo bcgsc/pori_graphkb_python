@@ -1,0 +1,111 @@
+"""
+Methods for retrieving gene annotation lists from GraphKB
+"""
+
+ONCOKB_SOURCE_NAME = 'oncokb'
+ONCOGENE = 'oncogenic'
+TUMOUR_SUPPRESSIVE = 'tumour suppressive'
+
+FUSION_NAMES = ['structural variant', 'fusion']
+
+GENE_RETURN_PROPERTIES = [
+    'name',
+    '@rid',
+    '@class',
+    'sourceId',
+    'sourceIdVersion',
+    'source.name',
+    'source.@rid',
+    'displayName',
+    'biotype',
+    'deprecated',
+]
+
+
+def _get_oncokb_gene_list(conn, relevance):
+    source = conn.get_source(ONCOKB_SOURCE_NAME)['@rid']
+
+    statements = conn.query(
+        {
+            'target': 'Statement',
+            'filters': [
+                {'source': source},
+                {'relevance': {'target': 'Vocabulary', 'filters': {'name': relevance}}},
+            ],
+            'returnProperties': [f'subject.{prop}' for prop in GENE_RETURN_PROPERTIES],
+        },
+        ignore_cache=False,
+    )
+    genes = {}
+
+    for statement in statements:
+        if statement['subject']['biotype'] == 'gene':
+            record_id = statement['subject']['@rid']
+            genes[record_id] = statement['subject']
+
+    return genes.values()
+
+
+def get_oncokb_oncogenes(conn):
+    """
+    Gets the list of oncogenes stored in GraphKB derived from OncoKB
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+
+    Returns:
+        List.<dict>: gene (Feature) records
+    """
+    return _get_oncokb_gene_list(conn, ONCOGENE)
+
+
+def get_oncokb_tumour_supressors(conn):
+    """
+    Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+
+    Returns:
+        List.<dict>: gene (Feature) records
+    """
+    return _get_oncokb_gene_list(conn, TUMOUR_SUPPRESSIVE)
+
+
+def get_genes_from_variant_types(conn, types, source_record_ids=[]):
+    """
+    Retrieve a list of Genes which are found in variants on the given types
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+        types (List.<str>): list of names of variant types
+        source_record_ids (List.<str>): list of sources ids to filter genes by
+
+    Returns:
+        List.<dict>: gene (Feature) records
+    """
+    variants = conn.query(
+        {
+            'target': 'Variant',
+            'filters': [
+                {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
+            ],
+            'returnProperties': ['reference1', 'reference2'],
+        },
+    )
+
+    genes = set()
+
+    for variant in variants:
+        genes.add(variant['reference1'])
+
+        if variant['reference2']:
+            genes.add(variant['reference2'])
+
+    filters = [{'biotype': 'gene'}]
+
+    if source_record_ids:
+        filters.append({'source': source_record_ids, 'operator': 'IN'})
+    return conn.query(
+        {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters}
+    )
