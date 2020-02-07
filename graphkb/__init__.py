@@ -1,6 +1,6 @@
 import requests
 import json
-
+import hashlib
 
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 DEFAULT_LIMIT = 1000
@@ -13,6 +13,7 @@ class GraphKBConnection:
         self.username = None
         self.password = None
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+        self.cache = {}
 
     def request(self, endpoint, method='GET', **kwargs):
         """Request wrapper to handle adding common headers and logging
@@ -60,8 +61,22 @@ class GraphKBConnection:
     def refresh_login(self):
         self.login(self.username, self.password)
 
-    def query(self, requestBody={}, paginate=True, limit=DEFAULT_LIMIT):
+    def query(
+        self,
+        requestBody={},
+        paginate=True,
+        ignore_cache=True,
+        force_refresh=False,
+        limit=DEFAULT_LIMIT,
+    ):
         result = []
+        hash_code = ""
+
+        if not ignore_cache:
+            body = json.dumps(requestBody, sort_keys=True)
+            hash_code = hashlib.md5(f'/query{body}'.encode('utf-8')).hexdigest()
+            if hash_code in self.cache and not force_refresh:
+                return self.cache[hash_code]
 
         while True:
             content = self.post('query', data={**requestBody, 'limit': limit, 'skip': len(result)})
@@ -70,6 +85,8 @@ class GraphKBConnection:
             if len(records) < limit or not paginate:
                 break
 
+        if not ignore_cache:
+            self.cache[hash_code] = result
         return result
 
     def parse(self, hgvs_string, requireFeatures=False):
