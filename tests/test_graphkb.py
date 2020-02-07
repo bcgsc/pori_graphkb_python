@@ -11,7 +11,7 @@ def test_login_ok():
     assert conn.token is not None
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope='module')
 def conn():
     conn = GraphKBConnection()
     conn.login(os.environ['GRAPHKB_USER'], os.environ['GRAPHKB_PASS'])
