@@ -2,7 +2,7 @@ import requests
 import json
 import hashlib
 
-DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
+DEFAULT_URL = 'https://graphkbdev-api.bcgsc.ca/api'  # TODO: change back
 DEFAULT_LIMIT = 1000
 
 
