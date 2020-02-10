@@ -86,9 +86,7 @@ class TestMatchExpressionVariant:
             assert has_prefix(variant_type, DECREASE_PREFIXES)
 
     def test_known_increased_expression(self, conn):
-        matches = match.match_expression_variant(
-            conn, 'CA9', match.INPUT_EXPRESSION_CATEGORIES.UP
-        )
+        matches = match.match_expression_variant(conn, 'CA9', match.INPUT_EXPRESSION_CATEGORIES.UP)
         assert matches
 
         types_selected = {record['type']['name'] for record in matches}
