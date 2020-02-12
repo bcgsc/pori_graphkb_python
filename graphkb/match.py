@@ -10,6 +10,7 @@ INPUT_COPY_CATEGORIES = IterableNamespace(AMP='amplification', GAIN='copy gain',
 INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
     UP='increased expression', DOWN='reduced expression'
 )
+AMBIGUOUS_AA = ['x', '?', 'X']
 
 
 def get_equivalent_features(conn, gene_name):
@@ -95,14 +96,166 @@ def match_expression_variant(conn, gene_name, category):
     return match_category_variant(conn, gene_name, category)
 
 
-def match_hgvs_mutation(conn, hgvs_string):
+def positions_overlap(pos_record, range_start, range_end=None):
+    if pos_record.get('@class', '') == 'CytobandPosition':
+        raise NotImplementedError(
+            'Position comparison for cytoband coordinates is not yet implemented'
+        )
+    pos = pos_record.get('pos', None)
+    if pos is None:
+        return True
+
+    start = range_start.get('pos', None)
+
+    if range_end:
+        end = range_end.get('pos', None)
+
+        if start is not None and pos < start:
+            return False
+        if end is not None and pos > end:
+            return False
+        return True
+    return start is None or pos == start
+
+
+def compare_positional_variants(variant, reference_variant):
+    """
+    Compare 2 variant records from GraphKB to determine if they are equivalent
+
+    Args:
+        variant (dict): the input variant
+        reference_variant (dict): the reference (matched) variant record
+
+    Returns:
+        bool: True if the records are equivalent
+    """
+    if not positions_overlap(
+        variant['break1Start'],
+        reference_variant['break1Start'],
+        reference_variant.get('break1End', None),
+    ):
+        return False
+
+    if 'break2Start' in variant:
+        if 'break2Start' not in reference_variant:
+            return False
+        if not positions_overlap(
+            variant['break2Start'],
+            reference_variant['break2Start'],
+            reference_variant.get('break2End', None),
+        ):
+            return False
+
+    if (
+        variant.get('untemplatedSeq', None) is not None
+        and reference_variant.get('untemplatedSeq', None) is not None
+    ):
+        if (
+            variant.get('untemplatedSeqSize', None) is not None
+            and reference_variant.get('untemplatedSeqSize', None) is not None
+        ):
+            if variant['untemplatedSeqSize'] != reference_variant['untemplatedSeqSize']:
+                return False
+        if (
+            reference_variant['untemplatedSeq'] not in AMBIGUOUS_AA
+            and variant['untemplatedSeq'] not in AMBIGUOUS_AA
+        ):
+            if reference_variant['untemplatedSeq'].lower() != variant['untemplatedSeq'].lower():
+                return False
+        elif len(variant['untemplatedSeq']) != len(reference_variant['untemplatedSeq']):
+            return False
+
+    if (
+        variant.get('refSeq', None) is not None
+        and reference_variant.get('refSeq', None) is not None
+    ):
+        if (
+            reference_variant['refSeq'] not in AMBIGUOUS_AA
+            and variant['refSeq'] not in AMBIGUOUS_AA
+        ):
+            if reference_variant['refSeq'].lower() != variant['refSeq'].lower():
+                return False
+        elif len(variant['refSeq']) != len(reference_variant['refSeq']):
+            return False
+
+    return True
+
+
+def match_positional_variant(conn, variant_string):
     # parse the representation
+    parsed = conn.parse(variant_string)
+
+    if 'break1End' in parsed or 'break2End' in parsed:  # uncertain position
+        raise NotImplementedError(
+            f'Matching does not support uncertain positions ({variant_string}) as input'
+        )
     # disambiguate the gene name
+    gene1 = parsed['reference1']
+    features = convert_to_rid_list(get_equivalent_features(conn, parsed['reference1']))
+
+    if not features:
+        raise ValueError(f'unable to find the gene ({gene1}) or any equivalent representations')
+
+    secondary_features = None
+    if 'reference2' in parsed:
+        gene2 = parsed['reference2']
+        secondary_features = convert_to_rid_list(get_equivalent_features(conn, gene2))
+
+        if not secondary_features:
+            raise ValueError(f'unable to find the gene ({gene2}) or any equivalent representations')
     # disambiguate the variant type
+    types = convert_to_rid_list(get_term_tree(conn, parsed['type']))
+
+    if not types:
+        variant_type = parsed['type']
+        raise ValueError(f'unable to find the term/category ({variant_type}) or any equivalent')
+
     # match the existing mutations (positional)
-    # match the existing category mutations
-    raise NotImplementedError('TODO')
+    query_filters = [
+        {'reference1': features},
+        {'reference2': secondary_features},
+        {'type': types},
+        {'break1Start.@class': parsed['break1Start']['@class']},
+    ]
 
+    filtered = []
 
-def match_structural_variant(conn, fusion_string):
-    raise NotImplementedError('TODO')
+    for row in conn.query(
+        {'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=False
+    ):
+        if compare_positional_variants(parsed, row):
+            filtered.append(row)
+
+    # post filter matches
+    matches = []
+    if filtered:
+        matches = conn.query(
+            {
+                'target': convert_to_rid_list(filtered),
+                'queryType': 'similarTo',
+                'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
+                'treeEdges': ['Infers'],
+            }
+        )
+
+    cat_matches = conn.query(
+        {
+            'target': {
+                'target': 'CategoryVariant',
+                'filters': [
+                    {'reference1': features},
+                    {'type': types},
+                    {'reference2': secondary_features},
+                ],
+            },
+            'queryType': 'similarTo',
+            'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
+            'treeEdges': [],
+        },
+        ignore_cache=False,
+    )
+    result = {}
+    for row in matches + cat_matches:
+        result[row['@rid']] = row
+
+    return list(result.values())

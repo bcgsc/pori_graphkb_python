@@ -58,6 +58,25 @@ class TestMatchCopyVariant:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
 
 
+class TestPositionsOverlap:
+    def test_range_overlaps(self):
+        assert match.positions_overlap({'pos': 3}, {'pos': 2}, {'pos': 5})
+        assert not match.positions_overlap({'pos': 2}, {'pos': 4}, {'pos': 5})
+
+    def test_nonspecific_range_overlaps(self):
+        assert match.positions_overlap({'pos': 2}, {'pos': None}, {'pos': 5})
+        assert match.positions_overlap({'pos': 3}, {'pos': 2}, {'pos': None})
+
+    def test_nonspecific_overlaps(self):
+        assert match.positions_overlap({'pos': None}, {'pos': 1})
+        assert match.positions_overlap({'pos': None}, {'pos': None})
+        assert match.positions_overlap({'pos': 1}, {'pos': None})
+
+    def test_exact_overlaps(self):
+        assert match.positions_overlap({'pos': 1}, {'pos': 1})
+        assert not match.positions_overlap({'pos': 1}, {'pos': 2})
+
+
 class TestMatchExpressionVariant:
     def test_bad_category(self, conn):
         with pytest.raises(ValueError):
@@ -92,3 +111,137 @@ class TestMatchExpressionVariant:
 
         for variant_type in types_selected:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
+
+
+class TestComparePositionalVariants:
+    def test_nonspecific_altseq(self):
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}}, {'break1Start': {'pos': 1}}
+        )
+        # null matches anything
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'}, {'break1Start': {'pos': 1}}
+        )
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}}, {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'}
+        )
+
+    def test_ambiguous_altseq(self):
+        # ambiguous AA matches anything the same length
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'X'},
+        )
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': '?'},
+        )
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'X'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
+        )
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': '?'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
+        )
+
+    def test_altseq_length_mismatch(self):
+        assert not match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': '??'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
+        )
+        assert not match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': '?'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'TT'},
+        )
+
+    def test_nonspecific_refseq(self):
+        # null matches anything
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': 'T'}, {'break1Start': {'pos': 1}}
+        )
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}}, {'break1Start': {'pos': 1}, 'refSeq': 'T'}
+        )
+
+    def test_ambiguous_refseq(self):
+        # ambiguous AA matches anything the same length
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': 'T'}, {'break1Start': {'pos': 1}, 'refSeq': 'X'},
+        )
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': 'T'}, {'break1Start': {'pos': 1}, 'refSeq': '?'},
+        )
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': 'X'}, {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+        )
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': '?'}, {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+        )
+
+    def test_refseq_length_mismatch(self):
+        assert not match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': '??'}, {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+        )
+        assert not match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': '?'}, {'break1Start': {'pos': 1}, 'refSeq': 'TT'},
+        )
+
+    def test_diff_altseq(self):
+        assert not match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'M'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'R'},
+        )
+
+    def test_same_altseq_matches(self):
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'R'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'R'},
+        )
+
+    def test_diff_refseq(self):
+        assert not match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': 'M'}, {'break1Start': {'pos': 1}, 'refSeq': 'R'},
+        )
+
+    def test_same_refseq_matches(self):
+        assert match.compare_positional_variants(
+            {'break1Start': {'pos': 1}, 'refSeq': 'R'}, {'break1Start': {'pos': 1}, 'refSeq': 'R'},
+        )
+
+
+class TestMatchPositionalVariant:
+    def test_known_substitution(self, conn):
+        known = 'KRAS:p.G12D'
+        matches = match.match_positional_variant(conn, known)
+        names = {m['displayName'] for m in matches}
+        assert matches
+        assert known in names
+        assert 'KRAS:p.G12V' not in names
+        assert 'KRAS:p.G12X' in names
+        assert 'chr12:g.25398284C>T' in names
+
+    def test_known_fusion(self, conn):
+        known = '(BCR,ABL1):fusion(e.13,e.3)'
+        matches = match.match_positional_variant(conn, known)
+        names = {m['displayName'] for m in matches}
+        assert matches
+        assert known in names
+        assert 'BCR and ABL1 fusion' in names
+
+    def test_known_indel(self, conn):
+        known = 'EGFR:p.E746_S752delinsI'
+        matches = match.match_positional_variant(conn, known)
+        names = {m['displayName'] for m in matches}
+        assert matches
+        assert known in names
+        assert 'EGFR mutation' in names
+        assert 'EGFR copy variant' not in names
+
+    def test_movel_specific_matches_general(self, conn):
+        novel_specific = 'CDKN2A:p.T18888888888888888888M'
+        matches = match.match_positional_variant(conn, novel_specific)
+        names = {m['displayName'] for m in matches}
+        assert matches
+        assert novel_specific not in names
+        assert 'CDKN2A mutation' in names
