@@ -1,8 +1,3 @@
-BASE_EXPRESSION = 'expression variant'
-BASE_INCREASED_EXPRESSION = 'increased expression'
-BASE_REDUCED_EXPRESSION = 'reduced expression'
-
-
 def get_term_tree(conn, base_term_name, **kwargs):
     """
     Args:
