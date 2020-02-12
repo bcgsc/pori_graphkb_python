@@ -1,4 +1,7 @@
-from .util import IterableNamespace
+"""
+Functions which return Variants from GraphKB which match some input variant definition
+"""
+from .util import IterableNamespace, convert_to_rid_list
 from .constants import GENERIC_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
 from .vocab import get_term_tree
@@ -32,13 +35,13 @@ def match_category_variant(conn, gene_name, category):
         Array.<dict>: List of variant records from GraphKB which match the input
     """
     # disambiguate the gene to find all equivalent representations
-    features = [record['@rid'] for record in get_equivalent_features(conn, gene_name)]
+    features = convert_to_rid_list(get_equivalent_features(conn, gene_name))
 
     if not features:
         raise ValueError(f'unable to find the gene ({gene_name}) or any equivalent representations')
 
     # get the list of terms that we should match
-    terms = get_term_tree(conn, category)
+    terms = convert_to_rid_list(get_term_tree(conn, category))
 
     if not terms:
         raise ValueError(f'unable to find the term/category ({category}) or any equivalent')

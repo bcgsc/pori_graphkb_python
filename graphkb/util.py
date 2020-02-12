@@ -16,3 +16,7 @@ class IterableNamespace(argparse.Namespace):
 
     def __getitem__(self, key):
         return getattr(self, key)
+
+
+def convert_to_rid_list(records):
+    return [record['@rid'] for record in records]
