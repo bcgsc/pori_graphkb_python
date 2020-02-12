@@ -58,7 +58,7 @@ def match_category_variant(conn, gene_name, category):
                 'target': 'CategoryVariant',
                 'filters': [
                     {'reference1': features, 'operator': 'IN'},
-                    {'type': get_term_tree(conn, category), 'operator': 'IN'},
+                    {'type': terms, 'operator': 'IN'},
                 ],
             },
             'queryType': 'similarTo',
