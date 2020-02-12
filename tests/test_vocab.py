@@ -58,6 +58,20 @@ def test_expression_down(conn):
     assert 'reduced rna expression' in names
 
 
+class TestGetEquivalentTerms:
+    def test_gain_excludes_amplification(self, conn):
+        result = vocab.get_equivalent_terms(conn, 'copy gain')
+        names = {row['name'] for row in result}
+        assert 'copy gain' in names
+        assert 'amplification' not in names
+
+    def test_amplification_includes_gain(self, conn):
+        result = vocab.get_equivalent_terms(conn, 'amplification')
+        names = {row['name'] for row in result}
+        assert 'copy gain' in names
+        assert 'amplification' in names
+
+
 def test_oncogenic(conn):
     result = vocab.get_term_by_name(conn, genes.ONCOGENE)
     assert result['name'] == genes.ONCOGENE

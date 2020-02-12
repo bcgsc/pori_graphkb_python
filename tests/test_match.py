@@ -221,6 +221,13 @@ class TestMatchPositionalVariant:
         assert 'KRAS:p.G12X' in names
         assert 'chr12:g.25398284C>T' in names
 
+        known = 'KRAS:p.G13D'
+        matches = match.match_positional_variant(conn, known)
+        names = {m['displayName'] for m in matches}
+        assert matches
+        assert known in names
+        assert 'KRAS:p.?13mut' in names
+
     def test_known_fusion(self, conn):
         known = '(BCR,ABL1):fusion(e.13,e.3)'
         matches = match.match_positional_variant(conn, known)

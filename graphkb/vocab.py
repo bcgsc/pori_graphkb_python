@@ -1,4 +1,20 @@
-def get_term_tree(conn, base_term_name, **kwargs):
+def get_equivalent_terms(conn, base_term_name):
+    return conn.query(
+        {
+            'target': {
+                'target': 'Vocabulary',
+                'queryType': 'descendants',
+                'filters': {'name': base_term_name},
+            },
+            'queryType': 'similarTo',
+            'treeEdges': [],
+            'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
+        },
+        ignore_cache=False,
+    )
+
+
+def get_term_tree(conn, base_term_name):
     """
     Args:
         conn (GraphKBConnection): the graphkb connection object
@@ -22,23 +38,9 @@ def get_term_tree(conn, base_term_name, **kwargs):
             'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
         },
         ignore_cache=False,
-        **kwargs,
     )
     # get all parent terms of the subclass tree and disambiguate them
-    parent_terms = conn.query(
-        {
-            'target': {
-                'target': 'Vocabulary',
-                'queryType': 'descendants',
-                'filters': {'name': base_term_name},
-            },
-            'queryType': 'similarTo',
-            'treeEdges': [],
-            'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
-        },
-        ignore_cache=False,
-        **kwargs,
-    )
+    parent_terms = get_equivalent_terms(conn, base_term_name)
     terms = {}
     # merge the two lists
     for term in child_terms + parent_terms:
