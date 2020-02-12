@@ -44,7 +44,6 @@ class TestMatchCopyVariant:
 
         for variant_type in types_selected:
             assert not has_prefix(variant_type, INCREASE_PREFIXES)
-            assert has_prefix(variant_type, DECREASE_PREFIXES)
 
     def test_known_gain(self, conn):
         matches = match.match_copy_variant(conn, 'KRAS', match.INPUT_COPY_CATEGORIES.GAIN)
@@ -56,7 +55,6 @@ class TestMatchCopyVariant:
         assert match.INPUT_COPY_CATEGORIES.LOSS not in types_selected
 
         for variant_type in types_selected:
-            assert has_prefix(variant_type, INCREASE_PREFIXES)
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
 
 
@@ -83,7 +81,6 @@ class TestMatchExpressionVariant:
 
         for variant_type in types_selected:
             assert not has_prefix(variant_type, INCREASE_PREFIXES)
-            assert has_prefix(variant_type, DECREASE_PREFIXES)
 
     def test_known_increased_expression(self, conn):
         matches = match.match_expression_variant(conn, 'CA9', match.INPUT_EXPRESSION_CATEGORIES.UP)
@@ -94,5 +91,4 @@ class TestMatchExpressionVariant:
         assert match.INPUT_EXPRESSION_CATEGORIES.UP not in types_selected
 
         for variant_type in types_selected:
-            assert has_prefix(variant_type, INCREASE_PREFIXES)
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
