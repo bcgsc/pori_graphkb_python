@@ -6,7 +6,14 @@ from .constants import GENERIC_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
 from .vocab import get_term_tree
 
-INPUT_COPY_CATEGORIES = IterableNamespace(AMP='amplification', GAIN='copy gain', LOSS='copy loss')
+INPUT_COPY_CATEGORIES = IterableNamespace(
+    AMP='amplification',
+    ANY_GAIN='copy gain',
+    ANY_LOSS='copy loss',
+    DEEP='deep deletion',
+    GAIN='low level copy gain',
+    LOSS='shallow deletion',
+)
 INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
     UP='increased expression', DOWN='reduced expression'
 )
