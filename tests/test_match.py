@@ -34,13 +34,13 @@ class TestMatchCopyVariant:
             match.match_copy_variant(conn, 'not a real gene name', match.INPUT_COPY_CATEGORIES.AMP)
 
     def test_known_loss(self, conn):
-        matches = match.match_copy_variant(conn, 'CDKN2A', match.INPUT_COPY_CATEGORIES.LOSS)
+        matches = match.match_copy_variant(conn, 'CDKN2A', match.INPUT_COPY_CATEGORIES.ANY_LOSS)
         assert matches
 
         types_selected = {record['type']['name'] for record in matches}
         zygositys = {record['zygosity'] for record in matches}
 
-        assert match.INPUT_COPY_CATEGORIES.LOSS in types_selected
+        assert match.INPUT_COPY_CATEGORIES.ANY_LOSS in types_selected
         assert match.INPUT_COPY_CATEGORIES.AMP not in types_selected
 
         assert 'homozygous' in zygositys
@@ -49,7 +49,9 @@ class TestMatchCopyVariant:
             assert not has_prefix(variant_type, INCREASE_PREFIXES)
 
     def test_known_loss_zygosity_filtered(self, conn):
-        matches = match.match_copy_variant(conn, 'CDKN2A', match.INPUT_COPY_CATEGORIES.LOSS, True)
+        matches = match.match_copy_variant(
+            conn, 'CDKN2A', match.INPUT_COPY_CATEGORIES.ANY_LOSS, True
+        )
         assert matches
 
         types_selected = {record['type']['name'] for record in matches}
@@ -57,7 +59,7 @@ class TestMatchCopyVariant:
 
         assert 'homozygous' not in zygositys
 
-        assert match.INPUT_COPY_CATEGORIES.LOSS in types_selected
+        assert match.INPUT_COPY_CATEGORIES.ANY_LOSS in types_selected
         assert match.INPUT_COPY_CATEGORIES.AMP not in types_selected
 
         for variant_type in types_selected:
@@ -70,7 +72,7 @@ class TestMatchCopyVariant:
         types_selected = {record['type']['name'] for record in matches}
 
         assert match.INPUT_COPY_CATEGORIES.AMP in types_selected
-        assert match.INPUT_COPY_CATEGORIES.LOSS not in types_selected
+        assert match.INPUT_COPY_CATEGORIES.ANY_LOSS not in types_selected
 
         for variant_type in types_selected:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)

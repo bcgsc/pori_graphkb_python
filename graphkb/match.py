@@ -75,7 +75,7 @@ def match_category_variant(conn, gene_name, category):
     )
 
 
-def match_copy_variant(conn, gene_name, category):
+def match_copy_variant(conn, gene_name, category, drop_homozygous=False):
     """
     Returns a list of variants matching the input variant
 
@@ -83,6 +83,7 @@ def match_copy_variant(conn, gene_name, category):
         conn (GraphKBConnection): the graphkb connection object
         gene_name (str): the name of the gene the variant is in reference to
         category (str): the variant category (ex. copy loss)
+        homozygous (bool): do not match homozygous deletions
 
     Raises:
         ValueError: The input copy category is not recognized
@@ -93,7 +94,11 @@ def match_copy_variant(conn, gene_name, category):
     if category not in INPUT_COPY_CATEGORIES.values():
         raise ValueError(f'not a valid copy variant input category ({category})')
 
-    return match_category_variant(conn, gene_name, category)
+    result = match_category_variant(conn, gene_name, category)
+
+    if drop_homozygous:
+        return [row for row in result if row['zygosity'] != 'homozygous']
+    return result
 
 
 def match_expression_variant(conn, gene_name, category):
