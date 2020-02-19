@@ -1,9 +1,20 @@
-BASE_EXPRESSION = 'expression variant'
-BASE_INCREASED_EXPRESSION = 'increased expression'
-BASE_REDUCED_EXPRESSION = 'reduced expression'
+def get_equivalent_terms(conn, base_term_name):
+    return conn.query(
+        {
+            'target': {
+                'target': 'Vocabulary',
+                'queryType': 'descendants',
+                'filters': {'name': base_term_name},
+            },
+            'queryType': 'similarTo',
+            'treeEdges': [],
+            'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
+        },
+        ignore_cache=False,
+    )
 
 
-def get_term_tree(conn, base_term_name, **kwargs):
+def get_term_tree(conn, base_term_name):
     """
     Args:
         conn (GraphKBConnection): the graphkb connection object
@@ -11,17 +22,31 @@ def get_term_tree(conn, base_term_name, **kwargs):
 
     Returns:
         List.<dict>: Vocabulary records
+
+    Note: this must be done in 2 calls to avoid going up and down the tree in a single query (exclude adjacent siblings)
     """
-    return conn.query(
+    # get all child terms of the subclass tree and disambiguate them
+    child_terms = conn.query(
         {
-            'target': 'Vocabulary',
-            'queryType': 'ancestors',
-            'filters': {'name': base_term_name},
+            'target': {
+                'target': 'Vocabulary',
+                'queryType': 'ancestors',
+                'filters': {'name': base_term_name},
+            },
+            'queryType': 'similarTo',
+            'treeEdges': [],
             'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
         },
         ignore_cache=False,
-        **kwargs,
     )
+    # get all parent terms of the subclass tree and disambiguate them
+    parent_terms = get_equivalent_terms(conn, base_term_name)
+    terms = {}
+    # merge the two lists
+    for term in child_terms + parent_terms:
+        terms[term['@rid']] = term
+
+    return list(terms.values())
 
 
 def get_term_by_name(conn, name, **kwargs):

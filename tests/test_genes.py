@@ -43,7 +43,7 @@ def test_oncokb_tumour_suppressors(conn):
         assert name in names
 
 
-def get_genes_from_variant_types(conn):
+def test_get_genes_from_variant_types(conn):
     result = genes.get_genes_from_variant_types(conn, genes.FUSION_NAMES)
     names = {row['name'] for row in result}
 
