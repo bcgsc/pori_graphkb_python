@@ -83,7 +83,7 @@ def match_copy_variant(conn, gene_name, category, drop_homozygous=False):
         conn (GraphKBConnection): the graphkb connection object
         gene_name (str): the name of the gene the variant is in reference to
         category (str): the variant category (ex. copy loss)
-        homozygous (bool): do not match homozygous deletions
+        drop_homozygous (bool): Drop homozygous matches from the result when true
 
     Raises:
         ValueError: The input copy category is not recognized
@@ -109,6 +109,23 @@ def match_expression_variant(conn, gene_name, category):
 
 
 def positions_overlap(pos_record, range_start, range_end=None):
+    """
+    Check if 2 Position records from GraphKB indicate an overlap
+
+    Note:
+        null values indicate not-specified or any
+
+    Args:
+        pos_record (dict): the record to compare
+        range_start (dict): the position record indicating the start of an uncertainty range
+        range_end (dict, optional): the position record indicating the end of an uncertainty range
+
+    Raises:
+        NotImplementedError: if a cytoband type position is given
+
+    Returns:
+        bool: True if the positions overlap
+    """
     if pos_record.get('@class', '') == 'CytobandPosition':
         raise NotImplementedError(
             'Position comparison for cytoband coordinates is not yet implemented'
