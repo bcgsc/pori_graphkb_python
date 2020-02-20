@@ -1,8 +1,8 @@
-def get_equivalent_terms(conn, base_term_name):
+def get_equivalent_terms(conn, base_term_name, ontology_class='Vocabulary'):
     return conn.query(
         {
             'target': {
-                'target': 'Vocabulary',
+                'target': ontology_class,
                 'queryType': 'descendants',
                 'filters': {'name': base_term_name},
             },
@@ -14,14 +14,16 @@ def get_equivalent_terms(conn, base_term_name):
     )
 
 
-def get_term_tree(conn, base_term_name):
+def get_term_tree(conn, base_term_name, ontology_class='Vocabulary', include_superclasses=True):
     """
     Args:
         conn (GraphKBConnection): the graphkb connection object
         base_term_name (str): the term to use as the base of the subclass tree
+        ontology_class (str): the default class to query. Defaults to 'Vocabulary'
+        include_superclasses (bool): when True the query will include superclasses of the current term
 
     Returns:
-        List.<dict>: Vocabulary records
+        List.<dict>: GraphKB records
 
     Note: this must be done in 2 calls to avoid going up and down the tree in a single query (exclude adjacent siblings)
     """
@@ -29,7 +31,7 @@ def get_term_tree(conn, base_term_name):
     child_terms = conn.query(
         {
             'target': {
-                'target': 'Vocabulary',
+                'target': ontology_class,
                 'queryType': 'ancestors',
                 'filters': {'name': base_term_name},
             },
@@ -40,7 +42,11 @@ def get_term_tree(conn, base_term_name):
         ignore_cache=False,
     )
     # get all parent terms of the subclass tree and disambiguate them
-    parent_terms = get_equivalent_terms(conn, base_term_name)
+    if include_superclasses:
+        parent_terms = get_equivalent_terms(conn, base_term_name, ontology_class)
+    else:
+        parent_terms = []
+
     terms = {}
     # merge the two lists
     for term in child_terms + parent_terms:
@@ -49,7 +55,7 @@ def get_term_tree(conn, base_term_name):
     return list(terms.values())
 
 
-def get_term_by_name(conn, name, **kwargs):
+def get_term_by_name(conn, name, ontology_class='Vocabulary', **kwargs):
     """
     Args:
         conn (GraphKBConnection): the graphkb connection object
@@ -63,7 +69,7 @@ def get_term_by_name(conn, name, **kwargs):
     """
     result = conn.query(
         {
-            'target': 'Vocabulary',
+            'target': ontology_class,
             'filters': {'name': name},
             'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
         },

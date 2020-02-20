@@ -2,7 +2,7 @@
 Functions which return Variants from GraphKB which match some input variant definition
 """
 from .util import IterableNamespace, convert_to_rid_list
-from .constants import GENERIC_RETURN_PROPERTIES
+from .constants import GENERIC_RETURN_PROPERTIES, BASE_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
 from .vocab import get_term_tree
 
@@ -55,7 +55,8 @@ def match_category_variant(conn, gene_name, category):
         raise ValueError(f'unable to find the term/category ({category}) or any equivalent')
 
     return_properties = (
-        [f'type.{p}' for p in GENERIC_RETURN_PROPERTIES]
+        BASE_RETURN_PROPERTIES
+        + [f'type.{p}' for p in GENERIC_RETURN_PROPERTIES]
         + [f'reference1.{p}' for p in GENE_RETURN_PROPERTIES]
         + ['reference2', 'zygosity', 'germline', 'displayName']
     )

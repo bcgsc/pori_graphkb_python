@@ -14,6 +14,7 @@ class GraphKBConnection:
         self.password = None
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
         self.cache = {}
+        self.request_count = 0
 
     def request(self, endpoint, method='GET', **kwargs):
         """Request wrapper to handle adding common headers and logging
@@ -26,12 +27,14 @@ class GraphKBConnection:
             dict: the json response as a pythno dict
         """
         url = f'{self.url}/{endpoint}'
+        self.request_count += 1
         resp = requests.request(method, url, headers=self.headers, **kwargs)
 
         if resp.status_code == 401 or resp.status_code == 403:
             # try to re-login if the token expired
 
             self.refresh_login()
+            self.request_count += 1
             resp = requests.request(method, url, headers=self.headers, **kwargs)
 
         resp.raise_for_status()
@@ -47,6 +50,7 @@ class GraphKBConnection:
         self.password = password
 
         # use requests package directly to avoid recursion loop on login failure
+        self.request_count += 1
         resp = requests.request(
             url=f'{self.url}/token',
             method='POST',
