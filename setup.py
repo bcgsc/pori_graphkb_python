@@ -14,7 +14,7 @@ DEV_REQS = TEST_REQS + DEPLOYMENT_REQS + ['black', 'flake8']
 
 setup(
     name='graphkb',
-    version='0.1.0',
+    version='1.0.0',
     packages=find_packages(),
     install_requires=INSTALL_REQS,
     extras_require={'dev': DEV_REQS, 'deploy': DEPLOYMENT_REQS, 'test': TEST_REQS},
