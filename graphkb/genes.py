@@ -106,6 +106,9 @@ def get_genes_from_variant_types(conn, types, source_record_ids=[]):
 
     if source_record_ids:
         filters.append({'source': source_record_ids, 'operator': 'IN'})
+
+    if not genes:
+        return []
     return conn.query(
         {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters}
     )
