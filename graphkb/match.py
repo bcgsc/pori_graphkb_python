@@ -1,10 +1,13 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
+from typing import List, Dict
+
 from .util import IterableNamespace, convert_to_rid_list
 from .constants import GENERIC_RETURN_PROPERTIES, BASE_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
 from .vocab import get_term_tree
+from . import GraphKBConnection
 
 INPUT_COPY_CATEGORIES = IterableNamespace(
     AMP='amplification',
@@ -20,14 +23,14 @@ INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
 AMBIGUOUS_AA = ['x', '?', 'X']
 
 
-def get_equivalent_features(conn, gene_name):
+def get_equivalent_features(conn: GraphKBConnection, gene_name: str) -> List[Dict]:
     return conn.query(
         {'target': {'target': 'Feature', 'filters': {'name': gene_name}}, 'queryType': 'similarTo'},
         ignore_cache=False,
     )
 
 
-def match_category_variant(conn, gene_name, category):
+def match_category_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
     """
     Returns a list of variants matching the input variant
 
@@ -76,7 +79,9 @@ def match_category_variant(conn, gene_name, category):
     )
 
 
-def match_copy_variant(conn, gene_name, category, drop_homozygous=False):
+def match_copy_variant(
+    conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False
+) -> List[Dict]:
     """
     Returns a list of variants matching the input variant
 
@@ -102,14 +107,14 @@ def match_copy_variant(conn, gene_name, category, drop_homozygous=False):
     return result
 
 
-def match_expression_variant(conn, gene_name, category):
+def match_expression_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
     return match_category_variant(conn, gene_name, category)
 
 
-def positions_overlap(pos_record, range_start, range_end=None):
+def positions_overlap(pos_record: Dict, range_start: Dict, range_end: Dict = None) -> bool:
     """
     Check if 2 Position records from GraphKB indicate an overlap
 
@@ -148,7 +153,7 @@ def positions_overlap(pos_record, range_start, range_end=None):
     return start is None or pos == start
 
 
-def compare_positional_variants(variant, reference_variant):
+def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
     """
     Compare 2 variant records from GraphKB to determine if they are equivalent
 
@@ -211,7 +216,7 @@ def compare_positional_variants(variant, reference_variant):
     return True
 
 
-def match_positional_variant(conn, variant_string):
+def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[Dict]:
     # parse the representation
     parsed = conn.parse(variant_string)
 

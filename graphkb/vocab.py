@@ -1,4 +1,11 @@
-def get_equivalent_terms(conn, base_term_name, ontology_class='Vocabulary'):
+from typing import List, Dict
+
+from . import GraphKBConnection
+
+
+def get_equivalent_terms(
+    conn: GraphKBConnection, base_term_name: str, ontology_class: str = 'Vocabulary'
+) -> List[Dict]:
     return conn.query(
         {
             'target': {
@@ -14,7 +21,12 @@ def get_equivalent_terms(conn, base_term_name, ontology_class='Vocabulary'):
     )
 
 
-def get_term_tree(conn, base_term_name, ontology_class='Vocabulary', include_superclasses=True):
+def get_term_tree(
+    conn: GraphKBConnection,
+    base_term_name: str,
+    ontology_class: str = 'Vocabulary',
+    include_superclasses: bool = True,
+) -> List[Dict]:
     """
     Args:
         conn (GraphKBConnection): the graphkb connection object
@@ -55,7 +67,9 @@ def get_term_tree(conn, base_term_name, ontology_class='Vocabulary', include_sup
     return list(terms.values())
 
 
-def get_term_by_name(conn, name, ontology_class='Vocabulary', **kwargs):
+def get_term_by_name(
+    conn: GraphKBConnection, name: str, ontology_class: str = 'Vocabulary', **kwargs
+) -> Dict:
     """
     Args:
         conn (GraphKBConnection): the graphkb connection object

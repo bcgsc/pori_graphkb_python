@@ -1,4 +1,5 @@
 import argparse
+from typing import Dict, List
 
 
 class IterableNamespace(argparse.Namespace):
@@ -18,5 +19,5 @@ class IterableNamespace(argparse.Namespace):
         return getattr(self, key)
 
 
-def convert_to_rid_list(records):
+def convert_to_rid_list(records: Dict) -> List[str]:
     return [record['@rid'] for record in records]
