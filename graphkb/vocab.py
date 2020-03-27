@@ -79,7 +79,7 @@ def get_term_by_name(
         AssertionError: more than one term or no terms with that name were found
 
     Returns:
-        List.<dict>: Vocabulary records
+        Dict: Vocabulary record
     """
     result = conn.query(
         {
