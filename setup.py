@@ -9,7 +9,7 @@ TEST_REQS = ['pytest', 'pytest-runner', 'pytest-cov']
 # Dependencies required for deploying to an index server
 DEPLOYMENT_REQS = ['twine', 'wheel']
 
-DEV_REQS = TEST_REQS + DEPLOYMENT_REQS + ['black', 'flake8']
+DEV_REQS = TEST_REQS + DEPLOYMENT_REQS + ['black', 'flake8', 'flake8-annotations']
 
 
 setup(
