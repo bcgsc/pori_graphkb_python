@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 cd graphkb;
 mkdir -p ../docs/reference/
 pydocmd simple graphkb++ > ../docs/reference/index.md;
