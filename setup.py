@@ -6,10 +6,12 @@ INSTALL_REQS = ['requests==2.22.0']
 # Dependencies required only for running tests
 TEST_REQS = ['pytest', 'pytest-runner', 'pytest-cov']
 
+DOC_REQS - ['mkdocs', 'pydoc-markdown==2.1.3']
+
 # Dependencies required for deploying to an index server
 DEPLOYMENT_REQS = ['twine', 'wheel']
 
-DEV_REQS = TEST_REQS + DEPLOYMENT_REQS + ['black', 'flake8', 'flake8-annotations']
+DEV_REQS = TEST_REQS + DEPLOYMENT_REQS + ['black', 'flake8', 'flake8-annotations'] + DOC_REQS
 
 
 setup(
