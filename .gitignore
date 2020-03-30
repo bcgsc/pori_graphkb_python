@@ -11,6 +11,8 @@ build
 coverage.xml
 pytest.xml
 htmlcov
+build-docs
+docs/reference
 
 # other
 .~*

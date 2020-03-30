@@ -1,0 +1,13 @@
+site_name: GraphKB Python
+nav:
+  - Home: index.md
+  - Reference:
+      - graphkb: reference/index.md
+      - graphkb.genes: reference/genes.md
+      - graphkb.match: reference/match.md
+      - graphkb.vocab: reference/vocab.md
+theme:
+  name: "material"
+repo_url: https://svn.bcgsc.ca/bitbucket/projects/DAT/repos/graphkb_python
+repo_name: Bitbucket
+site_dir: build-docs
