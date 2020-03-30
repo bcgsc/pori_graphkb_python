@@ -25,7 +25,7 @@ class GraphKBConnection:
             method (str, optional): the http method. Defaults to 'GET'.
 
         Returns:
-            dict: the json response as a pythno dict
+            dict: the json response as a python dict
         """
         url = f'{self.url}/{endpoint}'
         self.request_count += 1
