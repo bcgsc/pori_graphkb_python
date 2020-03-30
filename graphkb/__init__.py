@@ -17,7 +17,7 @@ class GraphKBConnection:
         self.cache = {}
         self.request_count = 0
 
-    def request(self, endpoint: str, method: str = 'GET', **kwargs):
+    def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
         """Request wrapper to handle adding common headers and logging
 
         Args:
