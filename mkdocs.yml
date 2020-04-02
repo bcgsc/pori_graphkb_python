@@ -2,10 +2,11 @@ site_name: GraphKB Python
 nav:
   - Home: index.md
   - Reference:
-      - graphkb: reference/index.md
-      - graphkb.genes: reference/genes.md
-      - graphkb.match: reference/match.md
-      - graphkb.vocab: reference/vocab.md
+      - graphkb: reference/graphkb/__init__.md
+      - graphkb.genes: reference/graphkb/genes.md
+      - graphkb.match: reference/graphkb/match.md
+      - graphkb.util: reference/graphkb/util.md
+      - graphkb.vocab: reference/graphkb/vocab.md
 theme:
   name: "material"
 repo_url: https://svn.bcgsc.ca/bitbucket/projects/DAT/repos/graphkb_python

@@ -20,4 +20,7 @@ class IterableNamespace(argparse.Namespace):
 
 
 def convert_to_rid_list(records: Dict) -> List[str]:
+    """
+    Given a list of records, return their record IDs
+    """
     return [record['@rid'] for record in records]

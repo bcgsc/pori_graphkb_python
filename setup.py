@@ -6,7 +6,7 @@ INSTALL_REQS = ['requests==2.22.0']
 # Dependencies required only for running tests
 TEST_REQS = ['pytest', 'pytest-runner', 'pytest-cov']
 
-DOC_REQS = ['mkdocs', 'pydoc-markdown==2.1.3', 'mkdocs-material']
+DOC_REQS = ['mkdocs', 'markdown_refdocs', 'mkdocs-material']
 
 # Dependencies required for deploying to an index server
 DEPLOYMENT_REQS = ['twine', 'wheel']
@@ -19,7 +19,7 @@ setup(
     version='1.0.0',
     packages=find_packages(),
     install_requires=INSTALL_REQS,
-    extras_require={'dev': DEV_REQS, 'deploy': DEPLOYMENT_REQS, 'test': TEST_REQS},
+    extras_require={'dev': DEV_REQS, 'deploy': DEPLOYMENT_REQS, 'test': TEST_REQS, 'doc': DOC_REQS},
     python_requires='>=3.6',
     author_email='creisle@bcgsc.ca',
     dependency_links=[],
