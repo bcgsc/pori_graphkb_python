@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 import hashlib
 from typing import Dict, List
 
@@ -27,7 +28,7 @@ class GraphKBConnection:
         Returns:
             dict: the json response as a python dict
         """
-        url = f'{self.url}/{endpoint}'
+        url = f"{self.url}/{re.sub(r'^/', '', endpoint)}"
         self.request_count += 1
         resp = requests.request(method, url, headers=self.headers, **kwargs)
 
@@ -38,7 +39,17 @@ class GraphKBConnection:
             self.request_count += 1
             resp = requests.request(method, url, headers=self.headers, **kwargs)
 
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            # try to get more error details
+            message = str(err)
+            try:
+                message += ' ' + resp.json()['message']
+            except Exception:
+                pass
+
+            raise requests.exceptions.HTTPError(message)
 
         return resp.json()
 
