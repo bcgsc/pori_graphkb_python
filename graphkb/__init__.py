@@ -1,7 +1,7 @@
 import requests
 import json
-import re
 import hashlib
+import urllib
 from typing import Dict, List
 
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
@@ -28,7 +28,7 @@ class GraphKBConnection:
         Returns:
             dict: the json response as a python dict
         """
-        url = f"{self.url}/{re.sub(r'^/', '', endpoint)}"
+        url = urllib.parse.urljoin(self.url, endpoint)
         self.request_count += 1
         resp = requests.request(method, url, headers=self.headers, **kwargs)
 
