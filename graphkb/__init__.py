@@ -1,11 +1,29 @@
 import requests
 import json
 import hashlib
-import urllib
 from typing import Dict, List
 
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 DEFAULT_LIMIT = 1000
+
+
+def join_url(base_url: str, *parts: List[str]) -> str:
+    """
+    Join parts of a URL into a full URL
+    """
+    if not parts:
+        return base_url
+
+    if base_url.endswith('/'):
+        base_url = base_url[:-1]
+
+    url = [base_url]
+
+    for part in parts:
+        if not part.startswith('/'):
+            url.append('/')
+        url.append(part)
+    return ''.join(url)
 
 
 class GraphKBConnection:
@@ -28,7 +46,7 @@ class GraphKBConnection:
         Returns:
             dict: the json response as a python dict
         """
-        url = urllib.parse.urljoin(self.url, endpoint)
+        url = join_url(self.url, endpoint)
         self.request_count += 1
         resp = requests.request(method, url, headers=self.headers, **kwargs)
 
