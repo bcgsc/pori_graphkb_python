@@ -7,6 +7,25 @@ DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 DEFAULT_LIMIT = 1000
 
 
+def join_url(base_url: str, *parts: List[str]) -> str:
+    """
+    Join parts of a URL into a full URL
+    """
+    if not parts:
+        return base_url
+
+    if base_url.endswith('/'):
+        base_url = base_url[:-1]
+
+    url = [base_url]
+
+    for part in parts:
+        if not part.startswith('/'):
+            url.append('/')
+        url.append(part)
+    return ''.join(url)
+
+
 class GraphKBConnection:
     def __init__(self, url: str = DEFAULT_URL):
         self.token = None
@@ -27,7 +46,7 @@ class GraphKBConnection:
         Returns:
             dict: the json response as a python dict
         """
-        url = f'{self.url}/{endpoint}'
+        url = join_url(self.url, endpoint)
         self.request_count += 1
         resp = requests.request(method, url, headers=self.headers, **kwargs)
 
@@ -38,7 +57,17 @@ class GraphKBConnection:
             self.request_count += 1
             resp = requests.request(method, url, headers=self.headers, **kwargs)
 
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            # try to get more error details
+            message = str(err)
+            try:
+                message += ' ' + resp.json()['message']
+            except Exception:
+                pass
+
+            raise requests.exceptions.HTTPError(message)
 
         return resp.json()
 
