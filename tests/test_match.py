@@ -268,6 +268,11 @@ class TestMatchPositionalVariant:
         assert known in names
         assert 'BCR and ABL1 fusion' in names
 
+    def test_known_fusion_single_gene_no_match(self, conn):
+        known = '(BCR,?):fusion(e.13,e.?)'
+        matches = match.match_positional_variant(conn, known)
+        assert not matches
+
     def test_known_indel(self, conn):
         known = 'EGFR:p.E746_S752delinsI'
         matches = match.match_positional_variant(conn, known)
