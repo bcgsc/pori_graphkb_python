@@ -229,7 +229,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
         ValueError: One of the genes does not exist in GraphKB
 
     Returns:
-        List[Dict]: [description]
+        A list of matched statement records
     """
     # parse the representation
     parsed = conn.parse(variant_string)
