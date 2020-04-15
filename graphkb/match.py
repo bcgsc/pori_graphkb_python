@@ -217,6 +217,20 @@ def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
 
 
 def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[Dict]:
+    """
+    Given the HGVS+ representation of some positional variant, parse it and match it to
+    annotations in GraphKB
+
+    Args:
+        variant_string: the HGVS+ annotation string
+
+    Raises:
+        NotImplementedError: thrown for uncertain position input (ranges)
+        ValueError: One of the genes does not exist in GraphKB
+
+    Returns:
+        A list of matched statement records
+    """
     # parse the representation
     parsed = conn.parse(variant_string)
 
@@ -232,7 +246,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
         raise ValueError(f'unable to find the gene ({gene1}) or any equivalent representations')
 
     secondary_features = None
-    if 'reference2' in parsed:
+    if parsed.get('reference2', '?') != '?':
         gene2 = parsed['reference2']
         secondary_features = convert_to_rid_list(get_equivalent_features(conn, gene2))
 
