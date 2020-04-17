@@ -23,11 +23,29 @@ INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
 AMBIGUOUS_AA = ['x', '?', 'X']
 
 
+GENE_NAME_CACHE = set()
+
+
 def get_equivalent_features(conn: GraphKBConnection, gene_name: str) -> List[Dict]:
+    if GENE_NAME_CACHE and gene_name not in GENE_NAME_CACHE:
+        return []
     return conn.query(
         {'target': {'target': 'Feature', 'filters': {'name': gene_name}}, 'queryType': 'similarTo'},
         ignore_cache=False,
     )
+
+
+def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
+    genes = conn.query(
+        {
+            'target': 'Feature',
+            'filters': {'biotype': 'gene'},
+            'returnProperties': ['name'],
+            'neighbors': 0,
+        }
+    )
+    for gene in genes:
+        GENE_NAME_CACHE.add(gene['name'])
 
 
 def match_category_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
