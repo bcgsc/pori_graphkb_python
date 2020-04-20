@@ -1,6 +1,8 @@
 """
 Methods for retrieving gene annotation lists from GraphKB
 """
+from typing import List, Dict
+from . import GraphKBConnection
 
 ONCOKB_SOURCE_NAME = 'oncokb'
 ONCOGENE = 'oncogenic'
@@ -22,7 +24,7 @@ GENE_RETURN_PROPERTIES = [
 ]
 
 
-def _get_oncokb_gene_list(conn, relevance):
+def _get_oncokb_gene_list(conn: GraphKBConnection, relevance: str) -> List[Dict]:
     source = conn.get_source(ONCOKB_SOURCE_NAME)['@rid']
 
     statements = conn.query(
@@ -46,7 +48,7 @@ def _get_oncokb_gene_list(conn, relevance):
     return genes.values()
 
 
-def get_oncokb_oncogenes(conn):
+def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Dict]:
     """
     Gets the list of oncogenes stored in GraphKB derived from OncoKB
 
@@ -59,7 +61,7 @@ def get_oncokb_oncogenes(conn):
     return _get_oncokb_gene_list(conn, ONCOGENE)
 
 
-def get_oncokb_tumour_supressors(conn):
+def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Dict]:
     """
     Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB
 
@@ -72,7 +74,9 @@ def get_oncokb_tumour_supressors(conn):
     return _get_oncokb_gene_list(conn, TUMOUR_SUPPRESSIVE)
 
 
-def get_genes_from_variant_types(conn, types, source_record_ids=[]):
+def get_genes_from_variant_types(
+    conn: GraphKBConnection, types: List[str], source_record_ids: List[str] = []
+) -> List[Dict]:
     """
     Retrieve a list of Genes which are found in variants on the given types
 
@@ -106,6 +110,9 @@ def get_genes_from_variant_types(conn, types, source_record_ids=[]):
 
     if source_record_ids:
         filters.append({'source': source_record_ids, 'operator': 'IN'})
+
+    if not genes:
+        return []
     return conn.query(
         {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters}
     )

@@ -1,4 +1,14 @@
-def get_equivalent_terms(conn, base_term_name, ontology_class='Vocabulary'):
+from typing import List, Dict
+
+from . import GraphKBConnection
+
+
+def get_equivalent_terms(
+    conn: GraphKBConnection, base_term_name: str, ontology_class: str = 'Vocabulary'
+) -> List[Dict]:
+    """
+    Get a list of terms equivalent to the current term
+    """
     return conn.query(
         {
             'target': {
@@ -14,8 +24,16 @@ def get_equivalent_terms(conn, base_term_name, ontology_class='Vocabulary'):
     )
 
 
-def get_term_tree(conn, base_term_name, ontology_class='Vocabulary', include_superclasses=True):
+def get_term_tree(
+    conn: GraphKBConnection,
+    base_term_name: str,
+    ontology_class: str = 'Vocabulary',
+    include_superclasses: bool = True,
+) -> List[Dict]:
     """
+    Get terms equivalent to the base term by traversing the subclassOf tree and expanding related
+    alias and cross reference edges
+
     Args:
         conn (GraphKBConnection): the graphkb connection object
         base_term_name (str): the term to use as the base of the subclass tree
@@ -55,8 +73,12 @@ def get_term_tree(conn, base_term_name, ontology_class='Vocabulary', include_sup
     return list(terms.values())
 
 
-def get_term_by_name(conn, name, ontology_class='Vocabulary', **kwargs):
+def get_term_by_name(
+    conn: GraphKBConnection, name: str, ontology_class: str = 'Vocabulary', **kwargs
+) -> Dict:
     """
+    Retrieve a vocaulary term by name
+
     Args:
         conn (GraphKBConnection): the graphkb connection object
         name (str): the name of the Vocabulary term to retrieve
@@ -65,7 +87,10 @@ def get_term_by_name(conn, name, ontology_class='Vocabulary', **kwargs):
         AssertionError: more than one term or no terms with that name were found
 
     Returns:
-        List.<dict>: Vocabulary records
+        Dict: Vocabulary record
+
+    Raises:
+        AssertionError: if the term was not found or more than 1 match was found (expected to be unique)
     """
     result = conn.query(
         {

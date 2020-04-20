@@ -1,10 +1,13 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
+from typing import List, Dict
+
 from .util import IterableNamespace, convert_to_rid_list
 from .constants import GENERIC_RETURN_PROPERTIES, BASE_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
 from .vocab import get_term_tree
+from . import GraphKBConnection
 
 INPUT_COPY_CATEGORIES = IterableNamespace(
     AMP='amplification',
@@ -20,14 +23,32 @@ INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
 AMBIGUOUS_AA = ['x', '?', 'X']
 
 
-def get_equivalent_features(conn, gene_name):
+GENE_NAME_CACHE = set()
+
+
+def get_equivalent_features(conn: GraphKBConnection, gene_name: str) -> List[Dict]:
+    if GENE_NAME_CACHE and gene_name not in GENE_NAME_CACHE:
+        return []
     return conn.query(
         {'target': {'target': 'Feature', 'filters': {'name': gene_name}}, 'queryType': 'similarTo'},
         ignore_cache=False,
     )
 
 
-def match_category_variant(conn, gene_name, category):
+def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
+    genes = conn.query(
+        {
+            'target': 'Feature',
+            'filters': {'biotype': 'gene'},
+            'returnProperties': ['name'],
+            'neighbors': 0,
+        }
+    )
+    for gene in genes:
+        GENE_NAME_CACHE.add(gene['name'])
+
+
+def match_category_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
     """
     Returns a list of variants matching the input variant
 
@@ -76,7 +97,9 @@ def match_category_variant(conn, gene_name, category):
     )
 
 
-def match_copy_variant(conn, gene_name, category, drop_homozygous=False):
+def match_copy_variant(
+    conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False
+) -> List[Dict]:
     """
     Returns a list of variants matching the input variant
 
@@ -102,14 +125,14 @@ def match_copy_variant(conn, gene_name, category, drop_homozygous=False):
     return result
 
 
-def match_expression_variant(conn, gene_name, category):
+def match_expression_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
     return match_category_variant(conn, gene_name, category)
 
 
-def positions_overlap(pos_record, range_start, range_end=None):
+def positions_overlap(pos_record: Dict, range_start: Dict, range_end: Dict = None) -> bool:
     """
     Check if 2 Position records from GraphKB indicate an overlap
 
@@ -148,7 +171,7 @@ def positions_overlap(pos_record, range_start, range_end=None):
     return start is None or pos == start
 
 
-def compare_positional_variants(variant, reference_variant):
+def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
     """
     Compare 2 variant records from GraphKB to determine if they are equivalent
 
@@ -211,7 +234,21 @@ def compare_positional_variants(variant, reference_variant):
     return True
 
 
-def match_positional_variant(conn, variant_string):
+def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[Dict]:
+    """
+    Given the HGVS+ representation of some positional variant, parse it and match it to
+    annotations in GraphKB
+
+    Args:
+        variant_string: the HGVS+ annotation string
+
+    Raises:
+        NotImplementedError: thrown for uncertain position input (ranges)
+        ValueError: One of the genes does not exist in GraphKB
+
+    Returns:
+        A list of matched statement records
+    """
     # parse the representation
     parsed = conn.parse(variant_string)
 
@@ -227,7 +264,7 @@ def match_positional_variant(conn, variant_string):
         raise ValueError(f'unable to find the gene ({gene1}) or any equivalent representations')
 
     secondary_features = None
-    if 'reference2' in parsed:
+    if parsed.get('reference2', '?') != '?':
         gene2 = parsed['reference2']
         secondary_features = convert_to_rid_list(get_equivalent_features(conn, gene2))
 
