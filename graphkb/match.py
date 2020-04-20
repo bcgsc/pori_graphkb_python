@@ -40,12 +40,13 @@ def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
         {
             'target': 'Feature',
             'filters': {'biotype': 'gene'},
-            'returnProperties': ['name'],
+            'returnProperties': ['name', 'sourceId'],
             'neighbors': 0,
         }
     )
     for gene in genes:
         GENE_NAME_CACHE.add(gene['name'])
+        GENE_NAME_CACHE.add(gene['sourceId'])
 
 
 def match_category_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
