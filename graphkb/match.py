@@ -55,7 +55,8 @@ def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
         }
     )
     for gene in genes:
-        GENE_NAME_CACHE.add(gene['name'].lower())
+        if gene['name']:
+            GENE_NAME_CACHE.add(gene['name'].lower())
 
 
 def match_category_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
