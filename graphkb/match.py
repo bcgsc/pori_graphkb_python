@@ -26,8 +26,18 @@ AMBIGUOUS_AA = ['x', '?', 'X']
 GENE_NAME_CACHE = set()
 
 
-def get_equivalent_features(conn: GraphKBConnection, gene_name: str) -> List[Dict]:
-    if GENE_NAME_CACHE and gene_name not in GENE_NAME_CACHE:
+def get_equivalent_features(
+    conn: GraphKBConnection, gene_name: str, ignore_cache: bool = False
+) -> List[Dict]:
+    """
+    Args:
+        gene_name: the gene name to search features by
+        ignore_cache (bool, optional): bypass the cache to always force a new request
+
+    Returns:
+        equivalent feature records
+    """
+    if GENE_NAME_CACHE and gene_name.lower() not in GENE_NAME_CACHE and not ignore_cache:
         return []
     return conn.query(
         {'target': {'target': 'Feature', 'filters': {'name': gene_name}}, 'queryType': 'similarTo'},
@@ -45,7 +55,8 @@ def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
         }
     )
     for gene in genes:
-        GENE_NAME_CACHE.add(gene['name'])
+        if gene['name']:
+            GENE_NAME_CACHE.add(gene['name'].lower())
 
 
 def match_category_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
