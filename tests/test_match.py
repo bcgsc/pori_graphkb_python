@@ -5,6 +5,7 @@ import pytest
 
 from graphkb import GraphKBConnection
 from graphkb import match
+from graphkb.util import FeatureNotFoundError
 
 INCREASE_PREFIXES = ['up', 'increase', 'over', 'gain', 'amp']
 DECREASE_PREFIXES = ['down', 'decrease', 'reduce', 'under', 'loss', 'delet']
@@ -30,7 +31,7 @@ class TestMatchCopyVariant:
             match.match_copy_variant(conn, 'kras', 'not a copy number')
 
     def test_bad_gene_name(self, conn):
-        with pytest.raises(ValueError):
+        with pytest.raises(FeatureNotFoundError):
             match.match_copy_variant(conn, 'not a real gene name', match.INPUT_COPY_CATEGORIES.AMP)
 
     def test_known_loss(self, conn):
@@ -115,7 +116,7 @@ class TestMatchExpressionVariant:
             match.match_expression_variant(conn, 'PTEN', 'not a expression category')
 
     def test_bad_gene_name(self, conn):
-        with pytest.raises(ValueError):
+        with pytest.raises(FeatureNotFoundError):
             match.match_expression_variant(
                 conn, 'not a real gene name', match.INPUT_EXPRESSION_CATEGORIES.UP
             )
