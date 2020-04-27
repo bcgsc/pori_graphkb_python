@@ -1,15 +1,23 @@
 from typing import List, Dict
 
 from . import GraphKBConnection
+from .util import convert_to_rid_list
 
 
 def get_equivalent_terms(
-    conn: GraphKBConnection, base_term_name: str, ontology_class: str = 'Vocabulary'
+    conn: GraphKBConnection,
+    base_term_name: str,
+    root_term: str = '',
+    ontology_class: str = 'Vocabulary',
 ) -> List[Dict]:
     """
-    Get a list of terms equivalent to the current term
+    Get a list of terms equivalent to the current term up to the root term
+
+    Args:
+        base_term_name: the name to get superclasses of
+        root_term: the parent term to stop at
     """
-    return conn.query(
+    base_term_parents = conn.query(
         {
             'target': {
                 'target': ontology_class,
@@ -22,11 +30,42 @@ def get_equivalent_terms(
         },
         ignore_cache=False,
     )
+    if root_term:
+        exclude = set(
+            convert_to_rid_list(
+                conn.query(
+                    {
+                        'target': {
+                            'target': ontology_class,
+                            'queryType': 'descendants',
+                            'filters': {'name': root_term},
+                        },
+                        'queryType': 'similarTo',
+                        'treeEdges': [],
+                        'returnProperties': [
+                            'sourceId',
+                            'sourceIdVersion',
+                            'deprecated',
+                            'name',
+                            '@rid',
+                        ],
+                    },
+                    ignore_cache=False,
+                )
+            )
+        )
+        return [
+            term
+            for term in base_term_parents
+            if term['@rid'] not in exclude or term['name'] == root_term
+        ]
+    return base_term_parents
 
 
 def get_term_tree(
     conn: GraphKBConnection,
     base_term_name: str,
+    root_term: str = '',
     ontology_class: str = 'Vocabulary',
     include_superclasses: bool = True,
 ) -> List[Dict]:
@@ -61,7 +100,9 @@ def get_term_tree(
     )
     # get all parent terms of the subclass tree and disambiguate them
     if include_superclasses:
-        parent_terms = get_equivalent_terms(conn, base_term_name, ontology_class)
+        parent_terms = get_equivalent_terms(
+            conn, base_term_name, root_term=root_term, ontology_class=ontology_class
+        )
     else:
         parent_terms = []
 
