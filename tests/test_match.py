@@ -1,5 +1,6 @@
 import os
 import re
+from typing import List
 
 import pytest
 
@@ -9,9 +10,10 @@ from graphkb.util import FeatureNotFoundError
 
 INCREASE_PREFIXES = ['up', 'increase', 'over', 'gain', 'amp']
 DECREASE_PREFIXES = ['down', 'decrease', 'reduce', 'under', 'loss', 'delet']
+GENERAL_MUTATION = 'mutation'
 
 
-def has_prefix(word, prefixes):
+def has_prefix(word: str, prefixes: List[str]) -> bool:
     for prefix in prefixes:
         if re.search(r'\b' + prefix, word):
             return True
@@ -19,7 +21,7 @@ def has_prefix(word, prefixes):
 
 
 @pytest.fixture(scope='module')
-def conn():
+def conn() -> GraphKBConnection:
     conn = GraphKBConnection()
     conn.login(os.environ['GRAPHKB_USER'], os.environ['GRAPHKB_PASS'])
     return conn
@@ -43,6 +45,7 @@ class TestMatchCopyVariant:
 
         assert match.INPUT_COPY_CATEGORIES.ANY_LOSS in types_selected
         assert match.INPUT_COPY_CATEGORIES.AMP not in types_selected
+        assert GENERAL_MUTATION not in types_selected
 
         assert 'homozygous' in zygositys
 
@@ -60,6 +63,7 @@ class TestMatchCopyVariant:
 
         assert 'homozygous' not in zygositys
 
+        assert GENERAL_MUTATION not in types_selected
         assert match.INPUT_COPY_CATEGORIES.ANY_LOSS in types_selected
         assert match.INPUT_COPY_CATEGORIES.AMP not in types_selected
 
@@ -72,6 +76,7 @@ class TestMatchCopyVariant:
 
         types_selected = {record['type']['name'] for record in matches}
 
+        assert GENERAL_MUTATION not in types_selected
         assert match.INPUT_COPY_CATEGORIES.AMP in types_selected
         assert match.INPUT_COPY_CATEGORIES.ANY_LOSS not in types_selected
 
@@ -80,12 +85,12 @@ class TestMatchCopyVariant:
 
     def test_low_gain_excludes_amplification(self, conn):
         matches = match.match_copy_variant(conn, 'KRAS', match.INPUT_COPY_CATEGORIES.GAIN)
-        assert matches
 
         types_selected = {record['type']['name'] for record in matches}
 
         assert match.INPUT_COPY_CATEGORIES.AMP not in types_selected
         assert match.INPUT_COPY_CATEGORIES.LOSS not in types_selected
+        assert GENERAL_MUTATION not in types_selected
 
         for variant_type in types_selected:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
@@ -130,6 +135,7 @@ class TestMatchExpressionVariant:
         types_selected = {record['type']['name'] for record in matches}
 
         assert match.INPUT_EXPRESSION_CATEGORIES.UP not in types_selected
+        assert GENERAL_MUTATION not in types_selected
 
         for variant_type in types_selected:
             assert not has_prefix(variant_type, INCREASE_PREFIXES)
@@ -141,6 +147,7 @@ class TestMatchExpressionVariant:
         types_selected = {record['type']['name'] for record in matches}
 
         assert match.INPUT_EXPRESSION_CATEGORIES.UP not in types_selected
+        assert GENERAL_MUTATION not in types_selected
 
         for variant_type in types_selected:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
@@ -264,6 +271,8 @@ class TestMatchPositionalVariant:
     def test_known_fusion(self, conn):
         known = '(BCR,ABL1):fusion(e.13,e.3)'
         matches = match.match_positional_variant(conn, known)
+        types_selected = [m['type']['name'] for m in matches]
+        assert GENERAL_MUTATION not in types_selected
         names = {m['displayName'] for m in matches}
         assert matches
         assert known in names

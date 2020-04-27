@@ -22,6 +22,28 @@ INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
 )
 AMBIGUOUS_AA = ['x', '?', 'X']
 
+VARIANT_RETURN_PROPERTIES = (
+    BASE_RETURN_PROPERTIES
+    + [f'type.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'reference1.{p}' for p in GENE_RETURN_PROPERTIES]
+    + [f'reference2.{p}' for p in GENE_RETURN_PROPERTIES]
+    + ['zygosity', 'germline', 'displayName']
+)
+
+POS_VARIANT_RETURN_PROPERTIES = VARIANT_RETURN_PROPERTIES + [
+    'break1Start',
+    'break1End',
+    'break2Start',
+    'break2End',
+    'break1Repr',
+    'break2Repr',
+    'refSeq',
+    'untemplatedSeq',
+    'untemplatedSeqSize',
+    'truncation',
+    'assembly',
+]
+
 
 GENE_NAME_CACHE = set()
 
@@ -59,7 +81,9 @@ def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
             GENE_NAME_CACHE.add(gene['name'].lower())
 
 
-def match_category_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
+def match_category_variant(
+    conn: GraphKBConnection, gene_name: str, category: str, root_term: str = ''
+) -> List[Dict]:
     """
     Returns a list of variants matching the input variant
 
@@ -83,17 +107,11 @@ def match_category_variant(conn: GraphKBConnection, gene_name: str, category: st
         )
 
     # get the list of terms that we should match
-    terms = convert_to_rid_list(get_term_tree(conn, category))
+    terms = convert_to_rid_list(get_term_tree(conn, category, root_term))
 
     if not terms:
         raise ValueError(f'unable to find the term/category ({category}) or any equivalent')
 
-    return_properties = (
-        BASE_RETURN_PROPERTIES
-        + [f'type.{p}' for p in GENERIC_RETURN_PROPERTIES]
-        + [f'reference1.{p}' for p in GENE_RETURN_PROPERTIES]
-        + ['reference2', 'zygosity', 'germline', 'displayName']
-    )
     # find the variant list
     return conn.query(
         {
@@ -105,7 +123,7 @@ def match_category_variant(conn: GraphKBConnection, gene_name: str, category: st
                 ],
             },
             'queryType': 'similarTo',
-            'returnProperties': return_properties,
+            'returnProperties': VARIANT_RETURN_PROPERTIES,
         }
     )
 
@@ -131,7 +149,7 @@ def match_copy_variant(
     if category not in INPUT_COPY_CATEGORIES.values():
         raise ValueError(f'not a valid copy variant input category ({category})')
 
-    result = match_category_variant(conn, gene_name, category)
+    result = match_category_variant(conn, gene_name, category, root_term='copy variant')
 
     if drop_homozygous:
         return [row for row in result if row['zygosity'] != 'homozygous']
@@ -142,7 +160,7 @@ def match_expression_variant(conn: GraphKBConnection, gene_name: str, category: 
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
-    return match_category_variant(conn, gene_name, category)
+    return match_category_variant(conn, gene_name, category, root_term='expression variant')
 
 
 def positions_overlap(pos_record: Dict, range_start: Dict, range_end: Dict = None) -> bool:
@@ -288,7 +306,11 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
                 f'unable to find the gene ({gene2}) or any equivalent representations'
             )
     # disambiguate the variant type
-    types = convert_to_rid_list(get_term_tree(conn, parsed['type']))
+    types = convert_to_rid_list(
+        get_term_tree(
+            conn, parsed['type'], root_term='structural variant' if secondary_features else ''
+        )
+    )
 
     if not types:
         variant_type = parsed['type']
@@ -319,6 +341,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
                 'queryType': 'similarTo',
                 'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
                 'treeEdges': ['Infers'],
+                'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
             }
         )
 
@@ -335,6 +358,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
             'queryType': 'similarTo',
             'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
             'treeEdges': [],
+            'returnProperties': VARIANT_RETURN_PROPERTIES,
         },
         ignore_cache=False,
     )
