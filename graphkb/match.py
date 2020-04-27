@@ -22,6 +22,28 @@ INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
 )
 AMBIGUOUS_AA = ['x', '?', 'X']
 
+VARIANT_RETURN_PROPERTIES = (
+    BASE_RETURN_PROPERTIES
+    + [f'type.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'reference1.{p}' for p in GENE_RETURN_PROPERTIES]
+    + [f'reference2.{p}' for p in GENE_RETURN_PROPERTIES]
+    + ['zygosity', 'germline', 'displayName']
+)
+
+POS_VARIANT_RETURN_PROPERTIES = VARIANT_RETURN_PROPERTIES + [
+    'break1Start',
+    'break1End',
+    'break2Start',
+    'break2End',
+    'break1Repr',
+    'break2Repr',
+    'refSeq',
+    'untemplatedSeq',
+    'untemplatedSeqSize',
+    'truncation',
+    'assembly',
+]
+
 
 GENE_NAME_CACHE = set()
 
@@ -90,12 +112,6 @@ def match_category_variant(
     if not terms:
         raise ValueError(f'unable to find the term/category ({category}) or any equivalent')
 
-    return_properties = (
-        BASE_RETURN_PROPERTIES
-        + [f'type.{p}' for p in GENERIC_RETURN_PROPERTIES]
-        + [f'reference1.{p}' for p in GENE_RETURN_PROPERTIES]
-        + ['reference2', 'zygosity', 'germline', 'displayName']
-    )
     # find the variant list
     return conn.query(
         {
@@ -107,7 +123,7 @@ def match_category_variant(
                 ],
             },
             'queryType': 'similarTo',
-            'returnProperties': return_properties,
+            'returnProperties': VARIANT_RETURN_PROPERTIES,
         }
     )
 
@@ -325,6 +341,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
                 'queryType': 'similarTo',
                 'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
                 'treeEdges': ['Infers'],
+                'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
             }
         )
 
@@ -341,6 +358,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
             'queryType': 'similarTo',
             'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
             'treeEdges': [],
+            'returnProperties': VARIANT_RETURN_PROPERTIES,
         },
         ignore_cache=False,
     )

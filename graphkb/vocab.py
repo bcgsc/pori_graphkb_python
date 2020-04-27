@@ -5,7 +5,10 @@ from .util import convert_to_rid_list
 
 
 def get_equivalent_terms(
-    conn: GraphKBConnection, base_term_name: str, root_term: str, ontology_class: str = 'Vocabulary'
+    conn: GraphKBConnection,
+    base_term_name: str,
+    root_term: str = '',
+    ontology_class: str = 'Vocabulary',
 ) -> List[Dict]:
     """
     Get a list of terms equivalent to the current term up to the root term
@@ -62,7 +65,7 @@ def get_equivalent_terms(
 def get_term_tree(
     conn: GraphKBConnection,
     base_term_name: str,
-    root_term: str,
+    root_term: str = '',
     ontology_class: str = 'Vocabulary',
     include_superclasses: bool = True,
 ) -> List[Dict]:
