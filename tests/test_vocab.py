@@ -2,10 +2,10 @@
 Tests here depend on specific data in GraphKB which can change. To avoid this, expected/stable values are chosen
 """
 import os
+
 import pytest
 
-from graphkb import GraphKBConnection
-from graphkb import vocab, genes
+from graphkb import GraphKBConnection, genes, vocab
 
 BASE_EXPRESSION = 'expression variant'
 BASE_INCREASED_EXPRESSION = 'increased expression'
