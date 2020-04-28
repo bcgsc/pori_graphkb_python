@@ -1,8 +1,7 @@
 import hashlib
 import json
-from typing import Dict, List
-
 import requests
+from typing import Dict, List
 
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 DEFAULT_LIMIT = 1000
