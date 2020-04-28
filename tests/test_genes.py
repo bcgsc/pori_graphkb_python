@@ -2,10 +2,10 @@
 Tests here depend on specific data in GraphKB which can change. To avoid this, expected/stable values are chosen
 """
 import os
+
 import pytest
 
-from graphkb import GraphKBConnection
-from graphkb import genes
+from graphkb import GraphKBConnection, genes
 
 CANONICAL_ONCOGENES = ['kras', 'nras', 'alk']
 CANONICAL_TS = ['cdkn2a', 'tp53']

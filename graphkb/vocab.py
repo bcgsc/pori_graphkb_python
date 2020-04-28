@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Dict, List
 
 from . import GraphKBConnection
 from .util import convert_to_rid_list

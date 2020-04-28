@@ -1,13 +1,13 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
-from typing import List, Dict
+from typing import Dict, List
 
-from .util import IterableNamespace, convert_to_rid_list, FeatureNotFoundError
-from .constants import GENERIC_RETURN_PROPERTIES, BASE_RETURN_PROPERTIES
-from .genes import GENE_RETURN_PROPERTIES
-from .vocab import get_term_tree
 from . import GraphKBConnection
+from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
+from .genes import GENE_RETURN_PROPERTIES
+from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list
+from .vocab import get_term_tree
 
 INPUT_COPY_CATEGORIES = IterableNamespace(
     AMP='amplification',
