@@ -1,7 +1,8 @@
 """
 Methods for retrieving gene annotation lists from GraphKB
 """
-from typing import List, Dict
+from typing import Dict, List
+
 from . import GraphKBConnection
 
 ONCOKB_SOURCE_NAME = 'oncokb'

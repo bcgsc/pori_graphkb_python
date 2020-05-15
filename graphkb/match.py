@@ -1,13 +1,13 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
-from typing import List, Dict
+from typing import Dict, List
 
-from .util import IterableNamespace, convert_to_rid_list, FeatureNotFoundError
-from .constants import GENERIC_RETURN_PROPERTIES, BASE_RETURN_PROPERTIES
-from .genes import GENE_RETURN_PROPERTIES
-from .vocab import get_term_tree
 from . import GraphKBConnection
+from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
+from .genes import GENE_RETURN_PROPERTIES
+from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list
+from .vocab import get_term_tree
 
 INPUT_COPY_CATEGORIES = IterableNamespace(
     AMP='amplification',
@@ -49,7 +49,10 @@ GENE_NAME_CACHE = set()
 
 
 def get_equivalent_features(
-    conn: GraphKBConnection, gene_name: str, ignore_cache: bool = False
+    conn: GraphKBConnection,
+    gene_name: str,
+    ignore_cache: bool = False,
+    gene_is_record_id: bool = False,
 ) -> List[Dict]:
     """
     Args:
@@ -59,6 +62,9 @@ def get_equivalent_features(
     Returns:
         equivalent feature records
     """
+    if gene_is_record_id:
+        return conn.query({'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=False)
+
     if GENE_NAME_CACHE and gene_name.lower() not in GENE_NAME_CACHE and not ignore_cache:
         return []
     return conn.query(
@@ -82,7 +88,11 @@ def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
 
 
 def match_category_variant(
-    conn: GraphKBConnection, gene_name: str, category: str, root_term: str = ''
+    conn: GraphKBConnection,
+    gene_name: str,
+    category: str,
+    root_term: str = '',
+    gene_is_record_id: bool = False,
 ) -> List[Dict]:
     """
     Returns a list of variants matching the input variant
@@ -91,7 +101,7 @@ def match_category_variant(
         conn (GraphKBConnection): the graphkb connection object
         gene_name (str): the name of the gene the variant is in reference to
         category (str): the variant category (ex. copy loss)
-
+        gene_is_record_id: the gene_name is a record ID to be expanded not a feature name
     Raises:
         FeatureNotFoundError: The gene could not be found in GraphKB
 
@@ -99,7 +109,9 @@ def match_category_variant(
         Array.<dict>: List of variant records from GraphKB which match the input
     """
     # disambiguate the gene to find all equivalent representations
-    features = convert_to_rid_list(get_equivalent_features(conn, gene_name))
+    features = convert_to_rid_list(
+        get_equivalent_features(conn, gene_name, gene_is_record_id=gene_is_record_id)
+    )
 
     if not features:
         raise FeatureNotFoundError(

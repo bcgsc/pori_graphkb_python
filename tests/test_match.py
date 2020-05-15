@@ -4,8 +4,7 @@ from typing import List
 
 import pytest
 
-from graphkb import GraphKBConnection
-from graphkb import match
+from graphkb import GraphKBConnection, match
 from graphkb.util import FeatureNotFoundError
 
 INCREASE_PREFIXES = ['up', 'increase', 'over', 'gain', 'amp']
