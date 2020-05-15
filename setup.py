@@ -22,7 +22,7 @@ setup(
     packages=find_packages(),
     install_requires=INSTALL_REQS,
     extras_require={'dev': DEV_REQS, 'deploy': DEPLOYMENT_REQS, 'test': TEST_REQS, 'doc': DOC_REQS},
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     author_email='creisle@bcgsc.ca',
     dependency_links=[],
     test_suite='tests',

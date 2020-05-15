@@ -1,11 +1,12 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from . import GraphKBConnection
 from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
+from .types import VariantRecord, PositionalVariant, Position
 from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list
 from .vocab import get_term_tree
 
@@ -73,7 +74,7 @@ def get_equivalent_features(
     )
 
 
-def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
+def cache_gene_names(conn: GraphKBConnection):
     genes = conn.query(
         {
             'target': 'Feature',
@@ -93,7 +94,7 @@ def match_category_variant(
     category: str,
     root_term: str = '',
     gene_is_record_id: bool = False,
-) -> List[Dict]:
+) -> List[VariantRecord]:
     """
     Returns a list of variants matching the input variant
 
@@ -142,7 +143,7 @@ def match_category_variant(
 
 def match_copy_variant(
     conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False
-) -> List[Dict]:
+) -> List[VariantRecord]:
     """
     Returns a list of variants matching the input variant
 
@@ -168,14 +169,16 @@ def match_copy_variant(
     return result
 
 
-def match_expression_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
+def match_expression_variant(
+    conn: GraphKBConnection, gene_name: str, category: str
+) -> List[VariantRecord]:
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
     return match_category_variant(conn, gene_name, category, root_term='expression variant')
 
 
-def positions_overlap(pos_record: Dict, range_start: Dict, range_end: Dict = None) -> bool:
+def positions_overlap(pos_record: Position, range_start: Position, range_end: Optional[Position] = None) -> bool:
     """
     Check if 2 Position records from GraphKB indicate an overlap
 
@@ -214,7 +217,7 @@ def positions_overlap(pos_record: Dict, range_start: Dict, range_end: Dict = Non
     return start is None or pos == start
 
 
-def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
+def compare_positional_variants(variant: PositionalVariant, reference_variant: PositionalVariant) -> bool:
     """
     Compare 2 variant records from GraphKB to determine if they are equivalent
 
@@ -277,7 +280,7 @@ def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
     return True
 
 
-def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[Dict]:
+def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[VariantRecord]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
     annotations in GraphKB
@@ -345,7 +348,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
             filtered.append(row)
 
     # post filter matches
-    matches = []
+    matches: List[VariantRecord] = []
     if filtered:
         matches = conn.query(
             {
@@ -357,7 +360,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
             }
         )
 
-    cat_matches = conn.query(
+    cat_matches: List[VariantRecord] = conn.query(
         {
             'target': {
                 'target': 'CategoryVariant',
@@ -374,7 +377,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
         },
         ignore_cache=False,
     )
-    result = {}
+    result: Dict[str, VariantRecord] = {}
     for row in matches + cat_matches:
         result[row['@rid']] = row
 

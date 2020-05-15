@@ -2,6 +2,7 @@ from typing import Dict, List
 
 from . import GraphKBConnection
 from .util import convert_to_rid_list
+from .types import Ontology
 
 
 def get_equivalent_terms(
@@ -9,7 +10,7 @@ def get_equivalent_terms(
     base_term_name: str,
     root_term: str = '',
     ontology_class: str = 'Vocabulary',
-) -> List[Dict]:
+) -> List[Ontology]:
     """
     Get a list of terms equivalent to the current term up to the root term
 
@@ -68,7 +69,7 @@ def get_term_tree(
     root_term: str = '',
     ontology_class: str = 'Vocabulary',
     include_superclasses: bool = True,
-) -> List[Dict]:
+) -> List[Ontology]:
     """
     Get terms equivalent to the base term by traversing the subclassOf tree and expanding related
     alias and cross reference edges
@@ -116,7 +117,7 @@ def get_term_tree(
 
 def get_term_by_name(
     conn: GraphKBConnection, name: str, ontology_class: str = 'Vocabulary', **kwargs
-) -> Dict:
+) -> Ontology:
     """
     Retrieve a vocaulary term by name
 
