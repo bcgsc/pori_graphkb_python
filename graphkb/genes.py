@@ -1,10 +1,10 @@
 """
 Methods for retrieving gene annotation lists from GraphKB
 """
-from typing import Dict, List
+from typing import Any, Dict, List, cast
 
-from .types import Ontology
 from . import GraphKBConnection
+from .types import Ontology
 
 ONCOKB_SOURCE_NAME = 'oncokb'
 ONCOGENE = 'oncogenic'
@@ -40,14 +40,14 @@ def _get_oncokb_gene_list(conn: GraphKBConnection, relevance: str) -> List[Ontol
         },
         ignore_cache=False,
     )
-    genes = {}
+    genes: Dict[str, Ontology] = {}
 
     for statement in statements:
         if statement['subject']['biotype'] == 'gene':
             record_id = statement['subject']['@rid']
             genes[record_id] = statement['subject']
 
-    return genes.values()
+    return [gene for gene in genes.values()]
 
 
 def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
@@ -108,13 +108,17 @@ def get_genes_from_variant_types(
         if variant['reference2']:
             genes.add(variant['reference2'])
 
-    filters = [{'biotype': 'gene'}]
+    filters: List[Dict[str, Any]] = [{'biotype': 'gene'}]
 
     if source_record_ids:
         filters.append({'source': source_record_ids, 'operator': 'IN'})
 
     if not genes:
         return []
-    return conn.query(
-        {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters}
+    result = cast(
+        List[Ontology],
+        conn.query(
+            {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters}
+        ),
     )
+    return result

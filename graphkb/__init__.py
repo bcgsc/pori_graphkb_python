@@ -1,13 +1,16 @@
 import hashlib
 import json
+from typing import Any, Dict, List, cast
+
 import requests
-from typing import Dict, List
+
+from .types import ParsedVariant, Record
 
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 DEFAULT_LIMIT = 1000
 
 
-def join_url(base_url: str, *parts: List[str]) -> str:
+def join_url(base_url: str, *parts) -> str:
     """
     Join parts of a URL into a full URL
     """
@@ -28,12 +31,12 @@ def join_url(base_url: str, *parts: List[str]) -> str:
 
 class GraphKBConnection:
     def __init__(self, url: str = DEFAULT_URL):
-        self.token = None
+        self.token = ''
         self.url = url
-        self.username = None
-        self.password = None
+        self.username = ''
+        self.password = ''
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-        self.cache = {}
+        self.cache: Dict[str, List[Any]] = {}
         self.request_count = 0
 
     def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
@@ -102,8 +105,8 @@ class GraphKBConnection:
         ignore_cache: bool = True,
         force_refresh: bool = False,
         limit: int = DEFAULT_LIMIT,
-    ) -> List[Dict]:
-        result = []
+    ) -> List[Record]:
+        result: List[Record] = []
         hash_code = ""
 
         if not ignore_cache:
@@ -123,13 +126,13 @@ class GraphKBConnection:
             self.cache[hash_code] = result
         return result
 
-    def parse(self, hgvs_string: str, requireFeatures: bool = False) -> Dict:
+    def parse(self, hgvs_string: str, requireFeatures: bool = False) -> ParsedVariant:
         content = self.post(
             'parse', data={'content': hgvs_string, 'requireFeatures': requireFeatures}
         )
-        return content['result']
+        return cast(ParsedVariant, content['result'])
 
-    def get_records_by_id(self, record_ids: List[str]) -> List[Dict]:
+    def get_records_by_id(self, record_ids: List[str]) -> List[Record]:
         if not record_ids:
             return []
         result = self.query({'target': record_ids})
@@ -139,11 +142,11 @@ class GraphKBConnection:
             )
         return result
 
-    def get_record_by_id(self, record_id: str) -> Dict:
+    def get_record_by_id(self, record_id: str) -> Record:
         result = self.get_records_by_id([record_id])
         return result[0]
 
-    def get_source(self, name: str) -> Dict:
+    def get_source(self, name: str) -> Record:
         source = self.query({'target': 'Source', 'filters': {'name': name}})
         if len(source) != 1:
             raise AssertionError(f'Unable to unqiuely identify source with name {name}')

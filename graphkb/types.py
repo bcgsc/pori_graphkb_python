@@ -19,7 +19,7 @@ class Ontology(Record):
 OntologyLink = Union[str, Ontology]
 
 
-class Position(EmbeddedRecord):
+class BasicPosition(EmbeddedRecord):
     pos: int
 
 
@@ -29,13 +29,33 @@ class CytobandPosition(EmbeddedRecord):
     minorBand: str
 
 
-class VariantRecord(Record):
+Position = Union[BasicPosition, CytobandPosition]
+
+
+class Variant(Record):
     reference1: OntologyLink
     reference2: Optional[OntologyLink]
     type: OntologyLink
+    zygosity: str
+    germline: bool
 
 
-class PostionalVariant(VariantRecord):
+class PositionalVariant(Variant):
+    break1Start: Union[Position, CytobandPosition]
+    break1End: Optional[Union[Position, CytobandPosition]]
+    break2Start: Optional[Union[Position, CytobandPosition]]
+    break2End: Optional[Union[Position, CytobandPosition]]
+    refSeq: Optional[str]
+    untemplatedSeq: Optional[str]
+    untemplatedSeqSize: Optional[int]
+
+
+class ParsedVariant(TypedDict):
+    reference1: str
+    reference2: Optional[str]
+    type: str
+    zygosity: str
+    germline: bool
     break1Start: Union[Position, CytobandPosition]
     break1End: Optional[Union[Position, CytobandPosition]]
     break2Start: Optional[Union[Position, CytobandPosition]]
