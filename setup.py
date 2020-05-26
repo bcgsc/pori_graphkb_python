@@ -12,7 +12,10 @@ DOC_REQS = ['mkdocs', 'markdown_refdocs', 'mkdocs-material']
 DEPLOYMENT_REQS = ['twine', 'wheel']
 
 DEV_REQS = (
-    TEST_REQS + DEPLOYMENT_REQS + ['black', 'flake8', 'flake8-annotations', 'isort'] + DOC_REQS
+    TEST_REQS
+    + DEPLOYMENT_REQS
+    + ['black', 'flake8', 'flake8-annotations', 'isort', 'mypy']
+    + DOC_REQS
 )
 
 
@@ -22,7 +25,7 @@ setup(
     packages=find_packages(),
     install_requires=INSTALL_REQS,
     extras_require={'dev': DEV_REQS, 'deploy': DEPLOYMENT_REQS, 'test': TEST_REQS, 'doc': DOC_REQS},
-    python_requires='>=3.8',
+    python_requires='>=3.6',
     author_email='creisle@bcgsc.ca',
     dependency_links=[],
     test_suite='tests',
