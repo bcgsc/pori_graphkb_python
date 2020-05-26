@@ -23,6 +23,7 @@ setup(
     name='graphkb',
     version='1.3.0',
     packages=find_packages(),
+    package_data={"graphkb": ["py.typed"]},
     install_requires=INSTALL_REQS,
     extras_require={'dev': DEV_REQS, 'deploy': DEPLOYMENT_REQS, 'test': TEST_REQS, 'doc': DOC_REQS},
     python_requires='>=3.6',
