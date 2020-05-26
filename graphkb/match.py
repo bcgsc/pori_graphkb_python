@@ -419,7 +419,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
         cat_features: List[str],
         cat_types: List[str],
         cat_secondary_features: Optional[List[str]] = None,
-    ):
+    ) -> None:
         matches.extend(
             conn.query(
                 {
