@@ -409,12 +409,44 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
                 },
                 'queryType': 'similarTo',
                 'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
-                'treeEdges': [],
-                'returnProperties': VARIANT_RETURN_PROPERTIES,
-            },
-            ignore_cache=False,
+                'treeEdges': ['Infers'],
+                'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
+            }
         )
     )
+
+    def cat_variant_query(
+        cat_features: List[str],
+        cat_types: List[str],
+        cat_secondary_features: Optional[List[str]] = None,
+    ):
+        matches.extend(
+            conn.query(
+                {
+                    'target': {
+                        'target': 'CategoryVariant',
+                        'filters': [
+                            {'reference1': cat_features},
+                            {'type': cat_types},
+                            {'reference2': cat_secondary_features},
+                        ],
+                    },
+                    'queryType': 'similarTo',
+                    'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
+                    'treeEdges': [],
+                    'returnProperties': VARIANT_RETURN_PROPERTIES,
+                },
+                ignore_cache=False,
+            )
+        )
+
+    cat_variant_query(features, types, secondary_features)
+
+    if secondary_features:
+        # match single gene fusions for either gene
+        cat_variant_query(features, types, None)
+        cat_variant_query(secondary_features, types, None)
+
     result: Dict[str, Variant] = {}
     for row in matches:
         result[row['@rid']] = cast(Variant, row)
