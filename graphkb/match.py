@@ -1,7 +1,7 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from . import GraphKBConnection
 from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
@@ -357,25 +357,40 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
             }
         )
 
-    cat_matches = conn.query(
-        {
-            'target': {
-                'target': 'CategoryVariant',
-                'filters': [
-                    {'reference1': features},
-                    {'type': types},
-                    {'reference2': secondary_features},
-                ],
-            },
-            'queryType': 'similarTo',
-            'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
-            'treeEdges': [],
-            'returnProperties': VARIANT_RETURN_PROPERTIES,
-        },
-        ignore_cache=False,
-    )
+    def cat_variant_query(
+        cat_features: List[str],
+        cat_types: List[str],
+        cat_secondary_features: Optional[List[str]] = None,
+    ):
+        matches.extend(
+            conn.query(
+                {
+                    'target': {
+                        'target': 'CategoryVariant',
+                        'filters': [
+                            {'reference1': cat_features},
+                            {'type': cat_types},
+                            {'reference2': cat_secondary_features},
+                        ],
+                    },
+                    'queryType': 'similarTo',
+                    'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
+                    'treeEdges': [],
+                    'returnProperties': VARIANT_RETURN_PROPERTIES,
+                },
+                ignore_cache=False,
+            )
+        )
+
+    cat_variant_query(features, types, secondary_features)
+
+    if secondary_features:
+        # match single gene fusions for either gene
+        cat_variant_query(features, types, None)
+        cat_variant_query(secondary_features, types, None)
+
     result = {}
-    for row in matches + cat_matches:
+    for row in matches:
         result[row['@rid']] = row
 
     return list(result.values())
