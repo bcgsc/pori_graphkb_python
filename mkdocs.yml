@@ -5,6 +5,7 @@ nav:
       - graphkb: reference/graphkb/__init__.md
       - graphkb.genes: reference/graphkb/genes.md
       - graphkb.match: reference/graphkb/match.md
+      - graphkb.types: reference/graphkb/types.md
       - graphkb.util: reference/graphkb/util.md
       - graphkb.vocab: reference/graphkb/vocab.md
 theme:
