@@ -1,6 +1,7 @@
-from typing import Dict, List
+from typing import List, cast
 
 from . import GraphKBConnection
+from .types import Ontology
 from .util import convert_to_rid_list
 
 
@@ -9,7 +10,7 @@ def get_equivalent_terms(
     base_term_name: str,
     root_term: str = '',
     ontology_class: str = 'Vocabulary',
-) -> List[Dict]:
+) -> List[Ontology]:
     """
     Get a list of terms equivalent to the current term up to the root term
 
@@ -17,18 +18,21 @@ def get_equivalent_terms(
         base_term_name: the name to get superclasses of
         root_term: the parent term to stop at
     """
-    base_term_parents = conn.query(
-        {
-            'target': {
-                'target': ontology_class,
-                'queryType': 'descendants',
-                'filters': {'name': base_term_name},
+    base_term_parents = cast(
+        List[Ontology],
+        conn.query(
+            {
+                'target': {
+                    'target': ontology_class,
+                    'queryType': 'descendants',
+                    'filters': {'name': base_term_name},
+                },
+                'queryType': 'similarTo',
+                'treeEdges': [],
+                'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
             },
-            'queryType': 'similarTo',
-            'treeEdges': [],
-            'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
-        },
-        ignore_cache=False,
+            ignore_cache=False,
+        ),
     )
     if root_term:
         exclude = set(
@@ -68,7 +72,7 @@ def get_term_tree(
     root_term: str = '',
     ontology_class: str = 'Vocabulary',
     include_superclasses: bool = True,
-) -> List[Dict]:
+) -> List[Ontology]:
     """
     Get terms equivalent to the base term by traversing the subclassOf tree and expanding related
     alias and cross reference edges
@@ -85,18 +89,21 @@ def get_term_tree(
     Note: this must be done in 2 calls to avoid going up and down the tree in a single query (exclude adjacent siblings)
     """
     # get all child terms of the subclass tree and disambiguate them
-    child_terms = conn.query(
-        {
-            'target': {
-                'target': ontology_class,
-                'queryType': 'ancestors',
-                'filters': {'name': base_term_name},
+    child_terms = cast(
+        List[Ontology],
+        conn.query(
+            {
+                'target': {
+                    'target': ontology_class,
+                    'queryType': 'ancestors',
+                    'filters': {'name': base_term_name},
+                },
+                'queryType': 'similarTo',
+                'treeEdges': [],
+                'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
             },
-            'queryType': 'similarTo',
-            'treeEdges': [],
-            'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
-        },
-        ignore_cache=False,
+            ignore_cache=False,
+        ),
     )
     # get all parent terms of the subclass tree and disambiguate them
     if include_superclasses:
@@ -116,7 +123,7 @@ def get_term_tree(
 
 def get_term_by_name(
     conn: GraphKBConnection, name: str, ontology_class: str = 'Vocabulary', **kwargs
-) -> Dict:
+) -> Ontology:
     """
     Retrieve a vocaulary term by name
 
@@ -137,7 +144,14 @@ def get_term_by_name(
         {
             'target': ontology_class,
             'filters': {'name': name},
-            'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
+            'returnProperties': [
+                'sourceId',
+                'sourceIdVersion',
+                'deprecated',
+                'name',
+                '@rid',
+                '@class',
+            ],
         },
         ignore_cache=False,
         **kwargs,
@@ -145,4 +159,4 @@ def get_term_by_name(
 
     if len(result) != 1:
         raise AssertionError(f'unable to find term ({name}) by name')
-    return result[0]
+    return cast(Ontology, result[0])

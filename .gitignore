@@ -6,7 +6,7 @@ __pycache__
 bin
 dist
 build
-.pytest_cache
+.*_cache
 .coverage
 coverage.xml
 pytest.xml
@@ -18,7 +18,7 @@ docs/reference
 .~*
 
 # common virtual environment names
-venv
+venv*
 env
 
 # editors

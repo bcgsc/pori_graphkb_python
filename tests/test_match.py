@@ -277,6 +277,17 @@ class TestMatchPositionalVariant:
         assert known in names
         assert 'BCR and ABL1 fusion' in names
 
+    def test_known_fusion_cat_match(self, conn):
+        known = '(ATP1B1,NRG1):fusion(e.2,e.2)'
+        matches = match.match_positional_variant(conn, known)
+        types_selected = [m['type']['name'] for m in matches]
+        assert GENERAL_MUTATION not in types_selected
+        names = {m['displayName'] for m in matches}
+        assert matches
+        assert known in names
+        assert 'NRG1 fusion' in names
+        assert 'ATP1B1 and NRG1 fusion' in names
+
     def test_known_fusion_single_gene_no_match(self, conn):
         known = '(BCR,?):fusion(e.13,e.?)'
         matches = match.match_positional_variant(conn, known)
