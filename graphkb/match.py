@@ -1,11 +1,12 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
-from typing import Dict, List
+from typing import Dict, List, Optional, Set, Union, cast
 
 from . import GraphKBConnection
 from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
+from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
 from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list
 from .vocab import get_term_tree
 
@@ -45,7 +46,7 @@ POS_VARIANT_RETURN_PROPERTIES = VARIANT_RETURN_PROPERTIES + [
 ]
 
 
-GENE_NAME_CACHE = set()
+GENE_NAME_CACHE: Set[str] = set()
 
 
 def get_equivalent_features(
@@ -53,7 +54,7 @@ def get_equivalent_features(
     gene_name: str,
     ignore_cache: bool = False,
     gene_is_record_id: bool = False,
-) -> List[Dict]:
+) -> List[Ontology]:
     """
     Args:
         gene_name: the gene name to search features by
@@ -63,24 +64,36 @@ def get_equivalent_features(
         equivalent feature records
     """
     if gene_is_record_id:
-        return conn.query({'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=False)
+        return cast(
+            List[Ontology],
+            conn.query({'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=False),
+        )
 
     if GENE_NAME_CACHE and gene_name.lower() not in GENE_NAME_CACHE and not ignore_cache:
         return []
-    return conn.query(
-        {'target': {'target': 'Feature', 'filters': {'name': gene_name}}, 'queryType': 'similarTo'},
-        ignore_cache=False,
+    return cast(
+        List[Ontology],
+        conn.query(
+            {
+                'target': {'target': 'Feature', 'filters': {'name': gene_name}},
+                'queryType': 'similarTo',
+            },
+            ignore_cache=False,
+        ),
     )
 
 
-def cache_gene_names(conn: GraphKBConnection) -> List[Dict]:
-    genes = conn.query(
-        {
-            'target': 'Feature',
-            'filters': {'biotype': 'gene'},
-            'returnProperties': ['name'],
-            'neighbors': 0,
-        }
+def cache_gene_names(conn: GraphKBConnection):
+    genes = cast(
+        List[Ontology],
+        conn.query(
+            {
+                'target': 'Feature',
+                'filters': {'biotype': 'gene'},
+                'returnProperties': ['name'],
+                'neighbors': 0,
+            }
+        ),
     )
     for gene in genes:
         if gene['name']:
@@ -93,7 +106,7 @@ def match_category_variant(
     category: str,
     root_term: str = '',
     gene_is_record_id: bool = False,
-) -> List[Dict]:
+) -> List[Variant]:
     """
     Returns a list of variants matching the input variant
 
@@ -125,24 +138,27 @@ def match_category_variant(
         raise ValueError(f'unable to find the term/category ({category}) or any equivalent')
 
     # find the variant list
-    return conn.query(
-        {
-            'target': {
-                'target': 'CategoryVariant',
-                'filters': [
-                    {'reference1': features, 'operator': 'IN'},
-                    {'type': terms, 'operator': 'IN'},
-                ],
-            },
-            'queryType': 'similarTo',
-            'returnProperties': VARIANT_RETURN_PROPERTIES,
-        }
+    return cast(
+        List[Variant],
+        conn.query(
+            {
+                'target': {
+                    'target': 'CategoryVariant',
+                    'filters': [
+                        {'reference1': features, 'operator': 'IN'},
+                        {'type': terms, 'operator': 'IN'},
+                    ],
+                },
+                'queryType': 'similarTo',
+                'returnProperties': VARIANT_RETURN_PROPERTIES,
+            }
+        ),
     )
 
 
 def match_copy_variant(
     conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False
-) -> List[Dict]:
+) -> List[Variant]:
     """
     Returns a list of variants matching the input variant
 
@@ -168,14 +184,18 @@ def match_copy_variant(
     return result
 
 
-def match_expression_variant(conn: GraphKBConnection, gene_name: str, category: str) -> List[Dict]:
+def match_expression_variant(
+    conn: GraphKBConnection, gene_name: str, category: str
+) -> List[Variant]:
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
     return match_category_variant(conn, gene_name, category, root_term='expression variant')
 
 
-def positions_overlap(pos_record: Dict, range_start: Dict, range_end: Dict = None) -> bool:
+def positions_overlap(
+    pos_record: BasicPosition, range_start: BasicPosition, range_end: Optional[BasicPosition] = None
+) -> bool:
     """
     Check if 2 Position records from GraphKB indicate an overlap
 
@@ -197,6 +217,7 @@ def positions_overlap(pos_record: Dict, range_start: Dict, range_end: Dict = Non
         raise NotImplementedError(
             'Position comparison for cytoband coordinates is not yet implemented'
         )
+
     pos = pos_record.get('pos', None)
     if pos is None:
         return True
@@ -214,7 +235,10 @@ def positions_overlap(pos_record: Dict, range_start: Dict, range_end: Dict = Non
     return start is None or pos == start
 
 
-def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
+def compare_positional_variants(
+    variant: Union[PositionalVariant, ParsedVariant],
+    reference_variant: Union[PositionalVariant, ParsedVariant],
+) -> bool:
     """
     Compare 2 variant records from GraphKB to determine if they are equivalent
 
@@ -226,9 +250,11 @@ def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
         bool: True if the records are equivalent
     """
     if not positions_overlap(
-        variant['break1Start'],
-        reference_variant['break1Start'],
-        reference_variant.get('break1End', None),
+        cast(BasicPosition, variant['break1Start']),
+        cast(BasicPosition, reference_variant['break1Start']),
+        None
+        if 'break1End' not in reference_variant
+        else cast(BasicPosition, reference_variant['break1End']),
     ):
         return False
 
@@ -236,9 +262,11 @@ def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
         if 'break2Start' not in reference_variant:
             return False
         if not positions_overlap(
-            variant['break2Start'],
-            reference_variant['break2Start'],
-            reference_variant.get('break2End', None),
+            cast(BasicPosition, variant['break2Start']),
+            cast(BasicPosition, reference_variant['break2Start']),
+            None
+            if 'break2End' not in reference_variant
+            else cast(BasicPosition, reference_variant['break2End']),
         ):
             return False
 
@@ -252,14 +280,19 @@ def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
         ):
             if variant['untemplatedSeqSize'] != reference_variant['untemplatedSeqSize']:
                 return False
+
         if (
-            reference_variant['untemplatedSeq'] not in AMBIGUOUS_AA
-            and variant['untemplatedSeq'] not in AMBIGUOUS_AA
+            reference_variant['untemplatedSeq'] is not None
+            and variant['untemplatedSeq'] is not None
         ):
-            if reference_variant['untemplatedSeq'].lower() != variant['untemplatedSeq'].lower():
+            if (
+                reference_variant['untemplatedSeq'] not in AMBIGUOUS_AA
+                and variant['untemplatedSeq'] not in AMBIGUOUS_AA
+            ):
+                if reference_variant['untemplatedSeq'].lower() != variant['untemplatedSeq'].lower():
+                    return False
+            elif len(variant['untemplatedSeq']) != len(reference_variant['untemplatedSeq']):
                 return False
-        elif len(variant['untemplatedSeq']) != len(reference_variant['untemplatedSeq']):
-            return False
 
     if (
         variant.get('refSeq', None) is not None
@@ -277,7 +310,7 @@ def compare_positional_variants(variant: Dict, reference_variant: Dict) -> bool:
     return True
 
 
-def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[Dict]:
+def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[Variant]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
     annotations in GraphKB
@@ -309,7 +342,11 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
         )
 
     secondary_features = None
-    if parsed.get('reference2', '?') != '?':
+    if (
+        'reference2' in parsed
+        and parsed.get('reference2', '?') != '?'
+        and parsed['reference2'] is not None
+    ):
         gene2 = parsed['reference2']
         secondary_features = convert_to_rid_list(get_equivalent_features(conn, gene2))
 
@@ -336,46 +373,82 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
         {'break1Start.@class': parsed['break1Start']['@class']},
     ]
 
-    filtered = []
+    filtered: List[Record] = []
 
-    for row in conn.query(
-        {'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=False
+    for row in cast(
+        List[Record],
+        conn.query({'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=False),
     ):
-        if compare_positional_variants(parsed, row):
+        if compare_positional_variants(parsed, cast(PositionalVariant, row)):
             filtered.append(row)
 
     # post filter matches
-    matches = []
+    matches: List[Record] = []
     if filtered:
-        matches = conn.query(
+        matches.extend(
+            conn.query(
+                {
+                    'target': convert_to_rid_list(filtered),
+                    'queryType': 'similarTo',
+                    'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
+                    'treeEdges': ['Infers'],
+                    'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
+                }
+            ),
+        )
+    matches.extend(
+        conn.query(
             {
-                'target': convert_to_rid_list(filtered),
+                'target': {
+                    'target': 'CategoryVariant',
+                    'filters': [
+                        {'reference1': features},
+                        {'type': types},
+                        {'reference2': secondary_features},
+                    ],
+                },
                 'queryType': 'similarTo',
                 'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
                 'treeEdges': ['Infers'],
                 'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
             }
         )
-
-    cat_matches = conn.query(
-        {
-            'target': {
-                'target': 'CategoryVariant',
-                'filters': [
-                    {'reference1': features},
-                    {'type': types},
-                    {'reference2': secondary_features},
-                ],
-            },
-            'queryType': 'similarTo',
-            'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
-            'treeEdges': [],
-            'returnProperties': VARIANT_RETURN_PROPERTIES,
-        },
-        ignore_cache=False,
     )
-    result = {}
-    for row in matches + cat_matches:
-        result[row['@rid']] = row
+
+    def cat_variant_query(
+        cat_features: List[str],
+        cat_types: List[str],
+        cat_secondary_features: Optional[List[str]] = None,
+    ) -> None:
+        matches.extend(
+            conn.query(
+                {
+                    'target': {
+                        'target': 'CategoryVariant',
+                        'filters': [
+                            {'reference1': cat_features},
+                            {'type': cat_types},
+                            {'reference2': cat_secondary_features},
+                        ],
+                    },
+                    'queryType': 'similarTo',
+                    'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
+                    'treeEdges': [],
+                    'returnProperties': VARIANT_RETURN_PROPERTIES,
+                },
+                ignore_cache=False,
+            )
+        )
+
+    cat_variant_query(features, types, secondary_features)
+
+    if secondary_features:
+        # match single gene fusions for either gene
+        cat_variant_query(features, types, None)
+        cat_variant_query(secondary_features, types, None)
+
+    result: Dict[str, Variant] = {}
+    for row in matches:
+        result[row['@rid']] = cast(Variant, row)
 
     return list(result.values())

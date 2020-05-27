@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 # Dependencies required to use your package
-INSTALL_REQS = ['requests==2.22.0']
+INSTALL_REQS = ['requests==2.22.0', 'typing_extensions>=3.7.4.2']
 
 # Dependencies required only for running tests
 TEST_REQS = ['pytest', 'pytest-runner', 'pytest-cov']
@@ -12,14 +12,18 @@ DOC_REQS = ['mkdocs', 'markdown_refdocs', 'mkdocs-material']
 DEPLOYMENT_REQS = ['twine', 'wheel']
 
 DEV_REQS = (
-    TEST_REQS + DEPLOYMENT_REQS + ['black', 'flake8', 'flake8-annotations', 'isort'] + DOC_REQS
+    TEST_REQS
+    + DEPLOYMENT_REQS
+    + ['black', 'flake8', 'flake8-annotations', 'isort', 'mypy']
+    + DOC_REQS
 )
 
 
 setup(
     name='graphkb',
-    version='1.3.0',
+    version='1.3.1',
     packages=find_packages(),
+    package_data={"graphkb": ["py.typed"]},
     install_requires=INSTALL_REQS,
     extras_require={'dev': DEV_REQS, 'deploy': DEPLOYMENT_REQS, 'test': TEST_REQS, 'doc': DOC_REQS},
     python_requires='>=3.6',
