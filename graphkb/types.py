@@ -15,7 +15,11 @@ EmbeddedRecord: TypedDict = TypedDict('EmbeddedRecord', {'@class': str})
 RecordLink = Union[str, Record]
 
 
-class Ontology(Record):
+class DataRecord(Record):
+    displayName: str
+
+
+class Ontology(DataRecord):
     sourceId: str
     name: str
     source: RecordLink
@@ -37,7 +41,7 @@ class CytobandPosition(EmbeddedRecord):
 Position = Union[BasicPosition, CytobandPosition]
 
 
-class Variant(Record):
+class Variant(DataRecord):
     reference1: OntologyLink
     reference2: Optional[OntologyLink]
     type: OntologyLink
@@ -70,7 +74,7 @@ class ParsedVariant(TypedDict):
     untemplatedSeqSize: Optional[int]
 
 
-class Statement(Record):
+class Statement(DataRecord):
     relevance: OntologyLink
     subject: OntologyLink
     conditions: List[OntologyLink]
@@ -78,3 +82,4 @@ class Statement(Record):
     evidenceLevel: List[OntologyLink]
     source: RecordLink
     sourceId: str
+    displayNameTemplate: str
