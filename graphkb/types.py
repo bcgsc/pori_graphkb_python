@@ -2,7 +2,7 @@
 Type annotations used for static type checking in this module
 """
 
-from typing import List, Optional, Union
+from typing import Optional, Sequence, Union
 
 try:
     from typing import TypedDict  # type: ignore
@@ -12,8 +12,6 @@ except ImportError:
 Record: TypedDict = TypedDict('Record', {'@rid': str, '@class': str})
 EmbeddedRecord: TypedDict = TypedDict('EmbeddedRecord', {'@class': str})
 
-RecordLink = Union[str, Record]
-
 
 class DataRecord(Record):
     displayName: str
@@ -22,10 +20,7 @@ class DataRecord(Record):
 class Ontology(DataRecord):
     sourceId: str
     name: str
-    source: RecordLink
-
-
-OntologyLink = Union[str, Ontology]
+    source: Record
 
 
 class BasicPosition(EmbeddedRecord):
@@ -42,9 +37,9 @@ Position = Union[BasicPosition, CytobandPosition]
 
 
 class Variant(DataRecord):
-    reference1: OntologyLink
-    reference2: Optional[OntologyLink]
-    type: OntologyLink
+    reference1: Ontology
+    reference2: Optional[Ontology]
+    type: Ontology
     zygosity: str
     germline: bool
 
@@ -75,11 +70,11 @@ class ParsedVariant(TypedDict):
 
 
 class Statement(DataRecord):
-    relevance: OntologyLink
-    subject: OntologyLink
-    conditions: List[OntologyLink]
-    evidence: List[OntologyLink]
-    evidenceLevel: List[OntologyLink]
-    source: RecordLink
+    relevance: Ontology
+    subject: Ontology
+    conditions: Sequence[Ontology]
+    evidence: Sequence[Ontology]
+    evidenceLevel: Sequence[Ontology]
+    source: Record
     sourceId: str
     displayNameTemplate: str

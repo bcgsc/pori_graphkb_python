@@ -1,6 +1,6 @@
 import os
 import re
-from typing import List
+from typing import Sequence
 
 import pytest
 
@@ -12,7 +12,7 @@ DECREASE_PREFIXES = ['down', 'decrease', 'reduce', 'under', 'loss', 'delet']
 GENERAL_MUTATION = 'mutation'
 
 
-def has_prefix(word: str, prefixes: List[str]) -> bool:
+def has_prefix(word: str, prefixes: Sequence[str]) -> bool:
     for prefix in prefixes:
         if re.search(r'\b' + prefix, word):
             return True

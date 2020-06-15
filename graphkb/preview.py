@@ -1,4 +1,4 @@
-from typing import Dict, List, Set, Union
+from typing import Dict, Sequence, Set, Union, cast
 
 from .types import DataRecord, Record, Statement
 
@@ -12,11 +12,11 @@ TEMPLATE_KEYS = {
 }
 
 
-def rid(record: Record):
+def rid(record: Record) -> str:
     return record['@rid']
 
 
-def natural_list_join(items: List[str]) -> str:
+def natural_list_join(items: Sequence[str]) -> str:
     if not items:
         return ''
     elif len(items) > 1:
@@ -75,5 +75,5 @@ def get_preview(record: Union[DataRecord, Statement]) -> str:
     if record.get('displayName', ''):
         return record['displayName']
     if record['@class'] != 'Statement':
-        return record['name']
-    return build_sentence(record)
+        return record['name']  # type: ignore
+    return build_sentence(cast(Statement, record))

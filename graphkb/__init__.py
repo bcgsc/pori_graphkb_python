@@ -1,6 +1,6 @@
 import hashlib
 import json
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Sequence, cast
 
 import requests
 
@@ -36,7 +36,7 @@ class GraphKBConnection:
         self.username = ''
         self.password = ''
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-        self.cache: Dict[str, List[Any]] = {}
+        self.cache: Dict[str, Sequence[Any]] = {}
         self.request_count = 0
 
     def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
@@ -105,7 +105,7 @@ class GraphKBConnection:
         ignore_cache: bool = True,
         force_refresh: bool = False,
         limit: int = DEFAULT_LIMIT,
-    ) -> List[Record]:
+    ) -> Sequence[Record]:
         result: List[Record] = []
         hash_code = ""
 
@@ -132,7 +132,7 @@ class GraphKBConnection:
         )
         return cast(ParsedVariant, content['result'])
 
-    def get_records_by_id(self, record_ids: List[str]) -> List[Record]:
+    def get_records_by_id(self, record_ids: Sequence[str]) -> Sequence[Record]:
         if not record_ids:
             return []
         result = self.query({'target': record_ids})

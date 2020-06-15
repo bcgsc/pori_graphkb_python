@@ -1,10 +1,10 @@
 """
 Methods for retrieving gene annotation lists from GraphKB
 """
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Sequence, cast
 
 from . import GraphKBConnection
-from .types import Ontology
+from .types import Ontology, Statement
 
 ONCOKB_SOURCE_NAME = 'oncokb'
 ONCOGENE = 'oncogenic'
@@ -26,31 +26,34 @@ GENE_RETURN_PROPERTIES = [
 ]
 
 
-def _get_oncokb_gene_list(conn: GraphKBConnection, relevance: str) -> List[Ontology]:
+def _get_oncokb_gene_list(conn: GraphKBConnection, relevance: str) -> Sequence[Ontology]:
     source = conn.get_source(ONCOKB_SOURCE_NAME)['@rid']
 
-    statements = conn.query(
-        {
-            'target': 'Statement',
-            'filters': [
-                {'source': source},
-                {'relevance': {'target': 'Vocabulary', 'filters': {'name': relevance}}},
-            ],
-            'returnProperties': [f'subject.{prop}' for prop in GENE_RETURN_PROPERTIES],
-        },
-        ignore_cache=False,
+    statements = cast(
+        Sequence[Statement],
+        conn.query(
+            {
+                'target': 'Statement',
+                'filters': [
+                    {'source': source},
+                    {'relevance': {'target': 'Vocabulary', 'filters': {'name': relevance}}},
+                ],
+                'returnProperties': [f'subject.{prop}' for prop in GENE_RETURN_PROPERTIES],
+            },
+            ignore_cache=False,
+        ),
     )
     genes: Dict[str, Ontology] = {}
 
     for statement in statements:
-        if statement['subject']['biotype'] == 'gene':
+        if statement['subject'].get('biotype', '') == 'gene':  # type: ignore
             record_id = statement['subject']['@rid']
             genes[record_id] = statement['subject']
 
     return [gene for gene in genes.values()]
 
 
-def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
+def get_oncokb_oncogenes(conn: GraphKBConnection) -> Sequence[Ontology]:
     """
     Gets the list of oncogenes stored in GraphKB derived from OncoKB
 
@@ -58,12 +61,12 @@ def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
         conn (GraphKBConnection): the graphkb connection object
 
     Returns:
-        List.<dict>: gene (Feature) records
+        Sequence.<dict>: gene (Feature) records
     """
     return _get_oncokb_gene_list(conn, ONCOGENE)
 
 
-def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
+def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> Sequence[Ontology]:
     """
     Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB
 
@@ -71,33 +74,37 @@ def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
         conn (GraphKBConnection): the graphkb connection object
 
     Returns:
-        List.<dict>: gene (Feature) records
+        Sequence.<dict>: gene (Feature) records
     """
     return _get_oncokb_gene_list(conn, TUMOUR_SUPPRESSIVE)
 
 
 def get_genes_from_variant_types(
-    conn: GraphKBConnection, types: List[str], source_record_ids: List[str] = []
-) -> List[Ontology]:
+    conn: GraphKBConnection, types: Sequence[str], source_record_ids: Sequence[str] = []
+) -> Sequence[Ontology]:
     """
     Retrieve a list of Genes which are found in variants on the given types
 
     Args:
         conn (GraphKBConnection): the graphkb connection object
-        types (List.<str>): list of names of variant types
-        source_record_ids (List.<str>): list of sources ids to filter genes by
+        types (Sequence.<str>): list of names of variant types
+        source_record_ids (Sequence.<str>): list of sources ids to filter genes by
 
     Returns:
-        List.<dict>: gene (Feature) records
+        Sequence.<dict>: gene (Feature) records
     """
-    variants = conn.query(
-        {
-            'target': 'Variant',
-            'filters': [
-                {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
-            ],
-            'returnProperties': ['reference1', 'reference2'],
-        },
+
+    variants = cast(
+        Sequence[Dict[str, str]],
+        conn.query(
+            {
+                'target': 'Variant',
+                'filters': [
+                    {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
+                ],
+                'returnProperties': ['reference1', 'reference2'],
+            },
+        ),
     )
 
     genes = set()
@@ -116,7 +123,7 @@ def get_genes_from_variant_types(
     if not genes:
         return []
     result = cast(
-        List[Ontology],
+        Sequence[Ontology],
         conn.query(
             {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters}
         ),

@@ -1,7 +1,7 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
-from typing import Dict, List, Optional, Set, Union, cast
+from typing import Dict, List, Optional, Sequence, Set, Union, cast
 
 from . import GraphKBConnection
 from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
@@ -54,7 +54,7 @@ def get_equivalent_features(
     gene_name: str,
     ignore_cache: bool = False,
     gene_is_record_id: bool = False,
-) -> List[Ontology]:
+) -> Sequence[Ontology]:
     """
     Args:
         gene_name: the gene name to search features by
@@ -65,14 +65,14 @@ def get_equivalent_features(
     """
     if gene_is_record_id:
         return cast(
-            List[Ontology],
+            Sequence[Ontology],
             conn.query({'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=False),
         )
 
     if GENE_NAME_CACHE and gene_name.lower() not in GENE_NAME_CACHE and not ignore_cache:
         return []
     return cast(
-        List[Ontology],
+        Sequence[Ontology],
         conn.query(
             {
                 'target': {'target': 'Feature', 'filters': {'name': gene_name}},
@@ -85,7 +85,7 @@ def get_equivalent_features(
 
 def cache_gene_names(conn: GraphKBConnection):
     genes = cast(
-        List[Ontology],
+        Sequence[Ontology],
         conn.query(
             {
                 'target': 'Feature',
@@ -106,7 +106,7 @@ def match_category_variant(
     category: str,
     root_term: str = '',
     gene_is_record_id: bool = False,
-) -> List[Variant]:
+) -> Sequence[Variant]:
     """
     Returns a list of variants matching the input variant
 
@@ -119,7 +119,7 @@ def match_category_variant(
         FeatureNotFoundError: The gene could not be found in GraphKB
 
     Returns:
-        Array.<dict>: List of variant records from GraphKB which match the input
+        Array.<dict>: Sequence of variant records from GraphKB which match the input
     """
     # disambiguate the gene to find all equivalent representations
     features = convert_to_rid_list(
@@ -139,7 +139,7 @@ def match_category_variant(
 
     # find the variant list
     return cast(
-        List[Variant],
+        Sequence[Variant],
         conn.query(
             {
                 'target': {
@@ -158,7 +158,7 @@ def match_category_variant(
 
 def match_copy_variant(
     conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False
-) -> List[Variant]:
+) -> Sequence[Variant]:
     """
     Returns a list of variants matching the input variant
 
@@ -172,7 +172,7 @@ def match_copy_variant(
         ValueError: The input copy category is not recognized
 
     Returns:
-        Array.<dict>: List of variant records from GraphKB which match the input
+        Array.<dict>: Sequence of variant records from GraphKB which match the input
     """
     if category not in INPUT_COPY_CATEGORIES.values():
         raise ValueError(f'not a valid copy variant input category ({category})')
@@ -186,7 +186,7 @@ def match_copy_variant(
 
 def match_expression_variant(
     conn: GraphKBConnection, gene_name: str, category: str
-) -> List[Variant]:
+) -> Sequence[Variant]:
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
@@ -302,15 +302,15 @@ def compare_positional_variants(
             reference_variant['refSeq'] not in AMBIGUOUS_AA
             and variant['refSeq'] not in AMBIGUOUS_AA
         ):
-            if reference_variant['refSeq'].lower() != variant['refSeq'].lower():
+            if reference_variant['refSeq'].lower() != variant['refSeq'].lower():  # type: ignore
                 return False
-        elif len(variant['refSeq']) != len(reference_variant['refSeq']):
+        elif len(variant['refSeq']) != len(reference_variant['refSeq']):  # type: ignore
             return False
 
     return True
 
 
-def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[Variant]:
+def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Sequence[Variant]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
     annotations in GraphKB
@@ -376,7 +376,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
     filtered: List[Record] = []
 
     for row in cast(
-        List[Record],
+        Sequence[Record],
         conn.query({'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=False),
     ):
         if compare_positional_variants(parsed, cast(PositionalVariant, row)):
@@ -416,9 +416,9 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
     )
 
     def cat_variant_query(
-        cat_features: List[str],
-        cat_types: List[str],
-        cat_secondary_features: Optional[List[str]] = None,
+        cat_features: Sequence[str],
+        cat_types: Sequence[str],
+        cat_secondary_features: Optional[Sequence[str]] = None,
     ) -> None:
         matches.extend(
             conn.query(

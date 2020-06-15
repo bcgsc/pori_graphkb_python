@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import Sequence, cast
 
 from . import GraphKBConnection
 from .types import Ontology
@@ -10,7 +10,7 @@ def get_equivalent_terms(
     base_term_name: str,
     root_term: str = '',
     ontology_class: str = 'Vocabulary',
-) -> List[Ontology]:
+) -> Sequence[Ontology]:
     """
     Get a list of terms equivalent to the current term up to the root term
 
@@ -19,7 +19,7 @@ def get_equivalent_terms(
         root_term: the parent term to stop at
     """
     base_term_parents = cast(
-        List[Ontology],
+        Sequence[Ontology],
         conn.query(
             {
                 'target': {
@@ -72,7 +72,7 @@ def get_term_tree(
     root_term: str = '',
     ontology_class: str = 'Vocabulary',
     include_superclasses: bool = True,
-) -> List[Ontology]:
+) -> Sequence[Ontology]:
     """
     Get terms equivalent to the base term by traversing the subclassOf tree and expanding related
     alias and cross reference edges
@@ -84,13 +84,13 @@ def get_term_tree(
         include_superclasses (bool): when True the query will include superclasses of the current term
 
     Returns:
-        List.<dict>: GraphKB records
+        Sequence.<dict>: GraphKB records
 
     Note: this must be done in 2 calls to avoid going up and down the tree in a single query (exclude adjacent siblings)
     """
     # get all child terms of the subclass tree and disambiguate them
     child_terms = cast(
-        List[Ontology],
+        Sequence[Ontology],
         conn.query(
             {
                 'target': {
@@ -115,7 +115,10 @@ def get_term_tree(
 
     terms = {}
     # merge the two lists
-    for term in child_terms + parent_terms:
+    for term in child_terms:
+        terms[term['@rid']] = term
+
+    for term in parent_terms:
         terms[term['@rid']] = term
 
     return list(terms.values())
