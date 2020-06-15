@@ -104,7 +104,7 @@ def match_category_variant(
     conn: GraphKBConnection,
     gene_name: str,
     category: str,
-    root_term: str = '',
+    root_exclude_term: str = '',
     gene_is_record_id: bool = False,
 ) -> List[Variant]:
     """
@@ -132,7 +132,7 @@ def match_category_variant(
         )
 
     # get the list of terms that we should match
-    terms = convert_to_rid_list(get_term_tree(conn, category, root_term))
+    terms = convert_to_rid_list(get_term_tree(conn, category, root_exclude_term))
 
     if not terms:
         raise ValueError(f'unable to find the term/category ({category}) or any equivalent')
@@ -177,7 +177,9 @@ def match_copy_variant(
     if category not in INPUT_COPY_CATEGORIES.values():
         raise ValueError(f'not a valid copy variant input category ({category})')
 
-    result = match_category_variant(conn, gene_name, category, root_term='copy variant')
+    result = match_category_variant(
+        conn, gene_name, category, root_exclude_term='structural variant'
+    )
 
     if drop_homozygous:
         return [row for row in result if row['zygosity'] != 'homozygous']
@@ -190,7 +192,7 @@ def match_expression_variant(
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
-    return match_category_variant(conn, gene_name, category, root_term='expression variant')
+    return match_category_variant(conn, gene_name, category, root_exclude_term='biological')
 
 
 def positions_overlap(
@@ -357,7 +359,7 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
     # disambiguate the variant type
     types = convert_to_rid_list(
         get_term_tree(
-            conn, parsed['type'], root_term='structural variant' if secondary_features else ''
+            conn, parsed['type'], root_exclude_term='mutation' if secondary_features else '',
         )
     )
 
