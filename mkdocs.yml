@@ -13,3 +13,5 @@ theme:
 repo_url: https://svn.bcgsc.ca/bitbucket/projects/DAT/repos/graphkb_python
 repo_name: Bitbucket
 site_dir: build-docs
+markdown_extensions:
+  - codehilite
