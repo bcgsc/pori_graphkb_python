@@ -8,7 +8,7 @@ from .util import convert_to_rid_list
 def get_equivalent_terms(
     conn: GraphKBConnection,
     base_term_name: str,
-    root_term: str = '',
+    root_exclude_term: str = '',
     ontology_class: str = 'Vocabulary',
 ) -> List[Ontology]:
     """
@@ -16,7 +16,7 @@ def get_equivalent_terms(
 
     Args:
         base_term_name: the name to get superclasses of
-        root_term: the parent term to stop at
+        root_exclude_term: the parent term to exlcude along with all of its parent terms
     """
     base_term_parents = cast(
         List[Ontology],
@@ -34,7 +34,7 @@ def get_equivalent_terms(
             ignore_cache=False,
         ),
     )
-    if root_term:
+    if root_exclude_term:
         exclude = set(
             convert_to_rid_list(
                 conn.query(
@@ -42,7 +42,7 @@ def get_equivalent_terms(
                         'target': {
                             'target': ontology_class,
                             'queryType': 'descendants',
-                            'filters': {'name': root_term},
+                            'filters': {'name': root_exclude_term},
                         },
                         'queryType': 'similarTo',
                         'treeEdges': [],
@@ -58,18 +58,14 @@ def get_equivalent_terms(
                 )
             )
         )
-        return [
-            term
-            for term in base_term_parents
-            if term['@rid'] not in exclude or term['name'] == root_term
-        ]
+        return [term for term in base_term_parents if term['@rid'] not in exclude]
     return base_term_parents
 
 
 def get_term_tree(
     conn: GraphKBConnection,
     base_term_name: str,
-    root_term: str = '',
+    root_exclude_term: str = '',
     ontology_class: str = 'Vocabulary',
     include_superclasses: bool = True,
 ) -> List[Ontology]:
@@ -108,7 +104,7 @@ def get_term_tree(
     # get all parent terms of the subclass tree and disambiguate them
     if include_superclasses:
         parent_terms = get_equivalent_terms(
-            conn, base_term_name, root_term=root_term, ontology_class=ontology_class
+            conn, base_term_name, root_exclude_term=root_exclude_term, ontology_class=ontology_class
         )
     else:
         parent_terms = []
