@@ -77,6 +77,9 @@ class GraphKBConnection:
         url = join_url(self.url, endpoint)
         self.request_count += 1
         start_time = datetime.now()
+        if not self.first_request:
+            self.first_request = start_time
+        self.last_request = start_time
         resp = requests.request(method, url, headers=self.headers, **kwargs)
 
         if resp.status_code == 401 or resp.status_code == 403:
