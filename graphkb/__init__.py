@@ -1,10 +1,14 @@
 import hashlib
 import json
-from typing import Any, Dict, List, cast
+from datetime import datetime
+from typing import Any, Dict, List, cast, Optional
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 from .types import ParsedVariant, Record
+from .util import logger
 
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 DEFAULT_LIMIT = 1000
@@ -29,8 +33,21 @@ def join_url(base_url: str, *parts) -> str:
     return ''.join(url)
 
 
+def millis_interval(start: datetime, end: datetime) -> int:
+    """start and end are datetime instances"""
+    diff = end - start
+    millis = diff.days * 24 * 60 * 60 * 1000
+    millis += diff.seconds * 1000
+    millis += diff.microseconds // 1000
+    return millis
+
+
 class GraphKBConnection:
     def __init__(self, url: str = DEFAULT_URL):
+        self.http = requests.Session()
+        retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+        self.http.mount("https://", HTTPAdapter(max_retries=retries))
+
         self.token = ''
         self.url = url
         self.username = ''
@@ -38,6 +55,16 @@ class GraphKBConnection:
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
         self.cache: Dict[str, List[Any]] = {}
         self.request_count = 0
+        self.first_request: Optional[datetime] = None
+        self.last_request: Optional[datetime] = None
+
+    @property
+    def load(self) -> Optional[float]:
+        if self.first_request and self.last_request:
+            return (
+                self.request_count * 1000 / millis_interval(self.first_request, self.last_request)
+            )
+        return None
 
     def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
         """Request wrapper to handle adding common headers and logging
@@ -51,6 +78,10 @@ class GraphKBConnection:
         """
         url = join_url(self.url, endpoint)
         self.request_count += 1
+        start_time = datetime.now()
+        if not self.first_request:
+            self.first_request = start_time
+        self.last_request = start_time
         resp = requests.request(method, url, headers=self.headers, **kwargs)
 
         if resp.status_code == 401 or resp.status_code == 403:
@@ -59,6 +90,8 @@ class GraphKBConnection:
             self.refresh_login()
             self.request_count += 1
             resp = requests.request(method, url, headers=self.headers, **kwargs)
+        timing = millis_interval(start_time, datetime.now())
+        logger.verbose(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
 
         try:
             resp.raise_for_status()
