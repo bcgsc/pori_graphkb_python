@@ -30,6 +30,7 @@ jobs:
         flake8 graphkb --count --select=E9,F63,F7,F82 --show-source --statistics
     - name: Check with black
       run: |
+        pip install black
         black --check -S -l 100 graphkb tests
     - name: Test with pytest
       run: |

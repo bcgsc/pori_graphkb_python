@@ -20,8 +20,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: install and build
       run: |
-        python3 -m pip install --upgrade pip setuptools
-        pip3 install .[docs]
+        python -m pip install --upgrade pip setuptools
+        pip install .[docs]
+        pip install markdown_refdocs
         markdown_refdocs graphkb -o docs/reference --link
         mkdocs build
     - name: Deploy
