@@ -3,7 +3,7 @@
 
 ![build](https://github.com/bcgsc/pori_graphkb_python/workflows/build/badge.svg) [![PyPi](https://img.shields.io/pypi/v/graphkb.svg)](https://pypi.org/project/graphkb)
 
-Python adapter package for querying the GraphKB API
+Python adapter package for querying the GraphKB API. See the [user manual](https://bcgsc.github.io/pori_graphkb_python/)
 
 - [Getting Started](#getting-started)
   - [Install (For developers)](#install-for-developers)
