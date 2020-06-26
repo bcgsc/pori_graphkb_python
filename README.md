@@ -1,7 +1,7 @@
 
 # GraphKB (Python)
 
-![build](https://github.com/bcgsc/pori_graphkb_python/workflows/test%20and%20build%20package/badge.svg) [![PyPi](https://img.shields.io/pypi/v/graphkb.svg)](https://pypi.org/project/graphkb)
+![build](https://github.com/bcgsc/pori_graphkb_python/workflows/build/badge.svg) [![PyPi](https://img.shields.io/pypi/v/graphkb.svg)](https://pypi.org/project/graphkb)
 
 Python adapter package for querying the GraphKB API
 
