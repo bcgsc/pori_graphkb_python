@@ -1,10 +1,11 @@
 # GraphKB Python Adapter User Manual
 
 The GraphKB python adapter is a python package to facilitate interacting with the GraphKB API.
-The GraphKB API is a REST API found at (https://graphkb.bcgsc.ca/api). The openapi specification
-is hosted here: https://graphkb-api.bcgsc.ca/api/spec.
+The GraphKB API is a REST API [https://graphkb.bcgsc.ca/api)](https://graphkb.bcgsc.ca/api). The openapi specification
+is hosted here: [https://graphkb-api.bcgsc.ca/api/spec](https://graphkb-api.bcgsc.ca/api/spec).
+The [client](https://graphkb.bcgsc.ca/about) also contains documentation on the background and features of GraphKB
 
-This adapter adds functions for common queries as well as for paginating and authenticating.
+This adapter adds functions for common queries as well as for paginating and authenticating
 
 ## Getting Started
 
@@ -68,5 +69,3 @@ annotations = gkb_conn.query({
 
 This will fetch a list of statements where any of the matched variants are conditions for the
 statement
-
-

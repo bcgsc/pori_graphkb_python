@@ -21,7 +21,7 @@ DEV_REQS = (
 
 setup(
     name='graphkb',
-    version='1.3.1',
+    version='1.3.3',
     packages=find_packages(),
     package_data={"graphkb": ["py.typed"]},
     install_requires=INSTALL_REQS,
