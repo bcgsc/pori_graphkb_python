@@ -171,4 +171,7 @@ for statement in statements:
 
 Similar filtering can be done for the other properties and any other base-term classification you
 would like to use. Use the graph view at https://graphkb.bcgsc.ca to explore record relationships
-and decide on the categories you would like to use
+and decide on the categories you would like to use.
+
+The full code for this tutorial can be downloaded from the
+[github repo](https://github.com/bcgsc/pori_graphkb_python) under `docs/tutorial.py`
