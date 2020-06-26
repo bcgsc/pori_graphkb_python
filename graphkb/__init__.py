@@ -61,7 +61,9 @@ class GraphKBConnection:
     @property
     def load(self) -> Optional[float]:
         if self.first_request and self.last_request:
-            return self.request_count / millis_interval(self.first_request, self.last_request)
+            return (
+                self.request_count * 1000 / millis_interval(self.first_request, self.last_request)
+            )
         return None
 
     def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
