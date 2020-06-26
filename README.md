@@ -16,8 +16,8 @@ Python adapter package for querying the GraphKB API
 clone this repository
 
 ```
-git clone ssh://git@svn.bcgsc.ca:7999/dat/graphkb_python.git
-cd knowledgebase_match
+git clone https://github.com/bcgsc/pori_graphkb_python
+cd pori_graphkb_python
 ```
 
 create a virtual environment
