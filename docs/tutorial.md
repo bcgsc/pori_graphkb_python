@@ -105,8 +105,8 @@ likely pathogenic lung cancer [DOID:1324] DoCM
 
 ## Categorizing Statements
 
-Something we often what to do is to know if a statement is therapeutic, or prognostic, etc. The
-naive approach is the base this on a list of known terms or a regex pattern. In GraphKB we can
+Something we often want to know is if a statement is therapeutic, or prognostic, etc. The
+naive approach is to base this on a list of known terms or a regex pattern. In GraphKB we can
 leverage the ontology structure instead.
 
 In this example we will look for all terms that would indicate a therapeutically relevent statement.
