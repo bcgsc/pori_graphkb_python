@@ -1,6 +1,7 @@
 site_name: GraphKB Python
 nav:
   - Home: index.md
+  - Tutorial: tutorial.md
   - Reference:
       - graphkb: reference/graphkb/__init__.md
       - graphkb.genes: reference/graphkb/genes.md
@@ -10,8 +11,8 @@ nav:
       - graphkb.vocab: reference/graphkb/vocab.md
 theme:
   name: "material"
-repo_url: https://svn.bcgsc.ca/bitbucket/projects/DAT/repos/graphkb_python
-repo_name: Bitbucket
+repo_url: https://github.com/bcgsc/pori_graphkb_python
+repo_name: github
 site_dir: build-docs
 markdown_extensions:
   - codehilite
