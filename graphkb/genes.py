@@ -4,7 +4,7 @@ Methods for retrieving gene annotation lists from GraphKB
 from typing import Any, Dict, List, cast
 
 from . import GraphKBConnection
-from .types import Ontology
+from .types import Ontology, Statement, Variant
 
 ONCOKB_SOURCE_NAME = 'oncokb'
 ONCOGENE = 'oncogenic'
@@ -29,21 +29,24 @@ GENE_RETURN_PROPERTIES = [
 def _get_oncokb_gene_list(conn: GraphKBConnection, relevance: str) -> List[Ontology]:
     source = conn.get_source(ONCOKB_SOURCE_NAME)['@rid']
 
-    statements = conn.query(
-        {
-            'target': 'Statement',
-            'filters': [
-                {'source': source},
-                {'relevance': {'target': 'Vocabulary', 'filters': {'name': relevance}}},
-            ],
-            'returnProperties': [f'subject.{prop}' for prop in GENE_RETURN_PROPERTIES],
-        },
-        ignore_cache=False,
+    statements = cast(
+        List[Statement],
+        conn.query(
+            {
+                'target': 'Statement',
+                'filters': [
+                    {'source': source},
+                    {'relevance': {'target': 'Vocabulary', 'filters': {'name': relevance}}},
+                ],
+                'returnProperties': [f'subject.{prop}' for prop in GENE_RETURN_PROPERTIES],
+            },
+            ignore_cache=False,
+        ),
     )
     genes: Dict[str, Ontology] = {}
 
     for statement in statements:
-        if statement['subject']['biotype'] == 'gene':
+        if statement['subject'].get('biotype', '') == 'gene':
             record_id = statement['subject']['@rid']
             genes[record_id] = statement['subject']
 
@@ -90,14 +93,17 @@ def get_genes_from_variant_types(
     Returns:
         List.<dict>: gene (Feature) records
     """
-    variants = conn.query(
-        {
-            'target': 'Variant',
-            'filters': [
-                {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
-            ],
-            'returnProperties': ['reference1', 'reference2'],
-        },
+    variants = cast(
+        List[Variant],
+        conn.query(
+            {
+                'target': 'Variant',
+                'filters': [
+                    {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
+                ],
+                'returnProperties': ['reference1', 'reference2'],
+            },
+        ),
     )
 
     genes = set()
