@@ -43,7 +43,7 @@ def _get_oncokb_gene_list(conn: GraphKBConnection, relevance: str) -> List[Ontol
     genes: Dict[str, Ontology] = {}
 
     for statement in statements:
-        if statement['subject']['biotype'] == 'gene':
+        if statement['subject'].get('biotype', '') == 'gene':
             record_id = statement['subject']['@rid']
             genes[record_id] = statement['subject']
 
