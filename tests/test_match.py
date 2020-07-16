@@ -1,6 +1,7 @@
 import os
 import re
 from typing import List
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -314,3 +315,18 @@ class TestMatchPositionalVariant:
         genomic = 'X:g.100611165A>T'
         match.match_positional_variant(conn, genomic)
         # no assert b/c checking for no error rather than the result
+
+
+class TestCacheMissingFeatures:
+    def test_filling_cache(self):
+        mock_conn = MagicMock(
+            query=MagicMock(
+                return_value=[
+                    {'name': 'bob', 'sourceId': 'alice'},
+                    {'name': 'KRAS', 'sourceId': '1234'},
+                ]
+            )
+        )
+        match.cache_missing_features(mock_conn)
+        assert 'kras' in match.FEATURES_CACHE
+        assert 'alice' in match.FEATURES_CACHE
