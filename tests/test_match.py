@@ -309,3 +309,8 @@ class TestMatchPositionalVariant:
         assert matches
         assert novel_specific not in names
         assert 'CDKN2A mutation' in names
+
+    def test_genomic_coordinates(self, conn):
+        genomic = 'X:g.100611165A>T'
+        match.match_positional_variant(conn, genomic)
+        # no assert b/c checking for no error rather than the result

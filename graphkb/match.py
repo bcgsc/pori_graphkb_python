@@ -75,7 +75,10 @@ def get_equivalent_features(
         List[Ontology],
         conn.query(
             {
-                'target': {'target': 'Feature', 'filters': {'name': gene_name}},
+                'target': {
+                    'target': 'Feature',
+                    'filters': {'OR': [{'name': gene_name}, {'sourceId': gene_name}]},
+                },
                 'queryType': 'similarTo',
             },
             ignore_cache=False,
