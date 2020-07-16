@@ -42,6 +42,15 @@ def millis_interval(start: datetime, end: datetime) -> int:
     return millis
 
 
+def cache_key(request_body):
+    """
+    create a cache key for a query request to GraphKB
+    """
+    body = json.dumps(request_body, sort_keys=True)
+    hash_code = hashlib.md5(f'/query{body}'.encode('utf-8')).hexdigest()
+    return hash_code
+
+
 class GraphKBConnection:
     def __init__(self, url: str = DEFAULT_URL):
         self.http = requests.Session()
@@ -131,25 +140,34 @@ class GraphKBConnection:
     def refresh_login(self) -> None:
         self.login(self.username, self.password)
 
+    def set_cache_data(self, request_body: Dict, result: List[Record]) -> None:
+        """
+        Explicitly add a query to the cache
+        """
+        hash_code = cache_key(request_body)
+        self.cache[hash_code] = result
+
     def query(
         self,
-        requestBody: Dict = {},
+        request_body: Dict = {},
         paginate: bool = True,
         ignore_cache: bool = True,
         force_refresh: bool = False,
         limit: int = DEFAULT_LIMIT,
     ) -> List[Record]:
+        """
+        Query GraphKB
+        """
         result: List[Record] = []
         hash_code = ""
 
         if not ignore_cache:
-            body = json.dumps(requestBody, sort_keys=True)
-            hash_code = hashlib.md5(f'/query{body}'.encode('utf-8')).hexdigest()
+            hash_code = cache_key(request_body)
             if hash_code in self.cache and not force_refresh:
                 return self.cache[hash_code]
 
         while True:
-            content = self.post('query', data={**requestBody, 'limit': limit, 'skip': len(result)})
+            content = self.post('query', data={**request_body, 'limit': limit, 'skip': len(result)})
             records = content['result']
             result.extend(records)
             if len(records) < limit or not paginate:
