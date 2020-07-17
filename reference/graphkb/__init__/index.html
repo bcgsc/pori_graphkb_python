@@ -298,6 +298,20 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#graphkbconnectionset_cache_data" class="md-nav__link">
+    GraphKBConnection.set_cache_data()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphkbconnectionquery" class="md-nav__link">
+    GraphKBConnection.query()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -313,6 +327,13 @@
         <li class="md-nav__item">
   <a href="#millis_interval" class="md-nav__link">
     millis_interval()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache_key" class="md-nav__link">
+    cache_key()
   </a>
   
 </li>
@@ -450,6 +471,20 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#graphkbconnectionset_cache_data" class="md-nav__link">
+    GraphKBConnection.set_cache_data()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphkbconnectionquery" class="md-nav__link">
+    GraphKBConnection.query()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -465,6 +500,13 @@
         <li class="md-nav__item">
   <a href="#millis_interval" class="md-nav__link">
     millis_interval()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache_key" class="md-nav__link">
+    cache_key()
   </a>
   
 </li>
@@ -531,6 +573,42 @@
 <ul>
 <li><code>Dict</code></li>
 </ul>
+<h3 id="graphkbconnectionset_cache_data">GraphKBConnection.set_cache_data()</h3>
+<p>Explicitly add a query to the cache</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_cache_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_body</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Record</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</code></pre></div>
+
+
+<p><strong>Args</strong></p>
+<ul>
+<li>request_body (<code>Dict</code>)</li>
+<li>result (List[<a href="../types/#record">Record</a>])</li>
+</ul>
+<h3 id="graphkbconnectionquery">GraphKBConnection.query()</h3>
+<p>Query GraphKB</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">query</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">request_body</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">paginate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">ignore_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">force_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_LIMIT</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Record</span><span class="p">]:</span>
+</code></pre></div>
+
+
+<p><strong>Args</strong></p>
+<ul>
+<li>request_body (<code>Dict</code>)</li>
+<li>paginate (<code>bool</code>)</li>
+<li>ignore_cache (<code>bool</code>)</li>
+<li>force_refresh (<code>bool</code>)</li>
+<li>limit (<code>int</code>)</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li>List[<a href="../types/#record">Record</a>]</li>
+</ul>
 <h2 id="join_url">join_url()</h2>
 <p>Join parts of a URL into a full URL</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">join_url</span><span class="p">(</span><span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -559,6 +637,16 @@
 <p><strong>Returns</strong></p>
 <ul>
 <li><code>int</code></li>
+</ul>
+<h2 id="cache_key">cache_key()</h2>
+<p>create a cache key for a query request to GraphKB</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">cache_key</span><span class="p">(</span><span class="n">request_body</span><span class="p">):</span>
+</code></pre></div>
+
+
+<p><strong>Args</strong></p>
+<ul>
+<li>request_body</li>
 </ul>
                 
               

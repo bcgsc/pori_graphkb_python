@@ -322,8 +322,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#gene_name_cache" class="md-nav__link">
-    GENE_NAME_CACHE
+  <a href="#features_cache" class="md-nav__link">
+    FEATURES_CACHE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache_missing_features" class="md-nav__link">
+    cache_missing_features()
   </a>
   
 </li>
@@ -472,8 +479,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#gene_name_cache" class="md-nav__link">
-    GENE_NAME_CACHE
+  <a href="#features_cache" class="md-nav__link">
+    FEATURES_CACHE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache_missing_features" class="md-nav__link">
+    cache_missing_features()
   </a>
   
 </li>
@@ -585,11 +599,22 @@
 </code></pre></div>
 
 
-<h2 id="gene_name_cache">GENE_NAME_CACHE</h2>
-<div class="codehilite"><pre><span></span><code><span class="n">GENE_NAME_CACHE</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<h2 id="features_cache">FEATURES_CACHE</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">FEATURES_CACHE</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 </code></pre></div>
 
 
+<h2 id="cache_missing_features">cache_missing_features()</h2>
+<p>Create a cache of features that exist to avoid repeatedly querying
+for missing features</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">cache_missing_features</span><span class="p">(</span><span class="n">conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</code></pre></div>
+
+
+<p><strong>Args</strong></p>
+<ul>
+<li>conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>)</li>
+</ul>
 <h2 id="match_category_variant">match_category_variant()</h2>
 <p>Returns a list of variants matching the input variant</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">match_category_variant</span><span class="p">(</span>
