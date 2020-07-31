@@ -276,6 +276,12 @@ class TestMatchPositionalVariant:
                 conn, 'ME-AS-A-GENE:p.G12D',
             )
 
+    def test_bad_gene2_name(self, conn):
+        with pytest.raises(FeatureNotFoundError):
+            match.match_positional_variant(
+                conn, '(BCR,ME-AS-A-GENE):fusion(e.13,e.3)',
+            )
+
     def test_match_explicit_reference1(self, conn):
         reference1 = conn.query({'target': 'Feature', 'filters': {'name': 'KRAS'}})[0]['@rid']
         matches = match.match_positional_variant(conn, 'p.G12D', reference1=reference1)
