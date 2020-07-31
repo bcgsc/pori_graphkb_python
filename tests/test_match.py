@@ -264,6 +264,18 @@ class TestMatchPositionalVariant:
                 conn, '(BCR,ABL1):fusion(e.13,e.3)', reference2='#123:34'
             )
 
+    def test_uncertain_position_not_supported(self, conn):
+        with pytest.raises(NotImplementedError):
+            match.match_positional_variant(
+                conn, '(BCR,ABL1):fusion(e.13_24,e.3)',
+            )
+
+    def test_bad_gene_name(self, conn):
+        with pytest.raises(FeatureNotFoundError):
+            match.match_positional_variant(
+                conn, 'ME-AS-A-GENE:p.G12D',
+            )
+
     def test_match_explicit_reference1(self, conn):
         reference1 = conn.query({'target': 'Feature', 'filters': {'name': 'KRAS'}})[0]['@rid']
         matches = match.match_positional_variant(conn, 'p.G12D', reference1=reference1)
