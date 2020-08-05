@@ -7,7 +7,7 @@ from . import GraphKBConnection
 from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
-from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list
+from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list, looks_like_rid
 from .vocab import get_term_tree
 
 INPUT_COPY_CATEGORIES = IterableNamespace(
@@ -50,10 +50,7 @@ FEATURES_CACHE: Set[str] = set()
 
 
 def get_equivalent_features(
-    conn: GraphKBConnection,
-    gene_name: str,
-    ignore_cache: bool = False,
-    gene_is_record_id: bool = False,
+    conn: GraphKBConnection, gene_name: str, ignore_cache: bool = False,
 ) -> List[Ontology]:
     """
     Args:
@@ -63,7 +60,7 @@ def get_equivalent_features(
     Returns:
         equivalent feature records
     """
-    if gene_is_record_id:
+    if looks_like_rid(gene_name):
         return cast(
             List[Ontology],
             conn.query({'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=False),
@@ -124,9 +121,7 @@ def match_category_variant(
         Array.<dict>: List of variant records from GraphKB which match the input
     """
     # disambiguate the gene to find all equivalent representations
-    features = convert_to_rid_list(
-        get_equivalent_features(conn, gene_name, gene_is_record_id=gene_is_record_id)
-    )
+    features = convert_to_rid_list(get_equivalent_features(conn, gene_name))
 
     if not features:
         raise FeatureNotFoundError(
@@ -159,7 +154,7 @@ def match_category_variant(
 
 
 def match_copy_variant(
-    conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False
+    conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False, **kwargs
 ) -> List[Variant]:
     """
     Returns a list of variants matching the input variant
@@ -180,7 +175,7 @@ def match_copy_variant(
         raise ValueError(f'not a valid copy variant input category ({category})')
 
     result = match_category_variant(
-        conn, gene_name, category, root_exclude_term='structural variant'
+        conn, gene_name, category, root_exclude_term='structural variant', **kwargs
     )
 
     if drop_homozygous:
@@ -189,12 +184,14 @@ def match_copy_variant(
 
 
 def match_expression_variant(
-    conn: GraphKBConnection, gene_name: str, category: str
+    conn: GraphKBConnection, gene_name: str, category: str, **kwargs
 ) -> List[Variant]:
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
-    return match_category_variant(conn, gene_name, category, root_exclude_term='biological')
+    return match_category_variant(
+        conn, gene_name, category, root_exclude_term='biological', **kwargs
+    )
 
 
 def positions_overlap(
@@ -336,6 +333,21 @@ def match_positional_variant(
 
     Returns:
         A list of matched statement records
+
+    Example:
+        match_positional_variant(conn, '(EWSR1,FLI1):fusion(e.1,e.2)')
+
+    Example:
+        match_positional_variant(conn, 'fusion(e.1,e.2)', 'EWSR1', 'FLI1')
+
+    Example:
+        match_positional_variant(conn, 'fusion(e.1,e.2)', '#3:4', '#4:5')
+
+    Example:
+        match_positional_variant(conn, 'KRAS:p.G12D')
+
+    Example:
+        match_positional_variant(conn, 'p.G12D', 'KRAS')
     """
     # parse the representation
     parsed = conn.parse(variant_string, not (reference1 or reference2))
@@ -355,9 +367,7 @@ def match_positional_variant(
             )
     else:
         gene1 = parsed['reference1']
-    features = convert_to_rid_list(
-        get_equivalent_features(conn, gene1, gene_is_record_id=bool(reference1))
-    )
+    features = convert_to_rid_list(get_equivalent_features(conn, gene1))
 
     if not features:
         raise FeatureNotFoundError(
@@ -385,9 +395,7 @@ def match_positional_variant(
         gene2 = parsed['reference2']
 
     if gene2:
-        secondary_features = convert_to_rid_list(
-            get_equivalent_features(conn, gene2, gene_is_record_id=bool(reference2))
-        )
+        secondary_features = convert_to_rid_list(get_equivalent_features(conn, gene2))
         if not secondary_features:
             raise FeatureNotFoundError(
                 f'unable to find the gene ({gene2}) or any equivalent representations'

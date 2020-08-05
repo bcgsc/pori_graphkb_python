@@ -140,6 +140,21 @@ class TestMatchExpressionVariant:
         for variant_type in types_selected:
             assert not has_prefix(variant_type, INCREASE_PREFIXES)
 
+    def test_known_reduced_expression_gene_id(self, conn):
+        gene_id = conn.query({'target': 'Feature', 'filters': [{'name': 'PTEN'}]})[0]['@rid']
+        matches = match.match_expression_variant(
+            conn, gene_id, match.INPUT_EXPRESSION_CATEGORIES.DOWN
+        )
+        assert matches
+
+        types_selected = {record['type']['name'] for record in matches}
+
+        assert match.INPUT_EXPRESSION_CATEGORIES.UP not in types_selected
+        assert GENERAL_MUTATION not in types_selected
+
+        for variant_type in types_selected:
+            assert not has_prefix(variant_type, INCREASE_PREFIXES)
+
     def test_known_increased_expression(self, conn):
         matches = match.match_expression_variant(conn, 'CA9', match.INPUT_EXPRESSION_CATEGORIES.UP)
         assert matches
