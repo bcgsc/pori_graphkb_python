@@ -58,10 +58,10 @@ def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
     Gets the list of oncogenes stored in GraphKB derived from OncoKB
 
     Args:
-        conn (GraphKBConnection): the graphkb connection object
+        conn: the graphkb connection object
 
     Returns:
-        List.<dict>: gene (Feature) records
+        gene (Feature) records
     """
     return _get_oncokb_gene_list(conn, ONCOGENE)
 
@@ -71,10 +71,10 @@ def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
     Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB
 
     Args:
-        conn (GraphKBConnection): the graphkb connection object
+        conn: the graphkb connection object
 
     Returns:
-        List.<dict>: gene (Feature) records
+        gene (Feature) records
     """
     return _get_oncokb_gene_list(conn, TUMOUR_SUPPRESSIVE)
 
@@ -86,9 +86,9 @@ def get_genes_from_variant_types(
     Retrieve a list of Genes which are found in variants on the given types
 
     Args:
-        conn (GraphKBConnection): the graphkb connection object
-        types (List.<str>): list of names of variant types
-        source_record_ids (List.<str>): list of sources ids to filter genes by
+        conn: the graphkb connection object
+        types: list of names of variant types
+        source_record_ids: list of sources ids to filter genes by
 
     Returns:
         List.<dict>: gene (Feature) records

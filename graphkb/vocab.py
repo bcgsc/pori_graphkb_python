@@ -74,10 +74,10 @@ def get_term_tree(
     alias and cross reference edges
 
     Args:
-        conn (GraphKBConnection): the graphkb connection object
-        base_term_name (str): the term to use as the base of the subclass tree
-        ontology_class (str): the default class to query. Defaults to 'Vocabulary'
-        include_superclasses (bool): when True the query will include superclasses of the current term
+        conn: the graphkb connection object
+        base_term_name: the term to use as the base of the subclass tree
+        ontology_class: the default class to query. Defaults to 'Vocabulary'
+        include_superclasses: when True the query will include superclasses of the current term
 
     Returns:
         List.<dict>: GraphKB records
@@ -124,8 +124,8 @@ def get_term_by_name(
     Retrieve a vocaulary term by name
 
     Args:
-        conn (GraphKBConnection): the graphkb connection object
-        name (str): the name of the Vocabulary term to retrieve
+        conn: the graphkb connection object
+        name: the name of the Vocabulary term to retrieve
 
     Raises:
         AssertionError: more than one term or no terms with that name were found

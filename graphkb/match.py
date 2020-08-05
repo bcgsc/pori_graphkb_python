@@ -201,7 +201,7 @@ def match_copy_variant(
         ValueError: The input copy category is not recognized
 
     Returns:
-        Array.<dict>: List of variant records from GraphKB which match the input
+        List of variant records from GraphKB which match the input
     """
     if category not in INPUT_COPY_CATEGORIES.values():
         raise ValueError(f'not a valid copy variant input category ({category})')
@@ -276,8 +276,8 @@ def compare_positional_variants(
     Compare 2 variant records from GraphKB to determine if they are equivalent
 
     Args:
-        variant (dict): the input variant
-        reference_variant (dict): the reference (matched) variant record
+        variant: the input variant
+        reference_variant: the reference (matched) variant record
 
     Returns:
         bool: True if the records are equivalent
@@ -378,6 +378,9 @@ def match_positional_variant(
 
     Example:
         match_positional_variant(conn, 'fusion(e.1,e.2)', '#3:4', '#4:5')
+
+    Example:
+        match_positional_variant(conn, 'fusion(e.1,e.2)', '123', '456', gene_is_source_id=True, gene_source='entrez gene')
 
     Example:
         match_positional_variant(conn, 'KRAS:p.G12D')
