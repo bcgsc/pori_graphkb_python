@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 # Dependencies required to use your package
-INSTALL_REQS = ['requests==2.22.0', 'typing_extensions>=3.7.4.2']
+INSTALL_REQS = ['requests>=2.22.0,<3', 'typing_extensions>=3.7.4.2,<4']
 
 # Dependencies required only for running tests
 TEST_REQS = ['pytest', 'pytest-runner', 'pytest-cov']
@@ -30,7 +30,7 @@ except Exception:
 
 setup(
     name='graphkb',
-    version='1.3.6',
+    version='1.3.7',
     description='python adapter for interacting with the GraphKB API',
     url='https://github.com/bcgsc/pori_graphkb_python',
     packages=find_packages(),
