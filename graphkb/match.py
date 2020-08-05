@@ -46,7 +46,7 @@ POS_VARIANT_RETURN_PROPERTIES = VARIANT_RETURN_PROPERTIES + [
 ]
 
 
-GENE_NAME_CACHE: Set[str] = set()
+FEATURES_CACHE: Set[str] = set()
 
 
 def get_equivalent_features(
@@ -69,13 +69,16 @@ def get_equivalent_features(
             conn.query({'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=False),
         )
 
-    if GENE_NAME_CACHE and gene_name.lower() not in GENE_NAME_CACHE and not ignore_cache:
+    if FEATURES_CACHE and gene_name.lower() not in FEATURES_CACHE and not ignore_cache:
         return []
     return cast(
         List[Ontology],
         conn.query(
             {
-                'target': {'target': 'Feature', 'filters': {'name': gene_name}},
+                'target': {
+                    'target': 'Feature',
+                    'filters': {'OR': [{'name': gene_name}, {'sourceId': gene_name}]},
+                },
                 'queryType': 'similarTo',
             },
             ignore_cache=False,
@@ -83,21 +86,20 @@ def get_equivalent_features(
     )
 
 
-def cache_gene_names(conn: GraphKBConnection):
+def cache_missing_features(conn: GraphKBConnection) -> None:
+    """
+    Create a cache of features that exist to avoid repeatedly querying
+    for missing features
+    """
     genes = cast(
         List[Ontology],
-        conn.query(
-            {
-                'target': 'Feature',
-                'filters': {'biotype': 'gene'},
-                'returnProperties': ['name'],
-                'neighbors': 0,
-            }
-        ),
+        conn.query({'target': 'Feature', 'returnProperties': ['name', 'sourceId'], 'neighbors': 0}),
     )
     for gene in genes:
         if gene['name']:
-            GENE_NAME_CACHE.add(gene['name'].lower())
+            FEATURES_CACHE.add(gene['name'].lower())
+        if gene['sourceId']:
+            FEATURES_CACHE.add(gene['sourceId'].lower())
 
 
 def match_category_variant(
