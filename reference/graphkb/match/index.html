@@ -11,7 +11,7 @@
       
       
       <link rel="shortcut icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.4.0">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.5.3">
     
     
       
@@ -19,7 +19,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.fe0cca5b.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.947af8d5.min.css">
       
       
     
@@ -711,7 +711,12 @@ for missing features</p>
 <h2 id="match_positional_variant">match_positional_variant()</h2>
 <p>Given the HGVS+ representation of some positional variant, parse it and match it to
 annotations in GraphKB</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">match_positional_variant</span><span class="p">(</span><span class="n">conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span> <span class="n">variant_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">match_positional_variant</span><span class="p">(</span>
+    <span class="n">conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span>
+    <span class="n">variant_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">reference1</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">reference2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
 </code></pre></div>
 
 
@@ -719,6 +724,8 @@ annotations in GraphKB</p>
 <ul>
 <li>conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>)</li>
 <li>variant_string (<code>str</code>): the HGVS+ annotation string</li>
+<li>reference1 (<code>Optional[str]</code>): Explicitly specify the first reference link record (gene1)</li>
+<li>reference2 (<code>Optional[str]</code>): Explicitly specify the second reference link record (gene2)</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
@@ -728,6 +735,7 @@ annotations in GraphKB</p>
 <ul>
 <li><code>NotImplementedError</code>: thrown for uncertain position input (ranges)</li>
 <li><a href="../util/#class-featurenotfounderror">FeatureNotFoundError</a>: One of the genes does not exist in GraphKB</li>
+<li><code>ValueError</code>: the gene names were given both in the variant_string and explicitly</li>
 </ul>
                 
               
@@ -795,15 +803,15 @@ annotations in GraphKB</p>
       
     </div>
     
-      <script src="../../../assets/javascripts/vendor.d710d30a.min.js"></script>
-      <script src="../../../assets/javascripts/bundle.b39636ac.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+      <script src="../../../assets/javascripts/vendor.c3dc8c49.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.f9edbbd5.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
       
       <script>
         app = initialize({
           base: "../../..",
           features: [],
           search: Object.assign({
-            worker: "../../../assets/javascripts/worker/search.a68abb33.min.js"
+            worker: "../../../assets/javascripts/worker/search.8e2cddea.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>
