@@ -250,6 +250,51 @@ class TestComparePositionalVariants:
 
 
 class TestMatchPositionalVariant:
+    def test_error_on_duplicate_reference1(self, conn):
+        with pytest.raises(ValueError):
+            match.match_positional_variant(conn, 'KRAS:p.G12D', '#123:34')
+
+    def test_error_on_bad_reference2(self, conn):
+        with pytest.raises(ValueError):
+            match.match_positional_variant(conn, 'KRAS:p.G12D', reference2='#123:34')
+
+    def test_error_on_duplicate_reference2(self, conn):
+        with pytest.raises(ValueError):
+            match.match_positional_variant(
+                conn, '(BCR,ABL1):fusion(e.13,e.3)', reference2='#123:34'
+            )
+
+    def test_uncertain_position_not_supported(self, conn):
+        with pytest.raises(NotImplementedError):
+            match.match_positional_variant(
+                conn, '(BCR,ABL1):fusion(e.13_24,e.3)',
+            )
+
+    def test_bad_gene_name(self, conn):
+        with pytest.raises(FeatureNotFoundError):
+            match.match_positional_variant(
+                conn, 'ME-AS-A-GENE:p.G12D',
+            )
+
+    def test_bad_gene2_name(self, conn):
+        with pytest.raises(FeatureNotFoundError):
+            match.match_positional_variant(
+                conn, '(BCR,ME-AS-A-GENE):fusion(e.13,e.3)',
+            )
+
+    def test_match_explicit_reference1(self, conn):
+        reference1 = conn.query({'target': 'Feature', 'filters': {'name': 'KRAS'}})[0]['@rid']
+        matches = match.match_positional_variant(conn, 'p.G12D', reference1=reference1)
+        assert matches
+
+    def test_match_explicit_references(self, conn):
+        reference1 = conn.query({'target': 'Feature', 'filters': {'name': 'BCR'}})[0]['@rid']
+        reference2 = conn.query({'target': 'Feature', 'filters': {'name': 'ABL1'}})[0]['@rid']
+        matches = match.match_positional_variant(
+            conn, 'fusion(e.13,e.3)', reference1=reference1, reference2=reference2
+        )
+        assert matches
+
     def test_known_substitution(self, conn):
         known = 'KRAS:p.G12D'
         matches = match.match_positional_variant(conn, known)

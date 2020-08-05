@@ -304,39 +304,58 @@ def compare_positional_variants(
             reference_variant['refSeq'] not in AMBIGUOUS_AA
             and variant['refSeq'] not in AMBIGUOUS_AA
         ):
-            if reference_variant['refSeq'].lower() != variant['refSeq'].lower():
+            if reference_variant['refSeq'].lower() != variant['refSeq'].lower():  # type: ignore
                 return False
-        elif len(variant['refSeq']) != len(reference_variant['refSeq']):
+        elif len(variant['refSeq']) != len(reference_variant['refSeq']):  # type: ignore
             return False
 
     return True
 
 
-def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> List[Variant]:
+def match_positional_variant(
+    conn: GraphKBConnection,
+    variant_string: str,
+    reference1: Optional[str] = None,
+    reference2: Optional[str] = None,
+) -> List[Variant]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
     annotations in GraphKB
 
     Args:
         variant_string: the HGVS+ annotation string
+        reference1: Explicitly specify the first reference link record (gene1)
+        reference2: Explicitly specify the second reference link record (gene2)
 
     Raises:
         NotImplementedError: thrown for uncertain position input (ranges)
         FeatureNotFoundError: One of the genes does not exist in GraphKB
+        ValueError: the gene names were given both in the variant_string and explicitly
 
     Returns:
         A list of matched statement records
     """
     # parse the representation
-    parsed = conn.parse(variant_string)
+    parsed = conn.parse(variant_string, not (reference1 or reference2))
 
     if 'break1End' in parsed or 'break2End' in parsed:  # uncertain position
         raise NotImplementedError(
             f'Matching does not support uncertain positions ({variant_string}) as input'
         )
+    if reference2 and not reference1:
+        raise ValueError('cannot specify reference2 without reference1')
     # disambiguate the gene name
-    gene1 = parsed['reference1']
-    features = convert_to_rid_list(get_equivalent_features(conn, parsed['reference1']))
+    if reference1:
+        gene1 = reference1
+        if 'reference1' in parsed:
+            raise ValueError(
+                'Cannot specify reference1 explicitly as well as in the variant notation'
+            )
+    else:
+        gene1 = parsed['reference1']
+    features = convert_to_rid_list(
+        get_equivalent_features(conn, gene1, gene_is_record_id=bool(reference1))
+    )
 
     if not features:
         raise FeatureNotFoundError(
@@ -344,14 +363,29 @@ def match_positional_variant(conn: GraphKBConnection, variant_string: str) -> Li
         )
 
     secondary_features = None
-    if (
+
+    gene2: Optional[str] = None
+    if reference2:
+        gene2 = reference2
+        if 'reference2' in parsed:
+            raise ValueError(
+                'Cannot specify reference2 explicitly as well as in the variant notation'
+            )
+        elif 'reference1' in parsed:
+            raise ValueError(
+                'variant notation cannot contain features when explicit features are given'
+            )
+    elif (
         'reference2' in parsed
         and parsed.get('reference2', '?') != '?'
         and parsed['reference2'] is not None
     ):
         gene2 = parsed['reference2']
-        secondary_features = convert_to_rid_list(get_equivalent_features(conn, gene2))
 
+    if gene2:
+        secondary_features = convert_to_rid_list(
+            get_equivalent_features(conn, gene2, gene_is_record_id=bool(reference2))
+        )
         if not secondary_features:
             raise FeatureNotFoundError(
                 f'unable to find the gene ({gene2}) or any equivalent representations'
