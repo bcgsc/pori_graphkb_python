@@ -30,7 +30,7 @@ except Exception:
 
 setup(
     name='graphkb',
-    version='1.3.5',
+    version='1.3.7',
     description='python adapter for interacting with the GraphKB API',
     url='https://github.com/bcgsc/pori_graphkb_python',
     packages=find_packages(),
