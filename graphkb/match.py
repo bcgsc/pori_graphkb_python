@@ -7,7 +7,7 @@ from . import GraphKBConnection
 from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
 from .genes import GENE_RETURN_PROPERTIES
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
-from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list
+from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list, looks_like_rid
 from .vocab import get_term_tree
 
 INPUT_COPY_CATEGORIES = IterableNamespace(
@@ -53,34 +53,59 @@ def get_equivalent_features(
     conn: GraphKBConnection,
     gene_name: str,
     ignore_cache: bool = False,
-    gene_is_record_id: bool = False,
+    is_source_id: bool = False,
+    source: str = '',
+    source_id_version: str = '',
 ) -> List[Ontology]:
     """
     Args:
         gene_name: the gene name to search features by
         ignore_cache (bool, optional): bypass the cache to always force a new request
-
+        is_source_id: treat the gene_name as the gene ID from the source database (ex. ENSG001)
+        source_id_version: the version of the source_id
+        source: the name of the source database the gene definition is from (ex. ensembl)
     Returns:
         equivalent feature records
+
+    Example:
+        get_equivalent_features(conn, 'KRAS')
+
+    Example:
+        get_equivalent_features(conn, 'ENSG001', source='ensembl', is_source_id=True)
+
+    Example:
+        get_equivalent_features(conn, 'ENSG001', source='ensembl', source_id_version='1')
+
+    Example:
+        get_equivalent_features(conn, '#3:44')
     """
-    if gene_is_record_id:
+    if looks_like_rid(gene_name):
         return cast(
             List[Ontology],
             conn.query({'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=False),
         )
 
-    if FEATURES_CACHE and gene_name.lower() not in FEATURES_CACHE and not ignore_cache:
+    filters: List[Dict] = []
+    if source:
+        filters.append({'source': {'target': 'Source', 'filters': {'name': source}}})
+
+    if is_source_id or source_id_version:
+        filters.append({'sourceId': gene_name})
+
+        if source_id_version:
+            filters.append(
+                {'OR': [{'sourceIdVersion': source_id_version}, {'sourceIdVersion': None}]}
+            )
+
+    elif FEATURES_CACHE and gene_name.lower() not in FEATURES_CACHE and not ignore_cache:
         return []
+    else:
+        filters.append({'OR': [{'sourceId': gene_name}, {'name': gene_name}]})
+
     return cast(
         List[Ontology],
         conn.query(
-            {
-                'target': {
-                    'target': 'Feature',
-                    'filters': {'OR': [{'name': gene_name}, {'sourceId': gene_name}]},
-                },
-                'queryType': 'similarTo',
-            },
+            {'target': {'target': 'Feature', 'filters': filters}, 'queryType': 'similarTo'},
             ignore_cache=False,
         ),
     )
@@ -107,7 +132,8 @@ def match_category_variant(
     gene_name: str,
     category: str,
     root_exclude_term: str = '',
-    gene_is_record_id: bool = False,
+    gene_source: str = '',
+    gene_is_source_id: bool = False,
 ) -> List[Variant]:
     """
     Returns a list of variants matching the input variant
@@ -116,7 +142,8 @@ def match_category_variant(
         conn (GraphKBConnection): the graphkb connection object
         gene_name (str): the name of the gene the variant is in reference to
         category (str): the variant category (ex. copy loss)
-        gene_is_record_id: the gene_name is a record ID to be expanded not a feature name
+        gene_source: The source database the gene is defined by (ex. ensembl)
+        gene_is_source_id: Indicates the gene name(s) input should be treated as sourceIds not names
     Raises:
         FeatureNotFoundError: The gene could not be found in GraphKB
 
@@ -125,7 +152,7 @@ def match_category_variant(
     """
     # disambiguate the gene to find all equivalent representations
     features = convert_to_rid_list(
-        get_equivalent_features(conn, gene_name, gene_is_record_id=gene_is_record_id)
+        get_equivalent_features(conn, gene_name, source=gene_source, is_source_id=gene_is_source_id)
     )
 
     if not features:
@@ -159,7 +186,7 @@ def match_category_variant(
 
 
 def match_copy_variant(
-    conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False
+    conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False, **kwargs
 ) -> List[Variant]:
     """
     Returns a list of variants matching the input variant
@@ -174,13 +201,13 @@ def match_copy_variant(
         ValueError: The input copy category is not recognized
 
     Returns:
-        Array.<dict>: List of variant records from GraphKB which match the input
+        List of variant records from GraphKB which match the input
     """
     if category not in INPUT_COPY_CATEGORIES.values():
         raise ValueError(f'not a valid copy variant input category ({category})')
 
     result = match_category_variant(
-        conn, gene_name, category, root_exclude_term='structural variant'
+        conn, gene_name, category, root_exclude_term='structural variant', **kwargs
     )
 
     if drop_homozygous:
@@ -189,12 +216,14 @@ def match_copy_variant(
 
 
 def match_expression_variant(
-    conn: GraphKBConnection, gene_name: str, category: str
+    conn: GraphKBConnection, gene_name: str, category: str, **kwargs
 ) -> List[Variant]:
     if category not in INPUT_EXPRESSION_CATEGORIES.values():
         raise ValueError(f'not a valid expression variant input category ({category})')
 
-    return match_category_variant(conn, gene_name, category, root_exclude_term='biological')
+    return match_category_variant(
+        conn, gene_name, category, root_exclude_term='biological', **kwargs
+    )
 
 
 def positions_overlap(
@@ -247,8 +276,8 @@ def compare_positional_variants(
     Compare 2 variant records from GraphKB to determine if they are equivalent
 
     Args:
-        variant (dict): the input variant
-        reference_variant (dict): the reference (matched) variant record
+        variant: the input variant
+        reference_variant: the reference (matched) variant record
 
     Returns:
         bool: True if the records are equivalent
@@ -319,6 +348,8 @@ def match_positional_variant(
     variant_string: str,
     reference1: Optional[str] = None,
     reference2: Optional[str] = None,
+    gene_is_source_id: bool = False,
+    gene_source: str = '',
 ) -> List[Variant]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
@@ -328,6 +359,8 @@ def match_positional_variant(
         variant_string: the HGVS+ annotation string
         reference1: Explicitly specify the first reference link record (gene1)
         reference2: Explicitly specify the second reference link record (gene2)
+        gene_source: The source database the gene is defined by (ex. ensembl)
+        gene_is_source_id: Indicates the gene name(s) input should be treated as sourceIds not names
 
     Raises:
         NotImplementedError: thrown for uncertain position input (ranges)
@@ -336,6 +369,24 @@ def match_positional_variant(
 
     Returns:
         A list of matched statement records
+
+    Example:
+        match_positional_variant(conn, '(EWSR1,FLI1):fusion(e.1,e.2)')
+
+    Example:
+        match_positional_variant(conn, 'fusion(e.1,e.2)', 'EWSR1', 'FLI1')
+
+    Example:
+        match_positional_variant(conn, 'fusion(e.1,e.2)', '#3:4', '#4:5')
+
+    Example:
+        match_positional_variant(conn, 'fusion(e.1,e.2)', '123', '456', gene_is_source_id=True, gene_source='entrez gene')
+
+    Example:
+        match_positional_variant(conn, 'KRAS:p.G12D')
+
+    Example:
+        match_positional_variant(conn, 'p.G12D', 'KRAS')
     """
     # parse the representation
     parsed = conn.parse(variant_string, not (reference1 or reference2))
@@ -356,7 +407,7 @@ def match_positional_variant(
     else:
         gene1 = parsed['reference1']
     features = convert_to_rid_list(
-        get_equivalent_features(conn, gene1, gene_is_record_id=bool(reference1))
+        get_equivalent_features(conn, gene1, source=gene_source, is_source_id=gene_is_source_id)
     )
 
     if not features:
@@ -386,7 +437,7 @@ def match_positional_variant(
 
     if gene2:
         secondary_features = convert_to_rid_list(
-            get_equivalent_features(conn, gene2, gene_is_record_id=bool(reference2))
+            get_equivalent_features(conn, gene2, source=gene_source, is_source_id=gene_is_source_id)
         )
         if not secondary_features:
             raise FeatureNotFoundError(

@@ -1,5 +1,6 @@
 import argparse
 import logging
+import re
 from typing import Iterable, List
 
 from .types import Record
@@ -46,3 +47,12 @@ def convert_to_rid_list(records: Iterable[Record]) -> List[str]:
 
 class FeatureNotFoundError(Exception):
     pass
+
+
+def looks_like_rid(rid: str) -> bool:
+    """
+    Check if an input string looks like a GraphKB ID
+    """
+    if re.match(r'^#-?\d+:-?\d+$', rid):
+        return True
+    return False
