@@ -13,6 +13,8 @@ from .util import logger
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 DEFAULT_LIMIT = 1000
 
+QUERY_CACHE = {}
+
 
 def join_url(base_url: str, *parts) -> str:
     """
@@ -52,7 +54,7 @@ def cache_key(request_body):
 
 
 class GraphKBConnection:
-    def __init__(self, url: str = DEFAULT_URL):
+    def __init__(self, url: str = DEFAULT_URL, use_global_cache: bool = True):
         self.http = requests.Session()
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
         self.http.mount("https://", HTTPAdapter(max_retries=retries))
@@ -62,7 +64,7 @@ class GraphKBConnection:
         self.username = ''
         self.password = ''
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-        self.cache: Dict[str, List[Any]] = {}
+        self.cache: Dict[str, List[Any]] = {} if not use_global_cache else QUERY_CACHE
         self.request_count = 0
         self.first_request: Optional[datetime] = None
         self.last_request: Optional[datetime] = None
