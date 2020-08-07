@@ -622,7 +622,8 @@ for missing features</p>
     <span class="n">gene_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">root_exclude_term</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">gene_is_record_id</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">gene_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">gene_is_source_id</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
 </code></pre></div>
 
@@ -633,7 +634,8 @@ for missing features</p>
 <li>gene_name (<code>str</code>): the name of the gene the variant is in reference to</li>
 <li>category (<code>str</code>): the variant category (ex. copy loss)</li>
 <li>root_exclude_term (<code>str</code>)</li>
-<li>gene_is_record_id (<code>bool</code>): the gene_name is a record ID to be expanded not a feature name</li>
+<li>gene_source (<code>str</code>): The source database the gene is defined by (ex. ensembl)</li>
+<li>gene_is_source_id (<code>bool</code>): Indicates the gene name(s) input should be treated as sourceIds not names</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
@@ -646,7 +648,7 @@ for missing features</p>
 <h2 id="match_copy_variant">match_copy_variant()</h2>
 <p>Returns a list of variants matching the input variant</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">match_copy_variant</span><span class="p">(</span>
-    <span class="n">conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span> <span class="n">gene_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">drop_homozygous</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span> <span class="n">gene_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">drop_homozygous</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
 </code></pre></div>
 
@@ -716,6 +718,8 @@ annotations in GraphKB</p>
     <span class="n">variant_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">reference1</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">reference2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">gene_is_source_id</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">gene_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Variant</span><span class="p">]:</span>
 </code></pre></div>
 
@@ -726,6 +730,8 @@ annotations in GraphKB</p>
 <li>variant_string (<code>str</code>): the HGVS+ annotation string</li>
 <li>reference1 (<code>Optional[str]</code>): Explicitly specify the first reference link record (gene1)</li>
 <li>reference2 (<code>Optional[str]</code>): Explicitly specify the second reference link record (gene2)</li>
+<li>gene_is_source_id (<code>bool</code>): Indicates the gene name(s) input should be treated as sourceIds not names</li>
+<li>gene_source (<code>str</code>): The source database the gene is defined by (ex. ensembl)</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
@@ -737,6 +743,29 @@ annotations in GraphKB</p>
 <li><a href="../util/#class-featurenotfounderror">FeatureNotFoundError</a>: One of the genes does not exist in GraphKB</li>
 <li><code>ValueError</code>: the gene names were given both in the variant_string and explicitly</li>
 </ul>
+<p><strong>Examples</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">match_positional_variant</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s1">&#39;(EWSR1,FLI1):fusion(e.1,e.2)&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">match_positional_variant</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s1">&#39;fusion(e.1,e.2)&#39;</span><span class="p">,</span> <span class="s1">&#39;EWSR1&#39;</span><span class="p">,</span> <span class="s1">&#39;FLI1&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">match_positional_variant</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s1">&#39;fusion(e.1,e.2)&#39;</span><span class="p">,</span> <span class="s1">&#39;#3:4&#39;</span><span class="p">,</span> <span class="s1">&#39;#4:5&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">match_positional_variant</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s1">&#39;fusion(e.1,e.2)&#39;</span><span class="p">,</span> <span class="s1">&#39;123&#39;</span><span class="p">,</span> <span class="s1">&#39;456&#39;</span><span class="p">,</span> <span class="n">gene_is_source_id</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gene_source</span><span class="o">=</span><span class="s1">&#39;entrez gene&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">match_positional_variant</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s1">&#39;KRAS:p.G12D&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<div class="codehilite"><pre><span></span><code><span class="n">match_positional_variant</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s1">&#39;p.G12D&#39;</span><span class="p">,</span> <span class="s1">&#39;KRAS&#39;</span><span class="p">)</span>
+</code></pre></div>
                 
               
               
