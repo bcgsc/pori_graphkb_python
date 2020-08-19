@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import List, cast, Iterable, Set
 
 from . import GraphKBConnection
 from .types import Ontology
@@ -80,7 +80,7 @@ def get_term_tree(
         include_superclasses: when True the query will include superclasses of the current term
 
     Returns:
-        List.<dict>: GraphKB records
+        GraphKB records
 
     Note: this must be done in 2 calls to avoid going up and down the tree in a single query (exclude adjacent siblings)
     """
@@ -156,3 +156,23 @@ def get_term_by_name(
     if len(result) != 1:
         raise AssertionError(f'unable to find term ({name}) by name')
     return cast(Ontology, result[0])
+
+
+def get_terms_set(
+    graphkb_conn: GraphKBConnection, base_terms: Iterable[str], ignore_cache: bool = False
+) -> Set[str]:
+    """
+    Get a set of terms of vocabulary given some base/parent term names. Returns the record
+    IDs for the resulting terms
+    """
+    cache_key = tuple(sorted(base_terms))
+    if graphkb_conn.cache.get(cache_key, None) and not ignore_cache:
+        return graphkb_conn.cache[cache_key]
+    terms = set()
+    for base_term in base_terms:
+        terms.update(
+            convert_to_rid_list(get_term_tree(graphkb_conn, base_term, include_superclasses=False))
+        )
+    if not ignore_cache:
+        graphkb_conn.cache[cache_key] = terms
+    return terms

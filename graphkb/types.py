@@ -2,7 +2,7 @@
 Type annotations used for static type checking in this module
 """
 
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Tuple
 
 try:
     from typing import TypedDict  # type: ignore
@@ -78,3 +78,6 @@ class Statement(Record):
     evidenceLevel: List[OntologyLink]
     source: RecordLink
     sourceId: str
+
+
+CategoryBaseTermMapping = List[Tuple[str, List[str]]]
