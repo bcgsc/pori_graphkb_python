@@ -75,3 +75,11 @@ class TestGetEquivalentTerms:
 def test_oncogenic(conn):
     result = vocab.get_term_by_name(conn, genes.ONCOGENE)
     assert result['name'] == genes.ONCOGENE
+
+
+def test_get_terms_set(conn):
+    terms = vocab.get_terms_set(conn, ['copy variant'])
+    assert terms
+    more_terms = vocab.get_terms_set(conn, ['copy variant', 'expression variant'])
+    assert more_terms
+    assert len(more_terms) > len(terms)
