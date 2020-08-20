@@ -13,7 +13,7 @@ from .util import logger
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 DEFAULT_LIMIT = 1000
 
-QUERY_CACHE = {}
+QUERY_CACHE: Dict[Any, Any] = {}
 
 
 def join_url(base_url: str, *parts) -> str:
@@ -64,7 +64,7 @@ class GraphKBConnection:
         self.username = ''
         self.password = ''
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-        self.cache: Dict[str, List[Any]] = {} if not use_global_cache else QUERY_CACHE
+        self.cache: Dict[Any, Any] = {} if not use_global_cache else QUERY_CACHE
         self.request_count = 0
         self.first_request: Optional[datetime] = None
         self.last_request: Optional[datetime] = None
