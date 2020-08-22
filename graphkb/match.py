@@ -82,7 +82,9 @@ def get_equivalent_features(
     if looks_like_rid(gene_name):
         return cast(
             List[Ontology],
-            conn.query({'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=False),
+            conn.query(
+                {'target': [gene_name], 'queryType': 'similarTo'}, ignore_cache=ignore_cache
+            ),
         )
 
     filters: List[Dict] = []
@@ -106,7 +108,7 @@ def get_equivalent_features(
         List[Ontology],
         conn.query(
             {'target': {'target': 'Feature', 'filters': filters}, 'queryType': 'similarTo'},
-            ignore_cache=False,
+            ignore_cache=ignore_cache,
         ),
     )
 
@@ -134,6 +136,7 @@ def match_category_variant(
     root_exclude_term: str = '',
     gene_source: str = '',
     gene_is_source_id: bool = False,
+    ignore_cache: bool = False,
 ) -> List[Variant]:
     """
     Returns a list of variants matching the input variant
@@ -152,7 +155,13 @@ def match_category_variant(
     """
     # disambiguate the gene to find all equivalent representations
     features = convert_to_rid_list(
-        get_equivalent_features(conn, gene_name, source=gene_source, is_source_id=gene_is_source_id)
+        get_equivalent_features(
+            conn,
+            gene_name,
+            source=gene_source,
+            is_source_id=gene_is_source_id,
+            ignore_cache=ignore_cache,
+        )
     )
 
     if not features:
@@ -161,7 +170,9 @@ def match_category_variant(
         )
 
     # get the list of terms that we should match
-    terms = convert_to_rid_list(get_term_tree(conn, category, root_exclude_term))
+    terms = convert_to_rid_list(
+        get_term_tree(conn, category, root_exclude_term, ignore_cache=ignore_cache)
+    )
 
     if not terms:
         raise ValueError(f'unable to find the term/category ({category}) or any equivalent')
@@ -180,7 +191,8 @@ def match_category_variant(
                 },
                 'queryType': 'similarTo',
                 'returnProperties': VARIANT_RETURN_PROPERTIES,
-            }
+            },
+            ignore_cache=ignore_cache,
         ),
     )
 
@@ -350,6 +362,7 @@ def match_positional_variant(
     reference2: Optional[str] = None,
     gene_is_source_id: bool = False,
     gene_source: str = '',
+    ignore_cache: bool = False,
 ) -> List[Variant]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
@@ -407,7 +420,13 @@ def match_positional_variant(
     else:
         gene1 = parsed['reference1']
     features = convert_to_rid_list(
-        get_equivalent_features(conn, gene1, source=gene_source, is_source_id=gene_is_source_id)
+        get_equivalent_features(
+            conn,
+            gene1,
+            source=gene_source,
+            is_source_id=gene_is_source_id,
+            ignore_cache=ignore_cache,
+        )
     )
 
     if not features:
@@ -437,7 +456,13 @@ def match_positional_variant(
 
     if gene2:
         secondary_features = convert_to_rid_list(
-            get_equivalent_features(conn, gene2, source=gene_source, is_source_id=gene_is_source_id)
+            get_equivalent_features(
+                conn,
+                gene2,
+                source=gene_source,
+                is_source_id=gene_is_source_id,
+                ignore_cache=ignore_cache,
+            )
         )
         if not secondary_features:
             raise FeatureNotFoundError(
@@ -446,7 +471,10 @@ def match_positional_variant(
     # disambiguate the variant type
     types = convert_to_rid_list(
         get_term_tree(
-            conn, parsed['type'], root_exclude_term='mutation' if secondary_features else '',
+            conn,
+            parsed['type'],
+            root_exclude_term='mutation' if secondary_features else '',
+            ignore_cache=ignore_cache,
         )
     )
 
@@ -466,7 +494,9 @@ def match_positional_variant(
 
     for row in cast(
         List[Record],
-        conn.query({'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=False),
+        conn.query(
+            {'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=ignore_cache
+        ),
     ):
         if compare_positional_variants(parsed, cast(PositionalVariant, row)):
             filtered.append(row)
@@ -482,7 +512,8 @@ def match_positional_variant(
                     'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
                     'treeEdges': ['Infers'],
                     'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
-                }
+                },
+                ignore_cache=ignore_cache,
             ),
         )
     matches.extend(
@@ -500,7 +531,8 @@ def match_positional_variant(
                 'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
                 'treeEdges': ['Infers'],
                 'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
-            }
+            },
+            ignore_cache=ignore_cache,
         )
     )
 
@@ -525,7 +557,7 @@ def match_positional_variant(
                     'treeEdges': [],
                     'returnProperties': VARIANT_RETURN_PROPERTIES,
                 },
-                ignore_cache=False,
+                ignore_cache=ignore_cache,
             )
         )
 
