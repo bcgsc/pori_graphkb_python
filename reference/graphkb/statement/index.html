@@ -15,7 +15,7 @@
     
     
       
-        <title>graphkb.vocab - GraphKB Python</title>
+        <title>graphkb.statement - GraphKB Python</title>
       
     
     
@@ -49,7 +49,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#graphkbvocab" class="md-skip">
+        <a href="#graphkbstatement" class="md-skip">
           Skip to content
         </a>
       
@@ -77,7 +77,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              graphkb.vocab
+              graphkb.statement
             
           </span>
         </div>
@@ -199,12 +199,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
     
     <label class="md-nav__link" for="nav-3">
       Reference
@@ -286,74 +284,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        graphkb.vocab
-        <span class="md-nav__icon md-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"/></svg>
-        </span>
-      </label>
-    
-    <a href="./" title="graphkb.vocab" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../vocab/" title="graphkb.vocab" class="md-nav__link">
       graphkb.vocab
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-      </span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#get_equivalent_terms" class="md-nav__link">
-    get_equivalent_terms()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get_term_tree" class="md-nav__link">
-    get_term_tree()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get_term_by_name" class="md-nav__link">
-    get_term_by_name()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get_terms_set" class="md-nav__link">
-    get_terms_set()
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
         
@@ -388,29 +323,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#get_equivalent_terms" class="md-nav__link">
-    get_equivalent_terms()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get_term_tree" class="md-nav__link">
-    get_term_tree()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get_term_by_name" class="md-nav__link">
-    get_term_by_name()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get_terms_set" class="md-nav__link">
-    get_terms_set()
+  <a href="#categorize_relevance" class="md-nav__link">
+    categorize_relevance()
   </a>
   
 </li>
@@ -427,7 +341,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/bcgsc/pori_graphkb_python/edit/master/docs/reference/graphkb/vocab.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/bcgsc/pori_graphkb_python/edit/master/docs/reference/graphkb/statement.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
@@ -435,95 +349,26 @@
                   
                 
                 
-                <h1 id="graphkbvocab">graphkb.vocab</h1>
-<h2 id="get_equivalent_terms">get_equivalent_terms()</h2>
-<p>Get a list of terms equivalent to the current term up to the root term</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_equivalent_terms</span><span class="p">(</span>
-    <span class="n">conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span>
-    <span class="n">base_term_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">root_exclude_term</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">ontology_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Vocabulary&#39;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Ontology</span><span class="p">]:</span>
-</code></pre></div>
-
-
-<p><strong>Args</strong></p>
-<ul>
-<li>conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>)</li>
-<li>base_term_name (<code>str</code>): the name to get superclasses of</li>
-<li>root_exclude_term (<code>str</code>): the parent term to exlcude along with all of its parent terms</li>
-<li>ontology_class (<code>str</code>)</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li>List[<a href="../types/#class-ontology">Ontology</a>]</li>
-</ul>
-<h2 id="get_term_tree">get_term_tree()</h2>
-<p>Get terms equivalent to the base term by traversing the subclassOf tree and expanding related
-alias and cross reference edges</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_term_tree</span><span class="p">(</span>
-    <span class="n">conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span>
-    <span class="n">base_term_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">root_exclude_term</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">ontology_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Vocabulary&#39;</span><span class="p">,</span>
-    <span class="n">include_superclasses</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Ontology</span><span class="p">]:</span>
-</code></pre></div>
-
-
-<p><strong>Args</strong></p>
-<ul>
-<li>conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>): the graphkb connection object</li>
-<li>base_term_name (<code>str</code>): the term to use as the base of the subclass tree</li>
-<li>root_exclude_term (<code>str</code>)</li>
-<li>ontology_class (<code>str</code>): the default class to query. Defaults to 'Vocabulary'</li>
-<li>include_superclasses (<code>bool</code>): when True the query will include superclasses of the current term</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li>List[<a href="../types/#class-ontology">Ontology</a>]: GraphKB records Note: this must be done in 2 calls to avoid going up and down the tree in a single query (exclude adjacent siblings)</li>
-</ul>
-<h2 id="get_term_by_name">get_term_by_name()</h2>
-<p>Retrieve a vocaulary term by name</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_term_by_name</span><span class="p">(</span>
-    <span class="n">conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ontology_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Vocabulary&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ontology</span><span class="p">:</span>
-</code></pre></div>
-
-
-<p><strong>Args</strong></p>
-<ul>
-<li>conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>): the graphkb connection object</li>
-<li>name (<code>str</code>): the name of the Vocabulary term to retrieve</li>
-<li>ontology_class (<code>str</code>)</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><a href="../types/#class-ontology">Ontology</a>: Vocabulary record</li>
-</ul>
-<p><strong>Raises</strong></p>
-<ul>
-<li><code>AssertionError</code>: more than one term or no terms with that name were found</li>
-<li><code>AssertionError</code>: if the term was not found or more than 1 match was found (expected to be unique)</li>
-</ul>
-<h2 id="get_terms_set">get_terms_set()</h2>
-<p>Get a set of terms of vocabulary given some base/parent term names. Returns the record
-IDs for the resulting terms</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_terms_set</span><span class="p">(</span>
-    <span class="n">graphkb_conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span> <span class="n">base_terms</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">ignore_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                <h1 id="graphkbstatement">graphkb.statement</h1>
+<h2 id="categorize_relevance">categorize_relevance()</h2>
+<p>Given the record ID of some relevance term, return the higher level categorization</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">categorize_relevance</span><span class="p">(</span>
+    <span class="n">graphkb_conn</span><span class="p">:</span> <span class="n">GraphKBConnection</span><span class="p">,</span>
+    <span class="n">relevance_rid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">category_base_terms</span><span class="p">:</span> <span class="n">CategoryBaseTermMapping</span> <span class="o">=</span> <span class="n">RELEVANCE_BASE_TERMS</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 </code></pre></div>
 
 
 <p><strong>Args</strong></p>
 <ul>
 <li>graphkb_conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>)</li>
-<li>base_terms (<code>Iterable[str]</code>)</li>
-<li>ignore_cache (<code>bool</code>)</li>
+<li>relevance_rid (<code>str</code>)</li>
+<li>category_base_terms (<a href="../types/#categorybasetermmapping">CategoryBaseTermMapping</a>)</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
-<li><code>Set[str]</code></li>
+<li><code>str</code></li>
 </ul>
                 
               
@@ -539,27 +384,6 @@ IDs for the resulting terms</p>
       
         
 <footer class="md-footer">
-  
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
-        
-          <a href="../util/" title="graphkb.util" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-            </div>
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Previous
-                </span>
-                graphkb.util
-              </div>
-            </div>
-          </a>
-        
-        
-      </nav>
-    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
