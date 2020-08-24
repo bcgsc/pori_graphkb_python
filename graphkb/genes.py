@@ -26,7 +26,9 @@ GENE_RETURN_PROPERTIES = [
 ]
 
 
-def _get_oncokb_gene_list(conn: GraphKBConnection, relevance: str) -> List[Ontology]:
+def _get_oncokb_gene_list(
+    conn: GraphKBConnection, relevance: str, ignore_cache: bool = False
+) -> List[Ontology]:
     source = conn.get_source(ONCOKB_SOURCE_NAME)['@rid']
 
     statements = cast(
@@ -40,7 +42,7 @@ def _get_oncokb_gene_list(conn: GraphKBConnection, relevance: str) -> List[Ontol
                 ],
                 'returnProperties': [f'subject.{prop}' for prop in GENE_RETURN_PROPERTIES],
             },
-            ignore_cache=False,
+            ignore_cache=ignore_cache,
         ),
     )
     genes: Dict[str, Ontology] = {}
@@ -80,7 +82,10 @@ def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
 
 
 def get_genes_from_variant_types(
-    conn: GraphKBConnection, types: List[str], source_record_ids: List[str] = []
+    conn: GraphKBConnection,
+    types: List[str],
+    source_record_ids: List[str] = [],
+    ignore_cache: bool = False,
 ) -> List[Ontology]:
     """
     Retrieve a list of Genes which are found in variants on the given types
@@ -103,6 +108,7 @@ def get_genes_from_variant_types(
                 ],
                 'returnProperties': ['reference1', 'reference2'],
             },
+            ignore_cache=ignore_cache,
         ),
     )
 
@@ -124,7 +130,8 @@ def get_genes_from_variant_types(
     result = cast(
         List[Ontology],
         conn.query(
-            {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters}
+            {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters},
+            ignore_cache=ignore_cache,
         ),
     )
     return result
