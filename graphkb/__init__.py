@@ -153,7 +153,7 @@ class GraphKBConnection:
         self,
         request_body: Dict = {},
         paginate: bool = True,
-        ignore_cache: bool = True,
+        ignore_cache: bool = False,
         force_refresh: bool = False,
         limit: int = DEFAULT_LIMIT,
     ) -> List[Record]:
@@ -163,7 +163,7 @@ class GraphKBConnection:
         result: List[Record] = []
         hash_code = ""
 
-        if not ignore_cache:
+        if not ignore_cache and paginate:
             hash_code = cache_key(request_body)
             if hash_code in self.cache and not force_refresh:
                 return self.cache[hash_code]
@@ -175,7 +175,7 @@ class GraphKBConnection:
             if len(records) < limit or not paginate:
                 break
 
-        if not ignore_cache:
+        if not ignore_cache and paginate:
             self.cache[hash_code] = result
         return result
 

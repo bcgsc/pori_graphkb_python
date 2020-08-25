@@ -20,7 +20,7 @@ BASE_THERAPEUTIC_TERMS = ['therapeutic efficacy', 'eligibility']
 RELEVANCE_BASE_TERMS: CategoryBaseTermMapping = [
     ('therapeutic', BASE_THERAPEUTIC_TERMS),
     # ('pharmacogenomic', ['metabolism', 'toxicity', 'dosage']) TODO: add when new pharmacogenomic section ready,
-    ('diagnositic', ['diagnostic indicator']),
+    ('diagnostic', ['diagnostic indicator']),
     ('prognostic', ['prognostic indicator']),
     ('biological', ['functional effect', 'tumourigenesis', 'predisposing']),
 ]

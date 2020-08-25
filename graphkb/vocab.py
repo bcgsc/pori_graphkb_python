@@ -10,6 +10,7 @@ def get_equivalent_terms(
     base_term_name: str,
     root_exclude_term: str = '',
     ontology_class: str = 'Vocabulary',
+    ignore_cache: bool = False,
 ) -> List[Ontology]:
     """
     Get a list of terms equivalent to the current term up to the root term
@@ -31,7 +32,7 @@ def get_equivalent_terms(
                 'treeEdges': [],
                 'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
             },
-            ignore_cache=False,
+            ignore_cache=ignore_cache,
         ),
     )
     if root_exclude_term:
@@ -54,7 +55,7 @@ def get_equivalent_terms(
                             '@rid',
                         ],
                     },
-                    ignore_cache=False,
+                    ignore_cache=ignore_cache,
                 )
             )
         )
@@ -68,6 +69,7 @@ def get_term_tree(
     root_exclude_term: str = '',
     ontology_class: str = 'Vocabulary',
     include_superclasses: bool = True,
+    ignore_cache: bool = False,
 ) -> List[Ontology]:
     """
     Get terms equivalent to the base term by traversing the subclassOf tree and expanding related
@@ -98,13 +100,17 @@ def get_term_tree(
                 'treeEdges': [],
                 'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
             },
-            ignore_cache=False,
+            ignore_cache=ignore_cache,
         ),
     )
     # get all parent terms of the subclass tree and disambiguate them
     if include_superclasses:
         parent_terms = get_equivalent_terms(
-            conn, base_term_name, root_exclude_term=root_exclude_term, ontology_class=ontology_class
+            conn,
+            base_term_name,
+            root_exclude_term=root_exclude_term,
+            ontology_class=ontology_class,
+            ignore_cache=ignore_cache,
         )
     else:
         parent_terms = []
@@ -118,7 +124,11 @@ def get_term_tree(
 
 
 def get_term_by_name(
-    conn: GraphKBConnection, name: str, ontology_class: str = 'Vocabulary', **kwargs
+    conn: GraphKBConnection,
+    name: str,
+    ontology_class: str = 'Vocabulary',
+    ignore_cache: bool = False,
+    **kwargs,
 ) -> Ontology:
     """
     Retrieve a vocaulary term by name
@@ -149,7 +159,7 @@ def get_term_by_name(
                 '@class',
             ],
         },
-        ignore_cache=False,
+        ignore_cache=ignore_cache,
         **kwargs,
     )
 
@@ -171,7 +181,11 @@ def get_terms_set(
     terms = set()
     for base_term in base_terms:
         terms.update(
-            convert_to_rid_list(get_term_tree(graphkb_conn, base_term, include_superclasses=False))
+            convert_to_rid_list(
+                get_term_tree(
+                    graphkb_conn, base_term, include_superclasses=False, ignore_cache=ignore_cache
+                )
+            )
         )
     if not ignore_cache:
         graphkb_conn.cache[cache_key] = terms

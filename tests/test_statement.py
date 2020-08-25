@@ -37,7 +37,7 @@ class TestCategorizeRelevance:
 
     def test_second_categoary(self, graphkb_conn):
         category = statement.categorize_relevance(graphkb_conn, '3')
-        assert category == 'diagnositic'
+        assert category == 'diagnostic'
 
     def test_no_match(self, graphkb_conn):
         category = statement.categorize_relevance(graphkb_conn, 'x')
