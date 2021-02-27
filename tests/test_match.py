@@ -222,24 +222,30 @@ class TestComparePositionalVariants:
     def test_ambiguous_refseq(self):
         # ambiguous AA matches anything the same length
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'T'}, {'break1Start': {'pos': 1}, 'refSeq': 'X'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'X'},
         )
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'T'}, {'break1Start': {'pos': 1}, 'refSeq': '?'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'refSeq': '?'},
         )
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'X'}, {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'X'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
         )
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': '?'}, {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'refSeq': '?'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
         )
 
     def test_refseq_length_mismatch(self):
         assert not match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': '??'}, {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'refSeq': '??'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
         )
         assert not match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': '?'}, {'break1Start': {'pos': 1}, 'refSeq': 'TT'},
+            {'break1Start': {'pos': 1}, 'refSeq': '?'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'TT'},
         )
 
     def test_diff_altseq(self):
@@ -256,12 +262,14 @@ class TestComparePositionalVariants:
 
     def test_diff_refseq(self):
         assert not match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'M'}, {'break1Start': {'pos': 1}, 'refSeq': 'R'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'M'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'R'},
         )
 
     def test_same_refseq_matches(self):
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'R'}, {'break1Start': {'pos': 1}, 'refSeq': 'R'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'R'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'R'},
         )
 
 
@@ -283,19 +291,22 @@ class TestMatchPositionalVariant:
     def test_uncertain_position_not_supported(self, conn):
         with pytest.raises(NotImplementedError):
             match.match_positional_variant(
-                conn, '(BCR,ABL1):fusion(e.13_24,e.3)',
+                conn,
+                '(BCR,ABL1):fusion(e.13_24,e.3)',
             )
 
     def test_bad_gene_name(self, conn):
         with pytest.raises(FeatureNotFoundError):
             match.match_positional_variant(
-                conn, 'ME-AS-A-GENE:p.G12D',
+                conn,
+                'ME-AS-A-GENE:p.G12D',
             )
 
     def test_bad_gene2_name(self, conn):
         with pytest.raises(FeatureNotFoundError):
             match.match_positional_variant(
-                conn, '(BCR,ME-AS-A-GENE):fusion(e.13,e.3)',
+                conn,
+                '(BCR,ME-AS-A-GENE):fusion(e.13,e.3)',
             )
 
     def test_match_explicit_reference1(self, conn):
