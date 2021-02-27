@@ -27,6 +27,27 @@ def conn() -> GraphKBConnection:
     return conn
 
 
+@pytest.fixture(scope='class')
+def kras(conn):
+    return [f['displayName'] for f in match.get_equivalent_features(conn, 'kras')]
+
+
+class TestGetEquivalentFeatures:
+    def test_kras_has_self(self, kras):
+        assert 'KRAS' in kras
+
+    def test_expands_aliases(self, kras):
+        assert 'KRAS2' in kras
+
+    def test_expands_elements(self, kras):
+        assert 'NM_033360' in kras
+        assert 'ENST00000311936' in kras
+
+    def test_expands_generalizations(self, kras):
+        assert 'NM_033360.4' in kras
+        assert 'ENSG00000133703.11' in kras
+
+
 class TestMatchCopyVariant:
     def test_bad_category(self, conn):
         with pytest.raises(ValueError):

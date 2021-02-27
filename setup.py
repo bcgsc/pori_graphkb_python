@@ -14,7 +14,7 @@ DEPLOYMENT_REQS = ['twine', 'wheel']
 DEV_REQS = (
     TEST_REQS
     + DEPLOYMENT_REQS
-    + ['black', 'flake8', 'flake8-annotations', 'isort', 'mypy']
+    + ['black==19.10b0', 'flake8', 'flake8-annotations', 'isort', 'mypy']
     + DOC_REQS
 )
 long_description = ''
