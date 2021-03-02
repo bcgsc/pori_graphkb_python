@@ -58,6 +58,8 @@ def get_equivalent_features(
     source_id_version: str = '',
 ) -> List[Ontology]:
     """
+    Match an equivalent list of features given some input feature name (or ID)
+
     Args:
         gene_name: the gene name to search features by
         ignore_cache (bool, optional): bypass the cache to always force a new request

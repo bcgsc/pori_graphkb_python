@@ -54,7 +54,7 @@ pip install .[doc]
 Then generate the user manual files
 
 ```bash
-markdown_refdocs graphkb -o docs/reference
+markdown_refdocs graphkb -o docs/reference --link
 mkdocs build
 ```
 
