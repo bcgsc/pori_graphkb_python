@@ -2,6 +2,7 @@ site_name: GraphKB Python
 nav:
   - Home: index.md
   - Tutorial: tutorial.md
+  - matching_algorithm.md
   - Reference:
       - graphkb: reference/graphkb/__init__.md
       - graphkb.genes: reference/graphkb/genes.md

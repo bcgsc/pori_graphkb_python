@@ -14,7 +14,7 @@ DEPLOYMENT_REQS = ['twine', 'wheel']
 DEV_REQS = (
     TEST_REQS
     + DEPLOYMENT_REQS
-    + ['black', 'flake8', 'flake8-annotations', 'isort', 'mypy']
+    + ['black==19.10b0', 'flake8', 'flake8-annotations', 'isort', 'mypy']
     + DOC_REQS
 )
 long_description = ''
@@ -30,7 +30,7 @@ except Exception:
 
 setup(
     name='graphkb',
-    version='1.5.1',
+    version='1.5.2',
     description='python adapter for interacting with the GraphKB API',
     url='https://github.com/bcgsc/pori_graphkb_python',
     packages=find_packages(),
