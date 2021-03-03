@@ -9,19 +9,19 @@
       
       
       
-      <link rel="shortcut icon" href="../../../assets/images/favicon.png">
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.3">
     
     
       
-        <title>graphkb - GraphKB Python</title>
+        <title>Matching Algorithm - GraphKB Python</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.1655a90d.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.1655a90d.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.7fa14f5b.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.7fa14f5b.min.css">
         
       
     
@@ -58,7 +58,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#graphkb" class="md-skip">
+        <a href="#matching-algorithm" class="md-skip">
           Skip to content
         </a>
       
@@ -71,7 +71,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="GraphKB Python" class="md-header__button md-logo" aria-label="GraphKB Python">
+    <a href=".." title="GraphKB Python" class="md-header__button md-logo" aria-label="GraphKB Python">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -90,7 +90,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              graphkb
+              Matching Algorithm
             
           </span>
         </div>
@@ -167,7 +167,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="GraphKB Python" class="md-nav__button md-logo" aria-label="GraphKB Python">
+    <a href=".." title="GraphKB Python" class="md-nav__button md-logo" aria-label="GraphKB Python">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -199,7 +199,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         Home
       </a>
     </li>
@@ -214,7 +214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../tutorial/" class="md-nav__link">
+      <a href="../tutorial/" class="md-nav__link">
         Tutorial
       </a>
     </li>
@@ -225,44 +225,6 @@
       
       
 
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../matching_algorithm/" class="md-nav__link">
-        Matching Algorithm
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-    
-  
-  
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
-      
-      <label class="md-nav__link" for="__nav_4">
-        Reference
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="Reference" data-md-level="1">
-        <label class="md-nav__title" for="__nav_4">
-          <span class="md-nav__icon md-icon"></span>
-          Reference
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
   
   
     
@@ -276,12 +238,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          graphkb
+          Matching Algorithm
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        graphkb
+        Matching Algorithm
       </a>
       
         
@@ -298,58 +260,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#default_url" class="md-nav__link">
-    DEFAULT_URL
+  <a href="#disease-example" class="md-nav__link">
+    Disease Example
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#default_limit" class="md-nav__link">
-    DEFAULT_LIMIT
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#query_cache" class="md-nav__link">
-    QUERY_CACHE
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#class-graphkbconnection" class="md-nav__link">
-    class GraphKBConnection
-  </a>
-  
-    <nav class="md-nav" aria-label="class GraphKBConnection">
+    <nav class="md-nav" aria-label="Disease Example">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#graphkbconnectionrequest" class="md-nav__link">
-    GraphKBConnection.request()
+  <a href="#match-diseases-by-name" class="md-nav__link">
+    Match Diseases by Name
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#graphkbconnectionpost" class="md-nav__link">
-    GraphKBConnection.post()
+  <a href="#resolve-disease-aliases" class="md-nav__link">
+    Resolve Disease Aliases
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#graphkbconnectionset_cache_data" class="md-nav__link">
-    GraphKBConnection.set_cache_data()
+  <a href="#follow-the-disease-subclass-tree" class="md-nav__link">
+    Follow the Disease Subclass Tree
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#graphkbconnectionquery" class="md-nav__link">
-    GraphKBConnection.query()
+  <a href="#resolve-final-disease-aliases" class="md-nav__link">
+    Resolve Final Disease Aliases
   </a>
   
 </li>
@@ -360,23 +301,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#join_url" class="md-nav__link">
-    join_url()
+  <a href="#gene-example" class="md-nav__link">
+    Gene Example
+  </a>
+  
+    <nav class="md-nav" aria-label="Gene Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#match-genes-by-name" class="md-nav__link">
+    Match Genes by Name
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#millis_interval" class="md-nav__link">
-    millis_interval()
+        
+          <li class="md-nav__item">
+  <a href="#resolve-gene-aliases" class="md-nav__link">
+    Resolve Gene Aliases
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#cache_key" class="md-nav__link">
-    cache_key()
+        
+          <li class="md-nav__item">
+  <a href="#follow-the-gene-elements-tree" class="md-nav__link">
+    Follow the Gene Elements Tree
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolve-final-gene-aliases" class="md-nav__link">
+    Resolve Final Gene Aliases
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -387,13 +348,49 @@
     </li>
   
 
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      <label class="md-nav__link" for="__nav_4">
+        Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
           
             
   
   
   
     <li class="md-nav__item">
-      <a href="../genes/" class="md-nav__link">
+      <a href="../reference/graphkb/__init__/" class="md-nav__link">
+        graphkb
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/graphkb/genes/" class="md-nav__link">
         graphkb.genes
       </a>
     </li>
@@ -405,7 +402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../match/" class="md-nav__link">
+      <a href="../reference/graphkb/match/" class="md-nav__link">
         graphkb.match
       </a>
     </li>
@@ -417,7 +414,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../types/" class="md-nav__link">
+      <a href="../reference/graphkb/types/" class="md-nav__link">
         graphkb.types
       </a>
     </li>
@@ -429,7 +426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../util/" class="md-nav__link">
+      <a href="../reference/graphkb/util/" class="md-nav__link">
         graphkb.util
       </a>
     </li>
@@ -441,7 +438,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../vocab/" class="md-nav__link">
+      <a href="../reference/graphkb/vocab/" class="md-nav__link">
         graphkb.vocab
       </a>
     </li>
@@ -479,58 +476,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#default_url" class="md-nav__link">
-    DEFAULT_URL
+  <a href="#disease-example" class="md-nav__link">
+    Disease Example
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#default_limit" class="md-nav__link">
-    DEFAULT_LIMIT
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#query_cache" class="md-nav__link">
-    QUERY_CACHE
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#class-graphkbconnection" class="md-nav__link">
-    class GraphKBConnection
-  </a>
-  
-    <nav class="md-nav" aria-label="class GraphKBConnection">
+    <nav class="md-nav" aria-label="Disease Example">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#graphkbconnectionrequest" class="md-nav__link">
-    GraphKBConnection.request()
+  <a href="#match-diseases-by-name" class="md-nav__link">
+    Match Diseases by Name
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#graphkbconnectionpost" class="md-nav__link">
-    GraphKBConnection.post()
+  <a href="#resolve-disease-aliases" class="md-nav__link">
+    Resolve Disease Aliases
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#graphkbconnectionset_cache_data" class="md-nav__link">
-    GraphKBConnection.set_cache_data()
+  <a href="#follow-the-disease-subclass-tree" class="md-nav__link">
+    Follow the Disease Subclass Tree
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#graphkbconnectionquery" class="md-nav__link">
-    GraphKBConnection.query()
+  <a href="#resolve-final-disease-aliases" class="md-nav__link">
+    Resolve Final Disease Aliases
   </a>
   
 </li>
@@ -541,23 +517,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#join_url" class="md-nav__link">
-    join_url()
+  <a href="#gene-example" class="md-nav__link">
+    Gene Example
+  </a>
+  
+    <nav class="md-nav" aria-label="Gene Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#match-genes-by-name" class="md-nav__link">
+    Match Genes by Name
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#millis_interval" class="md-nav__link">
-    millis_interval()
+        
+          <li class="md-nav__item">
+  <a href="#resolve-gene-aliases" class="md-nav__link">
+    Resolve Gene Aliases
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#cache_key" class="md-nav__link">
-    cache_key()
+        
+          <li class="md-nav__item">
+  <a href="#follow-the-gene-elements-tree" class="md-nav__link">
+    Follow the Gene Elements Tree
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolve-final-gene-aliases" class="md-nav__link">
+    Resolve Final Gene Aliases
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -573,123 +569,82 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/bcgsc/pori_graphkb_python/edit/master/docs/reference/graphkb/__init__.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/bcgsc/pori_graphkb_python/edit/master/docs/matching_algorithm.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="graphkb">graphkb</h1>
-<h2 id="default_url">DEFAULT_URL</h2>
-<div class="codehilite"><pre><span></span><code><span class="n">DEFAULT_URL</span> <span class="o">=</span> <span class="s1">&#39;https://graphkb-api.bcgsc.ca/api&#39;</span>
+                <h1 id="matching-algorithm">Matching Algorithm</h1>
+<p>The matching algorithm implemented by this adaptor heavily uses the Graph Structure of GraphKB
+to resolve aliases, generalisms, etc. The default behaviour of this algorithm is described below.</p>
+<h2 id="disease-example">Disease Example</h2>
+<p>In the following example, the user is trying to get all <em>equivalent</em> disease terms to the patient's
+diagnosis. The patient has a diagnosis of "Breast Adenocarcinoma". Below is a diagram of a subset of
+Disease Ontology and NCIt terms and their relationships. This is the default behaviour of the
+<a href="./../reference/graphkb/vocab/#get_term_tree"><code>get_term_tree()</code></a> function.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">graphkb.vocab</span> <span class="kn">import</span> <span class="n">get_term_tree</span>
+
+<span class="n">matched_terms</span> <span class="o">=</span> <span class="n">get_term_tree</span><span class="p">(</span>
+    <span class="n">graphkb_conn</span><span class="p">,</span>  <span class="c1"># previously set up connection</span>
+    <span class="s1">&#39;breast adenocarcinoma&#39;</span><span class="p">,</span>
+    <span class="n">ontology_class</span><span class="o">=</span> <span class="s1">&#39;Disease&#39;</span>
+<span class="p">)</span>
 </code></pre></div>
 
-<h2 id="default_limit">DEFAULT_LIMIT</h2>
-<div class="codehilite"><pre><span></span><code><span class="n">DEFAULT_LIMIT</span> <span class="o">=</span> <span class="mi">1000</span>
+<p><img alt="initial graph" src="../images/pori-disease-matching-1.png" /></p>
+<p>In the above diagram the "A" indicates an "alias" type relationship and the "S" indicates a <code>SubClassOf</code> type relationship.</p>
+<h3 id="match-diseases-by-name">Match Diseases by Name</h3>
+<p>The first thing the algorithm does is find all Disease terms that exactly match the input term
+(ignoring case)</p>
+<p><img alt="match by name" src="../images/pori-disease-matching-2.png" /></p>
+<p>The matched records (terms) are highlighted in blue. We can see it has matched both the Disease
+Ontology and NCIt terms.</p>
+<h3 id="resolve-disease-aliases">Resolve Disease Aliases</h3>
+<p>The next step is to resolve equivalent names of the current set of terms (the two terms matched
+above). While in practice this will resolve many more relationship types, we have only shown
+the <code>AliasOf</code> relationship here for simplicity. The following relationship types would be treated
+identically in practice: <code>CrossReferenceOf</code>, <code>GeneralizationOf</code>, <code>DeprecatedBy</code>, and <code>Infers</code>.</p>
+<p><img alt="resolve aliases" src="../images/pori-disease-matching-3.png" /></p>
+<h3 id="follow-the-disease-subclass-tree">Follow the Disease Subclass Tree</h3>
+<p>The next step is to follow the subclass relationships. All the more specific subclasses of the
+current set of terms is matched and all the less specific superclasses of the current set of terms
+are matched. Although not shown for simplcity, <code>ElementOf</code> relationships are treated the same as
+<code>SubClassOf</code> relationships by default.</p>
+<p><img alt="subclass tree" src="../images/pori-disease-matching-4.png" /></p>
+<h3 id="resolve-final-disease-aliases">Resolve Final Disease Aliases</h3>
+<p>Finally we expand the current set of terms by alias terms again to capture aliases of the more
+general parent and more specific child terms expanded in the previous step.</p>
+<p><img alt="resolve aliases" src="../images/pori-disease-matching-5.png" /></p>
+<p>As we can see above we have collected all terms appropriately related to "Breast Carcinoma" while
+excluding the thyroid carcinoma terms. Now we have a set of equivalent disease terms we can use
+to find related statements or classify statements as matching or not matching the patient's disease.</p>
+<h2 id="gene-example">Gene Example</h2>
+<p>The <a href="./../reference/graphkb/match/#get_equivalent_features"><code>get_equivalent_features()</code></a> method is
+used to find genes <em>equivalent</em> to the input/target feature.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">graphkb.match</span> <span class="kn">import</span> <span class="n">get_equivalent_features</span>
+
+<span class="n">genes</span> <span class="o">=</span> <span class="n">get_equivalent_features</span><span class="p">(</span><span class="n">graphkb_conn</span><span class="p">,</span> <span class="s1">&#39;KRAS&#39;</span><span class="p">)</span>
 </code></pre></div>
 
-<h2 id="query_cache">QUERY_CACHE</h2>
-<div class="codehilite"><pre><span></span><code><span class="n">QUERY_CACHE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</code></pre></div>
-
-<h2 id="class-graphkbconnection">class GraphKBConnection</h2>
-<h3 id="graphkbconnectionrequest">GraphKBConnection.request()</h3>
-<p>Request wrapper to handle adding common headers and logging</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-</code></pre></div>
-
-<p><strong>Args</strong></p>
-<ul>
-<li>endpoint (<code>str</code>): api endpoint, excluding the base uri</li>
-<li>method (<code>str</code>): the http method. Defaults to 'GET'.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>Dict</code>: the json response as a python dict</li>
-</ul>
-<h3 id="graphkbconnectionpost">GraphKBConnection.post()</h3>
-<p>Convenience method for making post requests</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-</code></pre></div>
-
-<p><strong>Args</strong></p>
-<ul>
-<li>uri (<code>str</code>)</li>
-<li>data (<code>Dict</code>)</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>Dict</code></li>
-</ul>
-<h3 id="graphkbconnectionset_cache_data">GraphKBConnection.set_cache_data()</h3>
-<p>Explicitly add a query to the cache</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_cache_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_body</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Record</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</code></pre></div>
-
-<p><strong>Args</strong></p>
-<ul>
-<li>request_body (<code>Dict</code>)</li>
-<li>result (List[<a href="../types/#record">Record</a>])</li>
-</ul>
-<h3 id="graphkbconnectionquery">GraphKBConnection.query()</h3>
-<p>Query GraphKB</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">query</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">request_body</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span>
-    <span class="n">paginate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">ignore_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">force_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_LIMIT</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Record</span><span class="p">]:</span>
-</code></pre></div>
-
-<p><strong>Args</strong></p>
-<ul>
-<li>request_body (<code>Dict</code>)</li>
-<li>paginate (<code>bool</code>)</li>
-<li>ignore_cache (<code>bool</code>)</li>
-<li>force_refresh (<code>bool</code>)</li>
-<li>limit (<code>int</code>)</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li>List[<a href="../types/#record">Record</a>]</li>
-</ul>
-<h2 id="join_url">join_url()</h2>
-<p>Join parts of a URL into a full URL</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">join_url</span><span class="p">(</span><span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</code></pre></div>
-
-<p><strong>Args</strong></p>
-<ul>
-<li>base_url (<code>str</code>)</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>str</code></li>
-</ul>
-<h2 id="millis_interval">millis_interval()</h2>
-<p>start and end are datetime instances</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">millis_interval</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</code></pre></div>
-
-<p><strong>Args</strong></p>
-<ul>
-<li>start (<code>datetime</code>)</li>
-<li>end (<code>datetime</code>)</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>int</code></li>
-</ul>
-<h2 id="cache_key">cache_key()</h2>
-<p>create a cache key for a query request to GraphKB</p>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">cache_key</span><span class="p">(</span><span class="n">request_body</span><span class="p">):</span>
-</code></pre></div>
-
-<p><strong>Args</strong></p>
-<ul>
-<li>request_body</li>
-</ul>
+<p>This will use a similar algorithm to what we have seen above in the disease matching example.</p>
+<p><img alt="initial graph" src="../images/pori-gene-matching-1.png" /></p>
+<p>In the graph above the relationship types shown are: <code>GeneralizationOf</code> (G), <code>ElementOf</code> (E),
+<code>DeprecatedBy</code> (D), and <code>CrossReferenceOf</code> (X).</p>
+<h3 id="match-genes-by-name">Match Genes by Name</h3>
+<p>Like before, the first thing done is to match the input name</p>
+<p><img alt="match by name" src="../images/pori-gene-matching-2.png" /></p>
+<h3 id="resolve-gene-aliases">Resolve Gene Aliases</h3>
+<p>The next step is to resolve equivalent names of the current set of terms.</p>
+<p><img alt="resolve aliases" src="../images/pori-gene-matching-3.png" /></p>
+<h3 id="follow-the-gene-elements-tree">Follow the Gene Elements Tree</h3>
+<p>The next step is to follow the element relationships. This is treated the same as the subclassing
+except now our "tree edge" is the <code>ElementOf</code> relationship type.</p>
+<p><img alt="element tree" src="../images/pori-gene-matching-4.png" /></p>
+<h3 id="resolve-final-gene-aliases">Resolve Final Gene Aliases</h3>
+<p>Finally we expand the current set of terms by alias terms again to capture aliases of the more
+general parent and more specific child terms expanded in the previous step.</p>
+<p><img alt="resolve aliases" src="../images/pori-gene-matching-5.png" /></p>
+<p>We have now collected all of the different terms for KRAS</p>
                 
               
               
@@ -707,7 +662,7 @@
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../../../matching_algorithm/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../tutorial/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -716,19 +671,19 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              Matching Algorithm
+              Tutorial
             </div>
           </div>
         </a>
       
       
-        <a href="../genes/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="../reference/graphkb/__init__/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              graphkb.genes
+              graphkb
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -756,10 +711,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../../../assets/javascripts/workers/search.fb4a9340.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fb4a9340.min.js", "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ca5457b8.min.js"></script>
+      <script src="../assets/javascripts/bundle.ca5457b8.min.js"></script>
       
     
   </body>
