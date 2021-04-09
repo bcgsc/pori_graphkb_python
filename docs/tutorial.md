@@ -20,13 +20,17 @@ The first thing to do is setting up the connection to the API
 ```python
 from graphkb import GraphKBConnection
 
-graphkb_conn = GraphKBConnection()
+GKB_API_URL = 'https://pori-demo.bcgsc.ca/graphkb-api/api'
+GKB_USER = 'colab_demo'
+GKB_PASSWORD = 'colab_demo'
+
+graphkb_conn = GraphKBConnection(GKB_API_URL, use_global_cache=False)
 ```
 
 Next, use this to login
 
 ```python
-graphkb_conn.login(username, password)
+graphkb_conn.login(GKB_USER, GKB_PASSWORD)
 ```
 
 This will store the credentials passed on the connection object and re-login as required.
