@@ -1,6 +1,9 @@
 # Tutorial
 
-This tutorial will cover how to get started using GraphKB to annotate your variants.
+This tutorial will cover how to get started using GraphKB to annotate your variants. There is an
+interative/jupyter version of this tutorial `docs/tutorial.pynb` which can be run in a web browser
+using [google colab](https://colab.research.google.com/github/bcgsc/pori_graphkb_python/blob/master/docs/pori_graphkb_python_tutorial.ipynb)
+or a local jupyter server
 
 ## Install
 
