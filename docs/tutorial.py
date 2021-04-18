@@ -1,13 +1,18 @@
-from graphkb import GraphKBConnection
-from graphkb.match import match_positional_variant
 import os
+
+from graphkb import GraphKBConnection
 from graphkb.constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
+from graphkb.match import match_positional_variant
 from graphkb.util import convert_to_rid_list
 from graphkb.vocab import get_term_tree
 
+GKB_API_URL = 'https://pori-demo.bcgsc.ca/graphkb-api/api'
+GKB_USER = 'colab_demo'
+GKB_PASSWORD = 'colab_demo'
 
-graphkb_conn = GraphKBConnection()
-graphkb_conn.login(os.environ['USER'], os.environ['JIRA_PASS'])
+graphkb_conn = GraphKBConnection(GKB_API_URL, use_global_cache=False)
+graphkb_conn.login(GKB_USER, GKB_PASSWORD)
+
 
 variant_name = 'KRAS:p.G12D'
 variant_matches = match_positional_variant(graphkb_conn, variant_name)
