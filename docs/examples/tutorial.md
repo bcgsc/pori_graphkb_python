@@ -1,7 +1,7 @@
-# Tutorial
+# Matching Tutorial
 
 This tutorial will cover how to get started using GraphKB to annotate your variants. There is an
-interative/jupyter version of this tutorial `docs/tutorial.pynb` which can be run in a web browser
+interative/jupyter version of this tutorial ([tutorial.pynb](./tutorial.pynb)) which can be run in a web browser
 using [google colab](https://colab.research.google.com/github/bcgsc/pori_graphkb_python/blob/master/docs/pori_graphkb_python_tutorial.ipynb)
 or a local jupyter server
 
@@ -177,8 +177,7 @@ for statement in statements:
 ```
 
 Similar filtering can be done for the other properties and any other base-term classification you
-would like to use. Use the graph view at https://graphkb.bcgsc.ca to explore record relationships
-and decide on the categories you would like to use.
+would like to use. Use the graph view at [https://graphkb.bcgsc.ca](https://graphkb.bcgsc.ca)
+to explore record relationships and decide on the categories you would like to use.
 
-The full code for this tutorial can be downloaded from the
-[github repo](https://github.com/bcgsc/pori_graphkb_python) under `docs/tutorial.py`
+The full code for this tutorial can be downloaded [here](./tutorial.py)

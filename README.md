@@ -19,27 +19,27 @@ Python adapter package for querying the GraphKB API. See the [user manual](https
 
 clone this repository
 
-```
+```bash
 git clone https://github.com/bcgsc/pori_graphkb_python
 cd pori_graphkb_python
 ```
 
 create a virtual environment
 
-```
+```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 install the package and its development dependencies
 
-```
+```bash
 pip install -e .[dev]
 ```
 
 ### Run Tests
 
-```
+```bash
 pytest tests
 ```
 

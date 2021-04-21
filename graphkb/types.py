@@ -2,7 +2,7 @@
 Type annotations used for static type checking in this module
 """
 
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Tuple, Union
 
 try:
     from typing import TypedDict  # type: ignore
@@ -19,6 +19,7 @@ class Ontology(Record):
     sourceId: str
     name: str
     source: RecordLink
+    displayName: str
 
 
 OntologyLink = Union[str, Ontology]
@@ -43,6 +44,7 @@ class Variant(Record):
     type: OntologyLink
     zygosity: str
     germline: bool
+    displayName: str
 
 
 class PositionalVariant(Variant):
