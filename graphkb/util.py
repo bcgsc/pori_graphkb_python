@@ -3,6 +3,7 @@ import logging
 import re
 from typing import Iterable, List
 
+from .constants import AA_3to1_MAPPING
 from .types import Record
 
 # name the logger after the package to make it simple to disable for packages using this one as a dependency
@@ -56,3 +57,28 @@ def looks_like_rid(rid: str) -> bool:
     if re.match(r'^#-?\d+:-?\d+$', rid):
         return True
     return False
+
+
+def convert_aa_3to1(three_letter_notation: str) -> str:
+    """
+    Convert an Input string from 3 letter AA notation to 1 letter AA notation
+    """
+    result = []
+
+    if ':' in three_letter_notation:
+        # do not include the feature/gene in replacements
+        pos = three_letter_notation.index(':')
+        result.append(three_letter_notation[: pos + 1])
+        three_letter_notation = three_letter_notation[pos + 1 :]
+
+    last_match_end = 0  # exclusive interval [ )
+
+    for match in re.finditer(r'[A-Z][a-z][a-z]', three_letter_notation):
+        # add the in-between string
+        result.append(three_letter_notation[last_match_end : match.start()])
+        text = three_letter_notation[match.start() : match.end()]
+        result.append(AA_3to1_MAPPING.get(text, text))
+        last_match_end = match.end()
+
+    result.append(three_letter_notation[last_match_end:])
+    return ''.join(result)

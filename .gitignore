@@ -13,6 +13,7 @@ pytest.xml
 htmlcov
 build-docs
 docs/reference
+.ipynb_checkpoints
 
 # other
 .~*
