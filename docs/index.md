@@ -1,4 +1,4 @@
-# GraphKB Python Adapter User Manual
+# User Manual
 
 The GraphKB python adapter is a python package to facilitate interacting with the GraphKB API.
 The GraphKB API is a REST API [https://graphkb.bcgsc.ca/api)](https://graphkb.bcgsc.ca/api). The openapi specification
