@@ -7,3 +7,9 @@ site_dir: build-docs
 markdown_extensions:
   - codehilite
   - admonition
+  - pymdownx.arithmatex:
+      generic: true
+extra_javascript:
+  - js/mathjax.config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
