@@ -14,7 +14,7 @@
     
     
       
-        <title>Matching Algorithm - GraphKB Python</title>
+        <title>Ontology Algorithm - GraphKB Python</title>
       
     
     
@@ -59,7 +59,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#matching-algorithm" class="md-skip">
+        <a href="#ontology-algorithm" class="md-skip">
           Skip to content
         </a>
       
@@ -89,7 +89,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Matching Algorithm
+              Ontology Algorithm
             
           </span>
         </div>
@@ -211,6 +211,29 @@
     
   
   
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      <label class="md-nav__link" for="__nav_2">
+        Matching
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Matching" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Matching
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
@@ -220,12 +243,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Matching Algorithm
+          Ontology Algorithm
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Matching Algorithm
+        Ontology Algorithm
       </a>
       
         
@@ -243,84 +266,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#disease-example" class="md-nav__link">
-    Disease Example
+  <a href="#definitions" class="md-nav__link">
+    Definitions
   </a>
-  
-    <nav class="md-nav" aria-label="Disease Example">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#match-diseases-by-name" class="md-nav__link">
-    Match Diseases by Name
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#resolve-disease-aliases" class="md-nav__link">
-    Resolve Disease Aliases
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#follow-the-disease-subclass-tree" class="md-nav__link">
-    Follow the Disease Subclass Tree
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#resolve-final-disease-aliases" class="md-nav__link">
-    Resolve Final Disease Aliases
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#gene-example" class="md-nav__link">
-    Gene Example
-  </a>
-  
-    <nav class="md-nav" aria-label="Gene Example">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#match-genes-by-name" class="md-nav__link">
-    Match Genes by Name
+  <a href="#match-by-name" class="md-nav__link">
+    Match by Name
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#resolve-gene-aliases" class="md-nav__link">
-    Resolve Gene Aliases
+      
+        <li class="md-nav__item">
+  <a href="#resolve-aliases" class="md-nav__link">
+    Resolve Aliases
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#follow-the-gene-elements-tree" class="md-nav__link">
-    Follow the Gene Elements Tree
+      
+        <li class="md-nav__item">
+  <a href="#follow-the-directional-edges" class="md-nav__link">
+    Follow the Directional Edges
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#resolve-final-gene-aliases" class="md-nav__link">
-    Resolve Final Gene Aliases
+      
+        <li class="md-nav__item">
+  <a href="#resolve-final-aliases" class="md-nav__link">
+    Resolve Final Aliases
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -331,38 +307,14 @@
     </li>
   
 
-    
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
-      
-      <label class="md-nav__link" for="__nav_3">
-        Examples
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="Examples" data-md-level="1">
-        <label class="md-nav__title" for="__nav_3">
-          <span class="md-nav__icon md-icon"></span>
-          Examples
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
           
             
   
   
   
     <li class="md-nav__item">
-      <a href="../examples/snpsift/" class="md-nav__link">
-        Annotate SNPSift Files
+      <a href="disease/" class="md-nav__link">
+        Disease Example
       </a>
     </li>
   
@@ -373,8 +325,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/tutorial/" class="md-nav__link">
-        Matching Tutorial
+      <a href="gene/" class="md-nav__link">
+        Gene Example
       </a>
     </li>
   
@@ -397,14 +349,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
       
-      <label class="md-nav__link" for="__nav_4">
+      <label class="md-nav__link" for="__nav_3">
         Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Reference" data-md-level="1">
-        <label class="md-nav__title" for="__nav_4">
+        <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
           Reference
         </label>
@@ -418,14 +370,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_1" type="checkbox" id="__nav_4_1" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1" type="checkbox" id="__nav_3_1" >
       
-      <label class="md-nav__link" for="__nav_4_1">
+      <label class="md-nav__link" for="__nav_3_1">
         Graphkb
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Graphkb" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_1">
+        <label class="md-nav__title" for="__nav_3_1">
           <span class="md-nav__icon md-icon"></span>
           Graphkb
         </label>
@@ -527,6 +479,60 @@
   
 
     
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      <label class="md-nav__link" for="__nav_4">
+        Usage examples
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Usage examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Usage examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage_examples/snpsift/" class="md-nav__link">
+        Annotate SNPSift Files
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage_examples/tutorial/" class="md-nav__link">
+        Matching Tutorial
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -553,84 +559,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#disease-example" class="md-nav__link">
-    Disease Example
+  <a href="#definitions" class="md-nav__link">
+    Definitions
   </a>
-  
-    <nav class="md-nav" aria-label="Disease Example">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#match-diseases-by-name" class="md-nav__link">
-    Match Diseases by Name
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#resolve-disease-aliases" class="md-nav__link">
-    Resolve Disease Aliases
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#follow-the-disease-subclass-tree" class="md-nav__link">
-    Follow the Disease Subclass Tree
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#resolve-final-disease-aliases" class="md-nav__link">
-    Resolve Final Disease Aliases
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#gene-example" class="md-nav__link">
-    Gene Example
-  </a>
-  
-    <nav class="md-nav" aria-label="Gene Example">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#match-genes-by-name" class="md-nav__link">
-    Match Genes by Name
+  <a href="#match-by-name" class="md-nav__link">
+    Match by Name
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#resolve-gene-aliases" class="md-nav__link">
-    Resolve Gene Aliases
+      
+        <li class="md-nav__item">
+  <a href="#resolve-aliases" class="md-nav__link">
+    Resolve Aliases
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#follow-the-gene-elements-tree" class="md-nav__link">
-    Follow the Gene Elements Tree
+      
+        <li class="md-nav__item">
+  <a href="#follow-the-directional-edges" class="md-nav__link">
+    Follow the Directional Edges
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#resolve-final-gene-aliases" class="md-nav__link">
-    Resolve Final Gene Aliases
+      
+        <li class="md-nav__item">
+  <a href="#resolve-final-aliases" class="md-nav__link">
+    Resolve Final Aliases
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -646,82 +605,97 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/bcgsc/pori_graphkb_python/edit/master/docs/matching_algorithm.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/bcgsc/pori_graphkb_python/edit/master/docs/matching/index.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="matching-algorithm">Matching Algorithm</h1>
+                <h1 id="ontology-algorithm">Ontology Algorithm</h1>
 <p>The matching algorithm implemented by this adaptor heavily uses the Graph Structure of GraphKB
-to resolve aliases, generalisms, etc. The default behaviour of this algorithm is described below.</p>
-<h2 id="disease-example">Disease Example</h2>
-<p>In the following example, the user is trying to get all <em>equivalent</em> disease terms to the patient's
-diagnosis. The patient has a diagnosis of "Breast Adenocarcinoma". Below is a diagram of a subset of
-Disease Ontology and NCIt terms and their relationships. This is the default behaviour of the
-<a href="./../reference/graphkb/vocab/#get_term_tree"><code>get_term_tree()</code></a> function.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">graphkb.vocab</span> <span class="kn">import</span> <span class="n">get_term_tree</span>
-
-<span class="n">matched_terms</span> <span class="o">=</span> <span class="n">get_term_tree</span><span class="p">(</span>
-    <span class="n">graphkb_conn</span><span class="p">,</span>  <span class="c1"># previously set up connection</span>
-    <span class="s1">&#39;breast adenocarcinoma&#39;</span><span class="p">,</span>
-    <span class="n">ontology_class</span><span class="o">=</span> <span class="s1">&#39;Disease&#39;</span>
-<span class="p">)</span>
-</code></pre></div>
-
-<p><img alt="initial graph" src="../images/pori-disease-matching-1.png" /></p>
-<p>In the above diagram the "A" indicates an "alias" type relationship and the "S" indicates a <code>SubClassOf</code> type relationship.</p>
-<h3 id="match-diseases-by-name">Match Diseases by Name</h3>
-<p>The first thing the algorithm does is find all Disease terms that exactly match the input term
-(ignoring case)</p>
-<p><img alt="match by name" src="../images/pori-disease-matching-2.png" /></p>
-<p>The matched records (terms) are highlighted in blue. We can see it has matched both the Disease
-Ontology and NCIt terms.</p>
-<h3 id="resolve-disease-aliases">Resolve Disease Aliases</h3>
-<p>The next step is to resolve equivalent names of the current set of terms (the two terms matched
-above). While in practice this will resolve many more relationship types, we have only shown
-the <code>AliasOf</code> relationship here for simplicity. The following relationship types would be treated
-identically in practice: <code>CrossReferenceOf</code>, <code>GeneralizationOf</code>, <code>DeprecatedBy</code>, and <code>Infers</code>.</p>
-<p><img alt="resolve aliases" src="../images/pori-disease-matching-3.png" /></p>
-<h3 id="follow-the-disease-subclass-tree">Follow the Disease Subclass Tree</h3>
-<p>The next step is to follow the subclass relationships. All the more specific subclasses of the
-current set of terms is matched and all the less specific superclasses of the current set of terms
-are matched. Although not shown for simplcity, <code>ElementOf</code> relationships are treated the same as
-<code>SubClassOf</code> relationships by default.</p>
-<p><img alt="subclass tree" src="../images/pori-disease-matching-4.png" /></p>
-<h3 id="resolve-final-disease-aliases">Resolve Final Disease Aliases</h3>
-<p>Finally we expand the current set of terms by alias terms again to capture aliases of the more
-general parent and more specific child terms expanded in the previous step.</p>
-<p><img alt="resolve aliases" src="../images/pori-disease-matching-5.png" /></p>
-<p>As we can see above we have collected all terms appropriately related to "Breast Carcinoma" while
-excluding the thyroid carcinoma terms. Now we have a set of equivalent disease terms we can use
-to find related statements or classify statements as matching or not matching the patient's disease.</p>
-<h2 id="gene-example">Gene Example</h2>
-<p>The <a href="./../reference/graphkb/match/#get_equivalent_features"><code>get_equivalent_features()</code></a> method is
-used to find genes <em>equivalent</em> to the input/target feature.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">graphkb.match</span> <span class="kn">import</span> <span class="n">get_equivalent_features</span>
-
-<span class="n">genes</span> <span class="o">=</span> <span class="n">get_equivalent_features</span><span class="p">(</span><span class="n">graphkb_conn</span><span class="p">,</span> <span class="s1">&#39;KRAS&#39;</span><span class="p">)</span>
-</code></pre></div>
-
-<p>This will use a similar algorithm to what we have seen above in the disease matching example.</p>
-<p><img alt="initial graph" src="../images/pori-gene-matching-1.png" /></p>
-<p>In the graph above the relationship types shown are: <code>GeneralizationOf</code> (G), <code>ElementOf</code> (E),
-<code>DeprecatedBy</code> (D), and <code>CrossReferenceOf</code> (X).</p>
-<h3 id="match-genes-by-name">Match Genes by Name</h3>
-<p>Like before, the first thing done is to match the input name</p>
-<p><img alt="match by name" src="../images/pori-gene-matching-2.png" /></p>
-<h3 id="resolve-gene-aliases">Resolve Gene Aliases</h3>
-<p>The next step is to resolve equivalent names of the current set of terms.</p>
-<p><img alt="resolve aliases" src="../images/pori-gene-matching-3.png" /></p>
-<h3 id="follow-the-gene-elements-tree">Follow the Gene Elements Tree</h3>
-<p>The next step is to follow the element relationships. This is treated the same as the subclassing
-except now our "tree edge" is the <code>ElementOf</code> relationship type.</p>
-<p><img alt="element tree" src="../images/pori-gene-matching-4.png" /></p>
-<h3 id="resolve-final-gene-aliases">Resolve Final Gene Aliases</h3>
-<p>Finally we expand the current set of terms by alias terms again to capture aliases of the more
-general parent and more specific child terms expanded in the previous step.</p>
-<p><img alt="resolve aliases" src="../images/pori-gene-matching-5.png" /></p>
-<p>We have now collected all of the different terms for KRAS</p>
+to resolve aliases, generalisms, etc. The default behaviour of this algorithm is described below
+and shown in the related examples. This is primarily accomplished via the <code>similarTo</code> query type
+provided by the GraphKB API.</p>
+<h2 id="definitions">Definitions</h2>
+<p>The entire knowledge base is defined as the graph</p>
+<div class="arithmatex">\[
+G = (V, E)
+\]</div>
+<p>Below, subsets of Edges by their <code>@class</code> attribute are denoted as follows</p>
+<div class="arithmatex">\[
+E_{&lt;class&gt;} = \{e: e \in E, e.class = \text{&lt;class&gt;} \}
+\]</div>
+<p>The edges are divided into two main groups for expansion: equivalency (<span class="arithmatex">\(E_{eq}\)</span>)
+and directional/tree (<span class="arithmatex">\(E_{dir}\)</span>) edges</p>
+<div class="arithmatex">\[
+\begin{align*}
+    E_{eq} &amp; = \{e: e \in E_{GeneralizationOf} \cup E_{AliasOf} \cup E_{CrossReferenceOf} \cup E_{DeprecatedBy} \cup E_{Infers} \}\\
+    E_{dir} &amp; = \{e: e \in E_{SubClassOf} \cup E_{ElementOf} \}
+\end{align*}
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">Edge Groups are Configurable</p>
+<p>These are the default division of Edges. However, classes used for equivalent and tree edges
+can be configured in the query body of similarTo type
+queries sent to GraphKB</p>
+</div>
+<p>The target class (T) is used to define the subgraph by the subset of vertices which belong to a
+the vertex class given as the target of the query (ex. Disease)</p>
+<div class="arithmatex">\[
+\begin{align*}
+    V_t = &amp; \{v: v \in V, v.class = \text{t} \} \\
+    G_t = &amp; (V_t,  E) \\
+\end{align*}
+\]</div>
+<p>which are used to define the corresponding subgraphs. Note that the equivalency subgraph
+is undirected as edges are added for both directions</p>
+<div class="arithmatex">\[
+\begin{align*}
+    G_{eq} = &amp; (V_t, \{uv: \{(u, v), (v, u)\} \cap E_{eq} \neq \emptyset\}) \\
+    G_{dir} = &amp; (V_t, \{uv: (u, v) \in E_{dir}\}) \\
+\end{align*}
+\]</div>
+<h2 id="match-by-name">Match by Name</h2>
+<p>Matching begins with a subset of vertices which are selected by their name attribute</p>
+<div class="arithmatex">\[
+\begin{equation}
+V_{m} = \{v: v \in V(G_{t}), v.name = x\}
+\end{equation}
+\]</div>
+<h2 id="resolve-aliases">Resolve Aliases</h2>
+<p>Next, equivalency edges (<span class="arithmatex">\(E_{eq}\)</span>) are followed bidirectionally from the name matched set of vertices
+(<span class="arithmatex">\(V_{m}\)</span>) to a specified depth (<span class="arithmatex">\(n\)</span>) using a breadth first search. This is defined as the set
+of walks, <span class="arithmatex">\(W\)</span> on the equivalency subgraph (<span class="arithmatex">\(G_{eq}\)</span>).</p>
+<div class="arithmatex">\[
+\begin{equation}
+    W_{r} = \{(v_0, v_1, v_2, ..., v_n): (v_{j - 1}, v_{j}) \in E(G_{eq}), v_j \in V_{m} \}
+\end{equation}
+\]</div>
+<h2 id="follow-the-directional-edges">Follow the Directional Edges</h2>
+<p>The directional/tree edges are followed next. Unlike the equivalency edges, directionality is important here.
+First we collect the vertices that are ancestors of the alias-resolved vertices.</p>
+<div class="arithmatex">\[
+\begin{equation}
+    W_{a} = \{(v_0, v_1, v_2, ..., v_{k}): (v_{j}, v_{j - 1}) \in E(G_{dir})  , v_j \in V(W_r) \cup V_{m} \}
+\end{equation}
+\]</div>
+<p>Next we do the same for the descendants</p>
+<div class="arithmatex">\[
+\begin{equation}
+    W_{d} = \{(v_0, v_1, v_2, ..., v_{k}): (v_{j-1}, v_{j}) \in E(G_{dir}), v_j \in V(W_r) \cup V_{m} \}
+\end{equation}
+\]</div>
+<h2 id="resolve-final-aliases">Resolve Final Aliases</h2>
+<p>Finally we repeat the equivalency expansion on the union of the ancestor and descendant vertices</p>
+<div class="arithmatex">\[
+\begin{equation}
+    W_{f} = \{(v_0, v_1, v_2, ..., v_n): (v_{j-1}, v_{j}) \in E(G_{eq}), v_j \in V(W_{a} \cup W_{d} \cup W_{r}) \cup V_{m} \}
+\end{equation}
+\]</div>
+<p>The set of vertices returned by the matching algorithm is the total union of all vertices returned
+by the above equations (Includes any vertices which may have been singlets in the matching subgraphs)</p>
+<div class="arithmatex">\[
+V(W_{f} \cup W_{d} \cup W_{a} \cup W_{r}) \cup V_{m}
+\]</div>
                 
               
               
@@ -755,13 +729,13 @@ general parent and more specific child terms expanded in the previous step.</p>
         </a>
       
       
-        <a href="../examples/snpsift/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="disease/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Annotate SNPSift Files
+              Disease Example
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -794,6 +768,12 @@ general parent and more specific child terms expanded in the previous step.</p>
     
     
       <script src="../assets/javascripts/bundle.4ea5477f.min.js"></script>
+      
+        <script src="../js/mathjax.config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>
