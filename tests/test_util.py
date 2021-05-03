@@ -34,3 +34,7 @@ class TestConvertAA3to1:
 
     def test_insertion(self):
         assert util.convert_aa_3to1('GP5:p.Leu113_His114insLys') == 'GP5:p.L113_H114insK'
+
+    def test_deletion(self):
+        assert util.convert_aa_3to1('NP_003997.1:p.Lys23_Val25del') == 'NP_003997.1:p.K23_V25del'
+        assert util.convert_aa_3to1('LRG_199p1:p.Val7del') == 'LRG_199p1:p.V7del'
