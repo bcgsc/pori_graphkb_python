@@ -7,107 +7,78 @@ provided by the GraphKB API.
 
 ## Definitions
 
-The entire knowledge base is defined as the graph
+The entire knowledge base is defined as the graph, $G = (V, E)$. For any given query let the
+subgraph of $G$ containing only vertices of the class type specified in the query (ex. Disease)
+be, $V_t$.
 
-$$
-G = (V, E)
-$$
-
-Below, subsets of Edges by their `@class` attribute are denoted as follows
-
-$$
-E_{<class>} = \{e: e \in E, e.class = \text{<class>} \}
-$$
-
-The edges are divided into two main groups for expansion: equivalency ($E_{eq}$)
-and directional/tree ($E_{dir}$) edges
-
-$$
-\begin{align*}
-    E_{eq} & = \{e: e \in E_{GeneralizationOf} \cup E_{AliasOf} \cup E_{CrossReferenceOf} \cup E_{DeprecatedBy} \cup E_{Infers} \}\\
-    E_{dir} & = \{e: e \in E_{SubClassOf} \cup E_{ElementOf} \}
-\end{align*}
-$$
+All edges between these vertices are then categorized into two disjoint sets: synonym-like
+($E_{syn}$) or inheritance-like ($E_{inh}$). By default the synonym-like edges are:
+GeneralizationOf, AliasOf, CrossReferenceOf, DeprecatedBy, and Infers. Whereas the
+inheritance-like edges are: SubClassOf, and ElementOf.
 
 !!! Note "Edge Groups are Configurable"
-    These are the default division of Edges. However, classes used for equivalent and tree edges
+    These are the default division of Edges. However, classes used the edge sets
     can be configured in the query body of similarTo type
     queries sent to GraphKB
 
-The target class (T) is used to define the subgraph by the subset of vertices which belong to a
-the vertex class given as the target of the query (ex. Disease)
+Synonym-like edges are treated as undirected and therefore the set of synonym-like edges used for
+the following steps can be written
 
 $$
-\begin{align*}
-    V_t = & \{v: v \in V, v.class = \text{t} \} \\
-    G_t = & (V_t,  E) \\
-\end{align*}
+\begin{equation}
+    E_{bsyn} = \{uv: \{(u, v), (v, u)\} \cap E_{syn} \neq \emptyset\}
+\end{equation}
 $$
 
-which are used to define the corresponding subgraphs. Note that the equivalency subgraph
-is undirected as edges are added for both directions
+Disease matching on the following graph will be used as a running example
 
-$$
-\begin{align*}
-    G_{eq} = & (V_t, \{uv: \{(u, v), (v, u)\} \cap E_{eq} \neq \emptyset\}) \\
-    G_{dir} = & (V_t, \{uv: (u, v) \in E_{dir}\}) \\
-\end{align*}
-$$
+![disease matching](../images/pori-disease-matching-1.png)
 
 ## Match by Name
 
-Matching begins with a subset of vertices which are selected by their name attribute
+Let the set of vertices (from $V_t$) where the name attribute is an exact match to the input query
+name be $V_m$.
 
-$$
-\begin{equation}
-V_{m} = \{v: v \in V(G_{t}), v.name = x\}
-\end{equation}
-$$
+![disease matching](../images/pori-disease-matching-2.png)
 
 ## Resolve Aliases
 
-Next, equivalency edges ($E_{eq}$) are followed bidirectionally from the name matched set of vertices
-($V_{m}$) to a specified depth ($n$) using a breadth first search. This is defined as the set
-of walks, $W$ on the equivalency subgraph ($G_{eq}$).
+Follow synonym-like edges from the set of name-matched vertices
 
 $$
 \begin{equation}
-    W_{r} = \{(v_0, v_1, v_2, ..., v_n): (v_{j - 1}, v_{j}) \in E(G_{eq}), v_j \in V_{m} \}
+    V_{syn} = \{v: v_0 \rightarrow v, v_0 \in V_{m}, (v_{j - 1}, v_{j}) \in E_{bsyn}\} \cup V_m
 \end{equation}
 $$
 
-## Follow the Directional Edges
+![disease matching](../images/pori-disease-matching-3.png)
 
-The directional/tree edges are followed next. Unlike the equivalency edges, directionality is important here.
-First we collect the vertices that are ancestors of the alias-resolved vertices.
+## Follow the Inheritance-like Edges
+
+The inheritance-like edges are followed next. Unlike the synonym-like edges, directionality is important here.
+We collect the set of vertices from all paths were at least one member of the path belongs to a
+previously collected vertex.
 
 $$
 \begin{equation}
-    W_{a} = \{(v_0, v_1, v_2, ..., v_{k}): (v_{j}, v_{j - 1}) \in E(G_{dir})  , v_j \in V(W_r) \cup V_{m} \}
+    V_{inh} = \{v: v_0 \rightarrow v, \vert V(v_0 \rightarrow v) \cap V_{syn} \vert > 0, (v_{j - 1}, v_{j}) \in E_{inh} \} \cup V_{syn}
 \end{equation}
 $$
 
-Next we do the same for the descendants
-
-$$
-\begin{equation}
-    W_{d} = \{(v_0, v_1, v_2, ..., v_{k}): (v_{j-1}, v_{j}) \in E(G_{dir}), v_j \in V(W_r) \cup V_{m} \}
-\end{equation}
-$$
+![disease matching](../images/pori-disease-matching-4.png)
 
 ## Resolve Final Aliases
 
-Finally we repeat the equivalency expansion on the union of the ancestor and descendant vertices
+Finally, we repeat the synonym-like expansion
 
 $$
 \begin{equation}
-    W_{f} = \{(v_0, v_1, v_2, ..., v_n): (v_{j-1}, v_{j}) \in E(G_{eq}), v_j \in V(W_{a} \cup W_{d} \cup W_{r}) \cup V_{m} \}
+    V_{f} = \{v: v_0 \rightarrow v, v_0 \in V_{inh}, (v_{j - 1}, v_{j}) \in E_{bsyn}\} \cup V_{inh}
 \end{equation}
 $$
 
-The set of vertices returned by the matching algorithm is the total union of all vertices returned
-by the above equations (Includes any vertices which may have been singlets in the matching subgraphs)
+![disease matching](../images/pori-disease-matching-5.png)
 
-$$
-V(W_{f} \cup W_{d} \cup W_{a} \cup W_{r}) \cup V_{m}
-$$
+## Bounding
+
+Note that the above Graph Traversals are bounded by input parameters to specify a maximum depth.
