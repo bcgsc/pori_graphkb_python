@@ -10,7 +10,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.3">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.5">
     
     
       
@@ -18,7 +18,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.e35208c4.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.bde7dde4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
@@ -287,8 +287,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#follow-the-directional-edges" class="md-nav__link">
-    Follow the Directional Edges
+  <a href="#follow-the-inheritance-like-edges" class="md-nav__link">
+    Follow the Inheritance-like Edges
   </a>
   
 </li>
@@ -300,22 +300,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bounding" class="md-nav__link">
+    Bounding
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="disease/" class="md-nav__link">
-        Disease Example
-      </a>
     </li>
   
 
@@ -508,8 +503,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../usage_examples/snpsift/" class="md-nav__link">
-        Annotate SNPSift Files
+      <a href="../usage_examples/intro_tutorial/" class="md-nav__link">
+        Matching Tutorial
       </a>
     </li>
   
@@ -520,8 +515,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../usage_examples/tutorial/" class="md-nav__link">
-        Matching Tutorial
+      <a href="../usage_examples/snpsift/" class="md-nav__link">
+        Annotate SNPSift Files
       </a>
     </li>
   
@@ -580,8 +575,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#follow-the-directional-edges" class="md-nav__link">
-    Follow the Directional Edges
+  <a href="#follow-the-inheritance-like-edges" class="md-nav__link">
+    Follow the Inheritance-like Edges
   </a>
   
 </li>
@@ -589,6 +584,13 @@
         <li class="md-nav__item">
   <a href="#resolve-final-aliases" class="md-nav__link">
     Resolve Final Aliases
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bounding" class="md-nav__link">
+    Bounding
   </a>
   
 </li>
@@ -616,86 +618,68 @@ to resolve aliases, generalisms, etc. The default behaviour of this algorithm is
 and shown in the related examples. This is primarily accomplished via the <code>similarTo</code> query type
 provided by the GraphKB API.</p>
 <h2 id="definitions">Definitions</h2>
-<p>The entire knowledge base is defined as the graph</p>
-<div class="arithmatex">\[
-G = (V, E)
-\]</div>
-<p>Below, subsets of Edges by their <code>@class</code> attribute are denoted as follows</p>
-<div class="arithmatex">\[
-E_{&lt;class&gt;} = \{e: e \in E, e.class = \text{&lt;class&gt;} \}
-\]</div>
-<p>The edges are divided into two main groups for expansion: equivalency (<span class="arithmatex">\(E_{eq}\)</span>)
-and directional/tree (<span class="arithmatex">\(E_{dir}\)</span>) edges</p>
-<div class="arithmatex">\[
-\begin{align*}
-    E_{eq} &amp; = \{e: e \in E_{GeneralizationOf} \cup E_{AliasOf} \cup E_{CrossReferenceOf} \cup E_{DeprecatedBy} \cup E_{Infers} \}\\
-    E_{dir} &amp; = \{e: e \in E_{SubClassOf} \cup E_{ElementOf} \}
-\end{align*}
-\]</div>
+<p>The entire knowledge base is defined as the graph, <span class="arithmatex">\(G = (V, E)\)</span>. For any given query let the
+subgraph of <span class="arithmatex">\(G\)</span> containing only vertices of the class type specified in the query (ex. Disease)
+be, <span class="arithmatex">\(V_t\)</span>.</p>
+<p>All edges between these vertices are then categorized into two disjoint sets: synonym-like
+(<span class="arithmatex">\(E_{syn}\)</span>) or inheritance-like (<span class="arithmatex">\(E_{inh}\)</span>). By default the synonym-like edges are:
+GeneralizationOf, AliasOf, CrossReferenceOf, DeprecatedBy, and Infers. Whereas the
+inheritance-like edges are: SubClassOf, and ElementOf.</p>
 <div class="admonition note">
 <p class="admonition-title">Edge Groups are Configurable</p>
-<p>These are the default division of Edges. However, classes used for equivalent and tree edges
+<p>These are the default division of Edges. However, classes used the edge sets
 can be configured in the query body of similarTo type
 queries sent to GraphKB</p>
 </div>
-<p>The target class (T) is used to define the subgraph by the subset of vertices which belong to a
-the vertex class given as the target of the query (ex. Disease)</p>
+<p>Synonym-like edges are treated as undirected and therefore the set of synonym-like edges used for
+the following steps can be written</p>
 <div class="arithmatex">\[
-\begin{align*}
-    V_t = &amp; \{v: v \in V, v.class = \text{t} \} \\
-    G_t = &amp; (V_t,  E) \\
-\end{align*}
+\begin{equation}
+    E_\text{usyn} = \bigcup_{uv \in E_\text{syn}} \{uv,vu\}
+\end{equation}
 \]</div>
-<p>which are used to define the corresponding subgraphs. Note that the equivalency subgraph
-is undirected as edges are added for both directions</p>
-<div class="arithmatex">\[
-\begin{align*}
-    G_{eq} = &amp; (V_t, \{uv: \{(u, v), (v, u)\} \cap E_{eq} \neq \emptyset\}) \\
-    G_{dir} = &amp; (V_t, \{uv: (u, v) \in E_{dir}\}) \\
-\end{align*}
-\]</div>
+<p>Disease matching on the following graph will be used as a running example</p>
+<p><img alt="disease matching" src="../images/pori-disease-matching-1.png" /></p>
 <h2 id="match-by-name">Match by Name</h2>
-<p>Matching begins with a subset of vertices which are selected by their name attribute</p>
-<div class="arithmatex">\[
-\begin{equation}
-V_{m} = \{v: v \in V(G_{t}), v.name = x\}
-\end{equation}
-\]</div>
+<p>Let the set of vertices (from <span class="arithmatex">\(V_t\)</span>) where the name attribute is an exact match to the input query
+name be <span class="arithmatex">\(V_m\)</span>.</p>
+<p><img alt="disease matching" src="../images/pori-disease-matching-2.png" /></p>
 <h2 id="resolve-aliases">Resolve Aliases</h2>
-<p>Next, equivalency edges (<span class="arithmatex">\(E_{eq}\)</span>) are followed bidirectionally from the name matched set of vertices
-(<span class="arithmatex">\(V_{m}\)</span>) to a specified depth (<span class="arithmatex">\(n\)</span>) using a breadth first search. This is defined as the set
-of walks, <span class="arithmatex">\(W\)</span> on the equivalency subgraph (<span class="arithmatex">\(G_{eq}\)</span>).</p>
+<p>Follow synonym-like edges from the set of name-matched vertices</p>
+<p>Let <span class="arithmatex">\(P(v_0,v,E)\)</span> be the set of vertices that forms a path from vertex <span class="arithmatex">\(v_0\)</span> to
+<span class="arithmatex">\(v\)</span> along the edges in <span class="arithmatex">\(E\)</span> and in their direction. If no such path exists, then <span class="arithmatex">\(P = \emptyset\)</span>.</p>
+<p>The set of vertices that resolve aliases in the query are formed by including all paths from
+<span class="arithmatex">\(v_0 \in V_\text{m}\)</span> along the <span class="arithmatex">\(E_\text{usyn}\)</span> edges.</p>
 <div class="arithmatex">\[
 \begin{equation}
-    W_{r} = \{(v_0, v_1, v_2, ..., v_n): (v_{j - 1}, v_{j}) \in E(G_{eq}), v_j \in V_{m} \}
+    V_\text{syn} = V_\text{m} \cup
+        \bigcup_{v_0 \in V_\text{m}} \bigcup_{ v_i \in V_\text{t} } P(v_0,v_i,E_\text{usyn})
 \end{equation}
 \]</div>
-<h2 id="follow-the-directional-edges">Follow the Directional Edges</h2>
-<p>The directional/tree edges are followed next. Unlike the equivalency edges, directionality is important here.
-First we collect the vertices that are ancestors of the alias-resolved vertices.</p>
+<p><img alt="disease matching" src="../images/pori-disease-matching-3.png" /></p>
+<h2 id="follow-the-inheritance-like-edges">Follow the Inheritance-like Edges</h2>
+<p>The inheritance-like edges are followed next. Unlike the synonym-like edges, directionality is important here.
+By following the inheritence-like edges in <span class="arithmatex">\(E_\text{inh}\)</span> from and to all vertices <span class="arithmatex">\(V_\text{syn}\)</span> we create
+the set of inheritence vertices. This is the set of vertics involved in paths which originate or
+terminate in a vertex perviously matched.</p>
 <div class="arithmatex">\[
 \begin{equation}
-    W_{a} = \{(v_0, v_1, v_2, ..., v_{k}): (v_{j}, v_{j - 1}) \in E(G_{dir})  , v_j \in V(W_r) \cup V_{m} \}
+    V_\text{inh} =  V_\text{syn} \cup
+        \bigcup_{v_0 \in V_\text{syn}} \bigcup_{ v_i \in V_\text{t} } P(v_0,v_i,E_\text{inh}) \cup P(v_i,v_0,E_\text{inh})
 \end{equation}
 \]</div>
-<p>Next we do the same for the descendants</p>
-<div class="arithmatex">\[
-\begin{equation}
-    W_{d} = \{(v_0, v_1, v_2, ..., v_{k}): (v_{j-1}, v_{j}) \in E(G_{dir}), v_j \in V(W_r) \cup V_{m} \}
-\end{equation}
-\]</div>
+<p><img alt="disease matching" src="../images/pori-disease-matching-4.png" /></p>
 <h2 id="resolve-final-aliases">Resolve Final Aliases</h2>
-<p>Finally we repeat the equivalency expansion on the union of the ancestor and descendant vertices</p>
+<p>Finally, we repeat the synonym-like expansion</p>
 <div class="arithmatex">\[
 \begin{equation}
-    W_{f} = \{(v_0, v_1, v_2, ..., v_n): (v_{j-1}, v_{j}) \in E(G_{eq}), v_j \in V(W_{a} \cup W_{d} \cup W_{r}) \cup V_{m} \}
+    V_\text{f} = V_\text{inh} \cup
+        \bigcup_{v_0 \in V_\text{inh}} \bigcup_{ v_i \in V_\text{t} } P(v_0,v_i,E_\text{usyn})
 \end{equation}
 \]</div>
-<p>The set of vertices returned by the matching algorithm is the total union of all vertices returned
-by the above equations (Includes any vertices which may have been singlets in the matching subgraphs)</p>
-<div class="arithmatex">\[
-V(W_{f} \cup W_{d} \cup W_{a} \cup W_{r}) \cup V_{m}
-\]</div>
+<p><img alt="disease matching" src="../images/pori-disease-matching-5.png" /></p>
+<h2 id="bounding">Bounding</h2>
+<p>Note that the above Graph Traversals are bounded by input parameters to specify a maximum depth.</p>
                 
               
               
@@ -729,13 +713,13 @@ V(W_{f} \cup W_{d} \cup W_{a} \cup W_{r}) \cup V_{m}
         </a>
       
       
-        <a href="disease/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="gene/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Disease Example
+              Gene Example
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -764,10 +748,10 @@ V(W_{f} \cup W_{d} \cup W_{a} \cup W_{r}) \cup V_{m}
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.d351de03.min.js", "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.4ea5477f.min.js"></script>
+      <script src="../assets/javascripts/bundle.a1609d9a.min.js"></script>
       
         <script src="../js/mathjax.config.js"></script>
       

@@ -172,10 +172,7 @@ print(f'writing: {args.output}')
 df = pd.DataFrame.from_records(results)
 # re-add the filename to the output
 df = df.merge(input_df[['variant', 'filename']], on='variant', how='left')
-df.to_csv(
-    args.output,
-    index=False,
-    sep='\t',
+df = df.reindex(
     columns=[
         'filename',
         'variant',
@@ -190,5 +187,6 @@ df.to_csv(
         'statement.@rid',
         'statement.review_status',
         'error',
-    ],
+    ]
 )
+df.to_csv(args.output, index=False, sep='\t')
