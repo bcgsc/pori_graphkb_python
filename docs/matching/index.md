@@ -26,7 +26,7 @@ the following steps can be written
 
 $$
 \begin{equation}
-    E_{bsyn} = \{uv: \{(u, v), (v, u)\} \cap E_{syn} \neq \emptyset\}
+    E_\text{usyn} = \bigcup_{uv \in E_\text{syn}} \{uv,vu\}
 \end{equation}
 $$
 
@@ -45,9 +45,16 @@ name be $V_m$.
 
 Follow synonym-like edges from the set of name-matched vertices
 
+Let $P(v_0,v,E)$ be the set of vertices that forms a path from vertex $v_0$ to
+$v$ along the edges in $E$ and in their direction. If no such path exists, then $P = \emptyset$.
+
+The set of vertices that resolve aliases in the query are formed by including all paths from
+$v_0 \in V_\text{m}$ along the $E_\text{usyn}$ edges.
+
 $$
 \begin{equation}
-    V_{syn} = \{v: v_0 \rightarrow v, v_0 \in V_{m}, (v_{j - 1}, v_{j}) \in E_{bsyn}\} \cup V_m
+    V_\text{syn} = V_\text{m} \cup
+        \bigcup_{v_0 \in V_\text{m}} \bigcup_{ v_i \in V_\text{t} } P(v_0,v_i,E_\text{usyn})
 \end{equation}
 $$
 
@@ -56,12 +63,14 @@ $$
 ## Follow the Inheritance-like Edges
 
 The inheritance-like edges are followed next. Unlike the synonym-like edges, directionality is important here.
-We collect the set of vertices from all paths were at least one member of the path belongs to a
-previously collected vertex.
+By following the inheritence-like edges in $E_\text{inh}$ from and to all vertices $V_\text{syn}$ we create
+the set of inheritence vertices. This is the set of vertics involved in paths which originate or
+terminate in a vertex perviously matched.
 
 $$
 \begin{equation}
-    V_{inh} = \{v: v_0 \rightarrow v, \vert V(v_0 \rightarrow v) \cap V_{syn} \vert > 0, (v_{j - 1}, v_{j}) \in E_{inh} \} \cup V_{syn}
+    V_\text{inh} =  V_\text{syn} \cup
+        \bigcup_{v_0 \in V_\text{syn}} \bigcup_{ v_i \in V_\text{t} } P(v_0,v_i,E_\text{inh}) \cup P(v_i,v_0,E_\text{inh})
 \end{equation}
 $$
 
@@ -73,7 +82,8 @@ Finally, we repeat the synonym-like expansion
 
 $$
 \begin{equation}
-    V_{f} = \{v: v_0 \rightarrow v, v_0 \in V_{inh}, (v_{j - 1}, v_{j}) \in E_{bsyn}\} \cup V_{inh}
+    V_\text{f} = V_\text{inh} \cup
+        \bigcup_{v_0 \in V_\text{inh}} \bigcup_{ v_i \in V_\text{t} } P(v_0,v_i,E_\text{usyn})
 \end{equation}
 $$
 
