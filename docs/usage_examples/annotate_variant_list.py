@@ -17,7 +17,9 @@ def annotate_variant(
     graphkb_conn: GraphKBConnection, raw_variant_name: str, include_unmatched: bool = False
 ) -> List[Dict[str, str]]:
     results = []
-    variant_name = convert_aa_3to1(raw_variant_name)
+    variant_name = (
+        convert_aa_3to1(raw_variant_name) if 'p.' in raw_variant_name else raw_variant_name
+    )
 
     if 'c.*' in variant_name:
         results.append(
@@ -102,9 +104,7 @@ def annotate_variant(
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument(
-    'inputs', help='Input tab delimited file(s) with variant column to be annotated', nargs='+'
-)
+parser.add_argument('input', help='Input plain text file with variant list')
 parser.add_argument('--output', help='Path to the output file with the annotations', required=True)
 parser.add_argument(
     '--graphkb_url',
@@ -130,25 +130,9 @@ graphkb_conn = GraphKBConnection(args.graphkb_url, use_global_cache=True)
 graphkb_conn.login(args.graphkb_user, args.graphkb_pass)
 
 # read the input files
-inputs = []
-for filename in args.inputs:
-    print(f'reading: {filename}')
-    temp_df = pd.read_csv(filename, sep='\t')
-    temp_df['filename'] = os.path.basename(filename)
-    inputs.append(temp_df)
-input_df = pd.concat(inputs)
-
-# generate the variant list df
-def get_variant(row):
-    if not pd.isnull(row['ANN[*].HGVS_P']):
-        return row['ANN[*].GENE'] + ':' + row['ANN[*].HGVS_P']
-    # fall back to cds variant description when no protein change given
-    if not pd.isnull(row['ANN[*].HGVS_C']):
-        return row['ANN[*].GENE'] + ':' + row['ANN[*].HGVS_C']
-    return None
-
-
-input_df['variant'] = input_df.apply(get_variant, axis=1)
+print(f'reading: {args.input}')
+with open(args.input, 'r') as fh:
+    variants = sorted(list({line.strip() for line in fh.readlines() if line.strip()}))
 
 
 BASE_THERAPEUTIC_TERMS = 'therapeutic efficacy'
@@ -161,9 +145,9 @@ therapeutic_terms = set(
 
 results: List[Dict] = []
 
-for raw_variant_name in sorted(input_df['variant'].unique()):
+for variant in variants:
     try:
-        results.extend(annotate_variant(graphkb_conn, raw_variant_name, args.include_unmatched))
+        results.extend(annotate_variant(graphkb_conn, variant, args.include_unmatched))
     except Exception as err:
         print(err)
 
@@ -171,10 +155,8 @@ for raw_variant_name in sorted(input_df['variant'].unique()):
 print(f'writing: {args.output}')
 df = pd.DataFrame.from_records(results)
 # re-add the filename to the output
-df = df.merge(input_df[['variant', 'filename']], on='variant', how='left')
 df = df.reindex(
     columns=[
-        'filename',
         'variant',
         'variant_matches',
         'is_therapeutic',

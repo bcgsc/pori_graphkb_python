@@ -6,7 +6,7 @@ INSTALL_REQS = ['requests>=2.22.0,<3', 'typing_extensions>=3.7.4.2,<4']
 # Dependencies required only for running tests
 TEST_REQS = ['pytest', 'pytest-runner', 'pytest-cov']
 
-DOC_REQS = ['mkdocs', 'markdown_refdocs', 'mkdocs-material']
+DOC_REQS = ['mkdocs', 'markdown_refdocs', 'mkdocs-material', 'mkdocs-redirects']
 
 # Dependencies required for deploying to an index server
 DEPLOYMENT_REQS = ['twine', 'wheel']
