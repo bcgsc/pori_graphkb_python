@@ -1,5 +1,3 @@
-import os
-
 from graphkb import GraphKBConnection
 from graphkb.constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
 from graphkb.match import match_positional_variant
