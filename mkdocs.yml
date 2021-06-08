@@ -1,6 +1,7 @@
 site_name: GraphKB Python
 theme:
   name: "material"
+  custom_dir: docs/overrides/
 repo_url: https://github.com/bcgsc/pori_graphkb_python
 repo_name: github
 site_dir: build-docs
