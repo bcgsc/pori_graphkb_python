@@ -4,18 +4,16 @@ theme:
 repo_url: https://github.com/bcgsc/pori_graphkb_python
 repo_name: github
 site_dir: build-docs
-markdown_extensions:
-  - codehilite
-  - admonition
-  - pymdownx.arithmatex:
-      generic: true
-extra_javascript:
-  - js/mathjax.config.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-extra_css:
-  - extra.css
 plugins:
     - redirects:
         redirect_maps:
-            'usage_examples/tutorial.md': 'usage_examples/intro_tutorial.md' # support old links
+            # support redirect to the new PORI merged docs site
+            usage_examples/tutorial.md: https://bcgsc.github.io/pori/graphkb/scripting/intro_tutorial/
+            usage_examples/intro_tutorial.md: https://bcgsc.github.io/pori/graphkb/scripting/intro_tutorial/
+            matching/index.md: https://bcgsc.github.io/pori/graphkb/matching/
+            matching/: https://bcgsc.github.io/pori/graphkb/matching/
+            matching/gene.md: https://bcgsc.github.io/pori/graphkb/matching/gene/
+            usage_examples/snpsift/: https://bcgsc.github.io/pori/graphkb/scripting/snpsift/
+            usage_examples/variant_strings/: https://bcgsc.github.io/pori/graphkb/scripting/variant_strings/
+nav:
+  - index.md
