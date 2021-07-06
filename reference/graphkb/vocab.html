@@ -9,19 +9,19 @@
       
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.9">
     
     
       
-        <title>GraphKB Python</title>
+        <title>graphkb.vocab - GraphKB Python</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.ca7ac06f.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ca7ac06f.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.f1a3b89f.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.f1a3b89f.min.css">
         
       
     
@@ -53,7 +53,7 @@
     <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
   
     
-    <script>function __prefix(e){return new URL(".",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -61,7 +61,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#notice" class="md-skip">
+        <a href="#graphkbvocab" class="md-skip">
           Skip to content
         </a>
       
@@ -72,7 +72,7 @@
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="index.html" title="GraphKB Python" class="md-header__button md-logo" aria-label="GraphKB Python" data-md-component="logo">
+    <a href="../../index.html" title="GraphKB Python" class="md-header__button md-logo" aria-label="GraphKB Python" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -91,7 +91,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Notice
+              graphkb.vocab
             
           </span>
         </div>
@@ -135,7 +135,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="index.html" title="GraphKB Python" class="md-nav__button md-logo" aria-label="GraphKB Python" data-md-component="logo">
+    <a href="../../index.html" title="GraphKB Python" class="md-nav__button md-logo" aria-label="GraphKB Python" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
@@ -165,21 +165,11 @@
 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="index.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
         Notice
       </a>
-      
     </li>
   
 
@@ -203,6 +193,42 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#get_equivalent_terms" class="md-nav__link">
+    get_equivalent_terms()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_term_tree" class="md-nav__link">
+    get_term_tree()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_term_by_name" class="md-nav__link">
+    get_term_by_name()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_terms_set" class="md-nav__link">
+    get_terms_set()
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -213,13 +239,102 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/bcgsc/pori_graphkb_python/edit/master/docs/index.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/bcgsc/pori_graphkb_python/edit/master/docs/reference/graphkb/vocab.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="notice">Notice</h1>
-<p>Documentation for this tool has been moved to the <a href="https://bcgsc.github.io/pori/graphkb">central PORI documentation site</a></p>
+                <h1 id="graphkbvocab">graphkb.vocab</h1>
+<h2 id="get_equivalent_terms">get_equivalent_terms()</h2>
+<p>Get a list of terms equivalent to the current term up to the root term</p>
+<pre><code class="language-python">def get_equivalent_terms(
+    conn: GraphKBConnection,
+    base_term_name: str,
+    root_exclude_term: str = '',
+    ontology_class: str = 'Vocabulary',
+    ignore_cache: bool = False,
+) -&gt; List[Ontology]:
+</code></pre>
+<p><strong>Args</strong></p>
+<ul>
+<li>conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>)</li>
+<li>base_term_name (<code>str</code>): the name to get superclasses of</li>
+<li>root_exclude_term (<code>str</code>): the parent term to exlcude along with all of its parent terms</li>
+<li>ontology_class (<code>str</code>)</li>
+<li>ignore_cache (<code>bool</code>)</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li>List[<a href="../types/#class-ontology">Ontology</a>]</li>
+</ul>
+<h2 id="get_term_tree">get_term_tree()</h2>
+<p>Get terms equivalent to the base term by traversing the subclassOf tree and expanding related
+alias and cross reference edges</p>
+<pre><code class="language-python">def get_term_tree(
+    conn: GraphKBConnection,
+    base_term_name: str,
+    root_exclude_term: str = '',
+    ontology_class: str = 'Vocabulary',
+    include_superclasses: bool = True,
+    ignore_cache: bool = False,
+) -&gt; List[Ontology]:
+</code></pre>
+<p><strong>Args</strong></p>
+<ul>
+<li>conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>): the graphkb connection object</li>
+<li>base_term_name (<code>str</code>): the term to use as the base of the subclass tree</li>
+<li>root_exclude_term (<code>str</code>)</li>
+<li>ontology_class (<code>str</code>): the default class to query. Defaults to 'Vocabulary'</li>
+<li>include_superclasses (<code>bool</code>): when True the query will include superclasses of the current term</li>
+<li>ignore_cache (<code>bool</code>)</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li>List[<a href="../types/#class-ontology">Ontology</a>]: GraphKB records Note: this must be done in 2 calls to avoid going up and down the tree in a single query (exclude adjacent siblings)</li>
+</ul>
+<h2 id="get_term_by_name">get_term_by_name()</h2>
+<p>Retrieve a vocaulary term by name</p>
+<pre><code class="language-python">def get_term_by_name(
+    conn: GraphKBConnection,
+    name: str,
+    ontology_class: str = 'Vocabulary',
+    ignore_cache: bool = False,
+    **kwargs,
+) -&gt; Ontology:
+</code></pre>
+<p><strong>Args</strong></p>
+<ul>
+<li>conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>): the graphkb connection object</li>
+<li>name (<code>str</code>): the name of the Vocabulary term to retrieve</li>
+<li>ontology_class (<code>str</code>)</li>
+<li>ignore_cache (<code>bool</code>)</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><a href="../types/#class-ontology">Ontology</a>: Vocabulary record</li>
+</ul>
+<p><strong>Raises</strong></p>
+<ul>
+<li><code>AssertionError</code>: more than one term or no terms with that name were found</li>
+<li><code>AssertionError</code>: if the term was not found or more than 1 match was found (expected to be unique)</li>
+</ul>
+<h2 id="get_terms_set">get_terms_set()</h2>
+<p>Get a set of terms of vocabulary given some base/parent term names. Returns the record
+IDs for the resulting terms</p>
+<pre><code class="language-python">def get_terms_set(
+    graphkb_conn: GraphKBConnection, base_terms: Iterable[str], ignore_cache: bool = False
+) -&gt; Set[str]:
+</code></pre>
+<p><strong>Args</strong></p>
+<ul>
+<li>graphkb_conn (<a href="../__init__/#class-graphkbconnection">GraphKBConnection</a>)</li>
+<li>base_terms (<code>Iterable[str]</code>)</li>
+<li>ignore_cache (<code>bool</code>)</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>Set[str]</code></li>
+</ul>
                 
               
               
@@ -255,10 +370,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": ".", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.82b56eb2.min.js"></script>
+      <script src="../../assets/javascripts/bundle.82b56eb2.min.js"></script>
       
     
   </body>
