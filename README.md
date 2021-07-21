@@ -5,7 +5,7 @@
 
 This repository is part of the [platform for oncogenomic reporting and interpretation](https://github.com/bcgsc/pori).
 
-Python adapter package for querying the GraphKB API. See the [user manual](https://bcgsc.github.io/pori_graphkb_python/)
+Python adapter package for querying the GraphKB API. See the [user manual](https://bcgsc.github.io/pori/graphkb/scripting/)
 
 - [Getting Started](#getting-started)
   - [Install (For developers)](#install-for-developers)
@@ -45,27 +45,7 @@ pytest tests
 
 ## Generating the Documentation
 
-This documentation is generated using [mkdocs](https://www.mkdocs.org), [mkdocs-material](https://pypi.org/project/mkdocs-material), and [markdown_refdocs](https://pypi.org/project/markdown-refdocs).
-
-First install the documentation dependencies
-
-```bash
-pip install .[doc]
-```
-
-Then generate the user manual files
-
-```bash
-markdown_refdocs graphkb -o docs/reference --link
-mkdocs build
-```
-
-There should now be static html files under `build-docs`. To view the files, serve the folder using
-the built-in python http server
-
-```bash
-python3 -m http.server -d build-docs
-```
+User documentation for this repository is hosted in the [central PORI repository](https://github.com/bcgsc/pori/)
 
 ## Deployment (Publishing)
 
