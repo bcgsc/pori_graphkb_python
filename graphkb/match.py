@@ -269,7 +269,7 @@ def positions_overlap(
     if pos is None:
         return True
 
-    start = range_start.get('pos', None)
+    start = range_start.get('pos', None) if range_start else None
 
     if range_end:
         end = range_end.get('pos', None)
