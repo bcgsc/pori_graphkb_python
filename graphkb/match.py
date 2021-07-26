@@ -305,8 +305,8 @@ def compare_positional_variants(
     ):
         return False
 
-    if 'break2Start' in variant:
-        if 'break2Start' not in reference_variant:
+    if variant.get('break2Start'):
+        if not reference_variant.get('break2Start'):
             return False
         if not positions_overlap(
             cast(BasicPosition, variant['break2Start']),

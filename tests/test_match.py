@@ -293,6 +293,28 @@ class TestComparePositionalVariants:
             {'break1Start': {'pos': 1}, 'refSeq': 'R'},
         )
 
+    def test_range_vs_sub(self):
+        sub = {
+            'break1Repr': 'p.G776',
+            'break1Start': {'@Class': 'ProteinPosition', 'pos': 776, 'refAA': 'G'},
+            'break2Repr': 'p.V777',
+            'break2Start': {'@Class': 'ProteinPosition', 'pos': 777, 'refAA': 'V'},
+            'reference1': 'ERBB2',
+            'type': 'insertion',
+            'untemplatedSeq': 'YVMA',
+            'untemplatedSeqSize': 4,
+        }
+        range_variant = {
+            'break1Repr': 'p.G776',
+            'break1Start': {'@Class': 'ProteinPosition', 'pos': 776, 'refAA': 'G'},
+            'break2Repr': 'p.?776',
+            'break2Start': None,
+            'refSeq': 'G',
+            'untemplatedSeq': 'VV',
+        }
+        assert not match.compare_positional_variants(sub, range_variant)
+        assert not match.compare_positional_variants(range_variant, sub)
+
 
 class TestMatchPositionalVariant:
     def test_error_on_duplicate_reference1(self, conn):
