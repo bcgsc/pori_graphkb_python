@@ -395,7 +395,7 @@ class TestMatchPositionalVariant:
         assert 'EGFR mutation' in names
         assert 'EGFR copy variant' not in names
 
-    def test_movel_specific_matches_general(self, conn):
+    def test_novel_specific_matches_general(self, conn):
         novel_specific = 'CDKN2A:p.T18888888888888888888M'
         matches = match.match_positional_variant(conn, novel_specific)
         names = {m['displayName'] for m in matches}
@@ -407,6 +407,10 @@ class TestMatchPositionalVariant:
         genomic = 'X:g.100611165A>T'
         match.match_positional_variant(conn, genomic)
         # no assert b/c checking for no error rather than the result
+
+    def test_overlap_none(self, conn):
+        # GERO-217 edgecase ERBB2 insertion compare to none range - should not error.
+        match.match_positional_variant(conn, "ERBB2:p.G776_V777insYVMA")
 
 
 class TestCacheMissingFeatures:
