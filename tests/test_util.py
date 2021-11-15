@@ -4,7 +4,7 @@ from graphkb import util
 
 
 class TestLooksLikeRid:
-    @pytest.mark.parametrize('rid', ['#3:4','#50:04' ,'#-3:4', '#-3:-4', '#3:-4'])
+    @pytest.mark.parametrize('rid', ['#3:4', '#50:04', '#-3:4', '#-3:-4', '#3:-4'])
     def test_valid(self, rid):
         assert util.looks_like_rid(rid)
 
