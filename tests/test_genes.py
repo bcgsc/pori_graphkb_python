@@ -19,33 +19,40 @@ def conn():
     return conn
 
 
-def test_oncokb_oncogenes(conn):
+@pytest.mark.parametrize('gene', CANONICAL_ONCOGENES)
+def test_finds_oncogene(conn, gene):
     result = genes.get_oncokb_oncogenes(conn)
 
     names = {row['name'] for row in result}
-
-    for name in CANONICAL_ONCOGENES:
-        assert name in names
-
-    for name in CANONICAL_TS:
-        assert name not in names
+    assert gene in names
 
 
-def test_oncokb_tumour_suppressors(conn):
+@pytest.mark.parametrize('gene', CANONICAL_TS)
+def test_ts_not_oncogene(conn, gene):
+    result = genes.get_oncokb_oncogenes(conn)
+
+    names = {row['name'] for row in result}
+    assert gene not in names
+
+
+@pytest.mark.parametrize('gene', CANONICAL_ONCOGENES)
+def test_oncogene_not_ts(conn, gene):
     result = genes.get_oncokb_tumour_supressors(conn)
 
     names = {row['name'] for row in result}
-
-    for name in CANONICAL_ONCOGENES:
-        assert name not in names
-
-    for name in CANONICAL_TS:
-        assert name in names
+    assert gene not in names
 
 
-def test_get_genes_from_variant_types(conn):
+@pytest.mark.parametrize('gene', CANONICAL_TS)
+def test_finds_ts(conn, gene):
+    result = genes.get_oncokb_tumour_supressors(conn)
+
+    names = {row['name'] for row in result}
+    assert gene in names
+
+
+@pytest.mark.parametrize('gene', CANONICAL_FUSION_GENES)
+def test_find_fusion_genes(conn, gene):
     result = genes.get_genes_from_variant_types(conn, genes.FUSION_NAMES)
     names = {row['name'] for row in result}
-
-    for fusion_gene in CANONICAL_FUSION_GENES:
-        assert fusion_gene in names
+    assert gene in names
