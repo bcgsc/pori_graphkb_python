@@ -1,7 +1,7 @@
 
 # GraphKB (Python)
 
-![build](https://github.com/bcgsc/pori_graphkb_python/workflows/build/badge.svg) [![PyPi](https://img.shields.io/pypi/v/graphkb.svg)](https://pypi.org/project/graphkb) [![codecov](https://codecov.io/gh/bcgsc/pori_graphkb_python/branch/master/graph/badge.svg)](https://codecov.io/gh/bcgsc/pori_graphkb_python) [![PyPI - Downloads](https://img.shields.io/pypi/dm/graphkb)](https://pypistats.org/packages/graphkb)
+![build](https://github.com/bcgsc/pori_graphkb_python/workflows/build/badge.svg) [![PyPi](https://img.shields.io/pypi/v/graphkb.svg)](https://pypi.org/project/graphkb) [![codecov](https://codecov.io/gh/bcgsc/pori_graphkb_python/branch/master/graph/badge.svg)](https://codecov.io/gh/bcgsc/pori_graphkb_python) [![PyPI - Downloads](https://img.shields.io/pypi/dm/graphkb)](https://pypistats.org/packages/graphkb) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5730523.svg)](https://doi.org/10.5281/zenodo.5730523)
 
 This repository is part of the [platform for oncogenomic reporting and interpretation](https://github.com/bcgsc/pori).
 
