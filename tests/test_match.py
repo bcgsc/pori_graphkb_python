@@ -117,23 +117,26 @@ class TestMatchCopyVariant:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
 
 
-class TestPositionsOverlap:
-    def test_range_overlaps(self):
-        assert match.positions_overlap({'pos': 3}, {'pos': 2}, {'pos': 5})
-        assert not match.positions_overlap({'pos': 2}, {'pos': 4}, {'pos': 5})
+@pytest.mark.parametrize(
+    'pos1,pos2_start,pos2_end',
+    [[3, 2, 5], [2, None, 5], [3, 2, None]],
+)
+def test_range_overlap(pos1, pos2_start, pos2_end):
+    assert match.positions_overlap({'pos': pos1}, {'pos': pos2_start}, {'pos': pos2_end})
 
-    def test_nonspecific_range_overlaps(self):
-        assert match.positions_overlap({'pos': 2}, {'pos': None}, {'pos': 5})
-        assert match.positions_overlap({'pos': 3}, {'pos': 2}, {'pos': None})
 
-    def test_nonspecific_overlaps(self):
-        assert match.positions_overlap({'pos': None}, {'pos': 1})
-        assert match.positions_overlap({'pos': None}, {'pos': None})
-        assert match.positions_overlap({'pos': 1}, {'pos': None})
+@pytest.mark.parametrize(
+    'pos1,pos2_start,pos2_end',
+    [[2, 4, 5], [5, 2, 3], [10, None, 9], [10, 11, None], [1, 2, 2], [2, 1, 1]],
+)
+def test_range_not_overlap(pos1, pos2_start, pos2_end):
+    assert not match.positions_overlap({'pos': pos1}, {'pos': pos2_start}, {'pos': pos2_end})
 
-    def test_exact_overlaps(self):
-        assert match.positions_overlap({'pos': 1}, {'pos': 1})
-        assert not match.positions_overlap({'pos': 1}, {'pos': 2})
+
+@pytest.mark.parametrize('pos1', [None, 1])
+@pytest.mark.parametrize('pos2', [None, 1])
+def test_position_match(pos1, pos2):
+    assert match.positions_overlap({'pos': pos1}, {'pos': pos2})
 
 
 class TestMatchExpressionVariant:
@@ -202,23 +205,13 @@ class TestComparePositionalVariants:
             {'break1Start': {'pos': 1}}, {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'}
         )
 
-    def test_ambiguous_altseq(self):
+    @pytest.mark.parametrize('seq1', ['T', 'X', '?'])
+    @pytest.mark.parametrize('seq2', ['T', 'X', '?'])
+    def test_ambiguous_altseq(self, seq1, seq2):
         # ambiguous AA matches anything the same length
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
-            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'X'},
-        )
-        assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
-            {'break1Start': {'pos': 1}, 'untemplatedSeq': '?'},
-        )
-        assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'X'},
-            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
-        )
-        assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'untemplatedSeq': '?'},
-            {'break1Start': {'pos': 1}, 'untemplatedSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': seq1},
+            {'break1Start': {'pos': 1}, 'untemplatedSeq': seq2},
         )
 
     def test_altseq_length_mismatch(self):
@@ -240,23 +233,13 @@ class TestComparePositionalVariants:
             {'break1Start': {'pos': 1}}, {'break1Start': {'pos': 1}, 'refSeq': 'T'}
         )
 
-    def test_ambiguous_refseq(self):
+    @pytest.mark.parametrize('seq1', ['T', 'X', '?'])
+    @pytest.mark.parametrize('seq2', ['T', 'X', '?'])
+    def test_ambiguous_refseq(self, seq1, seq2):
         # ambiguous AA matches anything the same length
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
-            {'break1Start': {'pos': 1}, 'refSeq': 'X'},
-        )
-        assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
-            {'break1Start': {'pos': 1}, 'refSeq': '?'},
-        )
-        assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'X'},
-            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
-        )
-        assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': '?'},
-            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'refSeq': seq1},
+            {'break1Start': {'pos': 1}, 'refSeq': seq2},
         )
 
     def test_refseq_length_mismatch(self):
@@ -292,6 +275,28 @@ class TestComparePositionalVariants:
             {'break1Start': {'pos': 1}, 'refSeq': 'R'},
             {'break1Start': {'pos': 1}, 'refSeq': 'R'},
         )
+
+    def test_range_vs_sub(self):
+        sub = {
+            'break1Repr': 'p.G776',
+            'break1Start': {'@Class': 'ProteinPosition', 'pos': 776, 'refAA': 'G'},
+            'break2Repr': 'p.V777',
+            'break2Start': {'@Class': 'ProteinPosition', 'pos': 777, 'refAA': 'V'},
+            'reference1': 'ERBB2',
+            'type': 'insertion',
+            'untemplatedSeq': 'YVMA',
+            'untemplatedSeqSize': 4,
+        }
+        range_variant = {
+            'break1Repr': 'p.G776',
+            'break1Start': {'@Class': 'ProteinPosition', 'pos': 776, 'refAA': 'G'},
+            'break2Repr': 'p.?776',
+            'break2Start': None,
+            'refSeq': 'G',
+            'untemplatedSeq': 'VV',
+        }
+        assert not match.compare_positional_variants(sub, range_variant)
+        assert not match.compare_positional_variants(range_variant, sub)
 
 
 class TestMatchPositionalVariant:
@@ -343,57 +348,46 @@ class TestMatchPositionalVariant:
         )
         assert matches
 
-    def test_known_substitution(self, conn):
-        known = 'KRAS:p.G12D'
-        matches = match.match_positional_variant(conn, known)
+    @pytest.mark.parametrize(
+        'known_variant,related_variants,unrelated_variants',
+        [
+            ['KRAS:p.G12D', ['KRAS:p.G12X', 'chr12:g.25398284C>T'], ['KRAS:p.G12V']],
+            ['KRAS:p.G13D', ['KRAS:p.?13mut'], []],
+            ['chr12:g.25398284C>T', ['KRAS:p.G12D'], ['KRAS:p.G12V']],
+            ['EGFR:p.E746_S752delinsI', ['EGFR mutation'], ['EGFR copy variant']],
+        ],
+    )
+    def test_known_variants(self, conn, known_variant, related_variants, unrelated_variants):
+        matches = match.match_positional_variant(conn, known_variant)
         names = {m['displayName'] for m in matches}
         assert matches
-        assert known in names
-        assert 'KRAS:p.G12V' not in names
-        assert 'KRAS:p.G12X' in names
-        assert 'chr12:g.25398284C>T' in names
+        assert known_variant in names
+        for variant in related_variants:
+            assert variant in names
+        for variant in unrelated_variants:
+            assert variant not in names
 
-        known = 'KRAS:p.G13D'
-        matches = match.match_positional_variant(conn, known)
-        names = {m['displayName'] for m in matches}
-        assert matches
-        assert known in names
-        assert 'KRAS:p.?13mut' in names
-
-    def test_known_fusion(self, conn):
-        known = '(BCR,ABL1):fusion(e.13,e.3)'
-        matches = match.match_positional_variant(conn, known)
+    @pytest.mark.parametrize(
+        'known_variant,related_variants',
+        [
+            ['(BCR,ABL1):fusion(e.13,e.3)', ['BCR and ABL1 fusion']],
+            ['(ATP1B1,NRG1):fusion(e.2,e.2)', ['NRG1 fusion', 'ATP1B1 and NRG1 fusion']],
+        ],
+    )
+    def test_known_fusions(self, conn, known_variant, related_variants):
+        matches = match.match_positional_variant(conn, known_variant)
         types_selected = [m['type']['name'] for m in matches]
         assert GENERAL_MUTATION not in types_selected
         names = {m['displayName'] for m in matches}
         assert matches
-        assert known in names
-        assert 'BCR and ABL1 fusion' in names
-
-    def test_known_fusion_cat_match(self, conn):
-        known = '(ATP1B1,NRG1):fusion(e.2,e.2)'
-        matches = match.match_positional_variant(conn, known)
-        types_selected = [m['type']['name'] for m in matches]
-        assert GENERAL_MUTATION not in types_selected
-        names = {m['displayName'] for m in matches}
-        assert matches
-        assert known in names
-        assert 'NRG1 fusion' in names
-        assert 'ATP1B1 and NRG1 fusion' in names
+        assert known_variant in names
+        for variant in related_variants:
+            assert variant in names
 
     def test_known_fusion_single_gene_no_match(self, conn):
         known = '(BCR,?):fusion(e.13,e.?)'
         matches = match.match_positional_variant(conn, known)
         assert not matches
-
-    def test_known_indel(self, conn):
-        known = 'EGFR:p.E746_S752delinsI'
-        matches = match.match_positional_variant(conn, known)
-        names = {m['displayName'] for m in matches}
-        assert matches
-        assert known in names
-        assert 'EGFR mutation' in names
-        assert 'EGFR copy variant' not in names
 
     def test_movel_specific_matches_general(self, conn):
         novel_specific = 'CDKN2A:p.T18888888888888888888M'

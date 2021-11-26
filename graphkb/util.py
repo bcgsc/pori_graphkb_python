@@ -43,7 +43,13 @@ def convert_to_rid_list(records: Iterable[Record]) -> List[str]:
     """
     Given a list of records, return their record IDs
     """
-    return [record['@rid'] for record in records]
+    result = []
+    for record in records:
+        try:
+            result.append(record['@rid'])
+        except TypeError:
+            result.append(record)
+    return result
 
 
 class FeatureNotFoundError(Exception):

@@ -1,8 +1,15 @@
-from typing import List, cast, Iterable, Set
+from typing import Callable, Dict, Iterable, List, Set, cast
 
 from . import GraphKBConnection
 from .types import Ontology
 from .util import convert_to_rid_list
+
+
+def query_by_name(ontology_class: str, base_term_name: str) -> Dict:
+    return {
+        'target': ontology_class,
+        'filters': {'name': base_term_name},
+    }
 
 
 def get_equivalent_terms(
@@ -11,6 +18,7 @@ def get_equivalent_terms(
     root_exclude_term: str = '',
     ontology_class: str = 'Vocabulary',
     ignore_cache: bool = False,
+    build_base_query: Callable = query_by_name,
 ) -> List[Ontology]:
     """
     Get a list of terms equivalent to the current term up to the root term
@@ -19,15 +27,14 @@ def get_equivalent_terms(
         base_term_name: the name to get superclasses of
         root_exclude_term: the parent term to exlcude along with all of its parent terms
     """
+    base_records = convert_to_rid_list(conn.query(build_base_query(ontology_class, base_term_name)))
+    if not base_records:
+        return []
     base_term_parents = cast(
         List[Ontology],
         conn.query(
             {
-                'target': {
-                    'target': ontology_class,
-                    'queryType': 'descendants',
-                    'filters': {'name': base_term_name},
-                },
+                'target': {'target': base_records, 'queryType': 'descendants'},
                 'queryType': 'similarTo',
                 'treeEdges': [],
                 'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],
@@ -36,14 +43,19 @@ def get_equivalent_terms(
         ),
     )
     if root_exclude_term:
+        root_records = convert_to_rid_list(
+            conn.query(build_base_query(ontology_class, root_exclude_term))
+        )
+        if not root_records:
+            return base_term_parents
+
         exclude = set(
             convert_to_rid_list(
                 conn.query(
                     {
                         'target': {
-                            'target': ontology_class,
+                            'target': root_records,
                             'queryType': 'descendants',
-                            'filters': {'name': root_exclude_term},
                         },
                         'queryType': 'similarTo',
                         'treeEdges': [],
@@ -70,6 +82,7 @@ def get_term_tree(
     ontology_class: str = 'Vocabulary',
     include_superclasses: bool = True,
     ignore_cache: bool = False,
+    build_base_query: Callable = query_by_name,
 ) -> List[Ontology]:
     """
     Get terms equivalent to the base term by traversing the subclassOf tree and expanding related
@@ -87,14 +100,16 @@ def get_term_tree(
     Note: this must be done in 2 calls to avoid going up and down the tree in a single query (exclude adjacent siblings)
     """
     # get all child terms of the subclass tree and disambiguate them
+    base_records = convert_to_rid_list(conn.query(build_base_query(ontology_class, base_term_name)))
+    if not base_records:
+        return []
     child_terms = cast(
         List[Ontology],
         conn.query(
             {
                 'target': {
-                    'target': ontology_class,
+                    'target': base_records,
                     'queryType': 'ancestors',
-                    'filters': {'name': base_term_name},
                 },
                 'queryType': 'similarTo',
                 'treeEdges': [],
@@ -111,6 +126,7 @@ def get_term_tree(
             root_exclude_term=root_exclude_term,
             ontology_class=ontology_class,
             ignore_cache=ignore_cache,
+            build_base_query=build_base_query,
         )
     else:
         parent_terms = []

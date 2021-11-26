@@ -1,7 +1,7 @@
 from . import GraphKBConnection
-from .vocab import get_terms_set
 from .constants import RELEVANCE_BASE_TERMS
 from .types import CategoryBaseTermMapping
+from .vocab import get_terms_set
 
 
 def categorize_relevance(
