@@ -34,6 +34,7 @@ source venv/bin/activate
 install the package and its development dependencies
 
 ```bash
+pip install -U pip setuptools
 pip install -e .[dev]
 ```
 
