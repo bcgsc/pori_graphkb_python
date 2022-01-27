@@ -19,7 +19,11 @@ def graphkb_conn():
         *term_tree_calls('1'),  # therapeutic
         *term_tree_calls('2'),  # therapeutic (2nd base term)
         *term_tree_calls('3'),  # diagnostic
-        *term_tree_calls(),  # prognostic
+        *term_tree_calls('4'),  # prognostic
+        *term_tree_calls('5'),  # pharmacogenomic ['metabolism']
+        *term_tree_calls('6'),  # pharmacogenomic ['toxicity']
+        *term_tree_calls('7'),  # pharmacogenomic ['dosage']
+        *term_tree_calls('8'),  # cancer predisposition
         *term_tree_calls(),  # biological
         *term_tree_calls(),  # biological (2nd base term)
         *term_tree_calls(),  # biological (3rd base term)
@@ -41,9 +45,25 @@ class TestCategorizeRelevance:
         category = statement.categorize_relevance(graphkb_conn, '2')
         assert category == 'therapeutic'
 
-    def test_second_categoary(self, graphkb_conn):
+    def test_second_category(self, graphkb_conn):
         category = statement.categorize_relevance(graphkb_conn, '3')
         assert category == 'diagnostic'
+
+    def test_third_category(self, graphkb_conn):
+        category = statement.categorize_relevance(graphkb_conn, '4')
+        assert category == 'prognostic'
+
+    def test_fourth_category(self, graphkb_conn):
+        category = statement.categorize_relevance(graphkb_conn, '5')
+        assert category == 'pharmacogenomic'
+
+    def test_fifth_category(self, graphkb_conn):
+        category = statement.categorize_relevance(graphkb_conn, '6')
+        assert category == 'pharmacogenomic'
+
+    def test_predisposition_category(self, graphkb_conn):
+        category = statement.categorize_relevance(graphkb_conn, '8')
+        assert category == 'cancer predisposition'
 
     def test_no_match(self, graphkb_conn):
         category = statement.categorize_relevance(graphkb_conn, 'x')
