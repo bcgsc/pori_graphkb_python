@@ -384,11 +384,6 @@ class TestMatchPositionalVariant:
         for variant in related_variants:
             assert variant in names
 
-    def test_known_fusion_single_gene_no_match(self, conn):
-        known = '(BCR,?):fusion(e.13,e.?)'
-        matches = match.match_positional_variant(conn, known)
-        assert not matches
-
     def test_movel_specific_matches_general(self, conn):
         novel_specific = 'CDKN2A:p.T18888888888888888888M'
         matches = match.match_positional_variant(conn, novel_specific)
