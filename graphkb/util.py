@@ -17,18 +17,8 @@ QUERY_CACHE: Dict[Any, Any] = {}
 
 # name the logger after the package to make it simple to disable for packages using this one as a dependency
 # https://stackoverflow.com/questions/11029717/how-do-i-disable-log-messages-from-the-requests-library
-VERBOSE_ERROR_CODE = (logging.INFO + logging.DEBUG) // 2
-logging.addLevelName(VERBOSE_ERROR_CODE, 'VERBOSE')
+
 logger = logging.getLogger('graphkb')
-# add shortbut for verbose logging
-setattr(logger, 'verbose', lambda *pos, **kw: logger.log(VERBOSE_ERROR_CODE, *pos, **kw))
-LOG_LEVELS = {
-    'info': logging.INFO,
-    'debug': logging.DEBUG,
-    'warn': logging.WARN,
-    'error': logging.ERROR,
-    'verbose': VERBOSE_ERROR_CODE,
-}
 
 
 class IterableNamespace(argparse.Namespace):
@@ -177,7 +167,7 @@ class GraphKBConnection:
             self.request_count += 1
             resp = requests.request(method, url, headers=self.headers, **kwargs)
         timing = millis_interval(start_time, datetime.now())
-        logger.verbose(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
+        logger.debug(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
 
         try:
             resp.raise_for_status()
