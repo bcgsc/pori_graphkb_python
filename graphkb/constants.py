@@ -1,5 +1,8 @@
 from .types import CategoryBaseTermMapping
 
+DEFAULT_LIMIT = 1000
+DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
+
 BASE_RETURN_PROPERTIES = [
     '@rid',
     '@class',
