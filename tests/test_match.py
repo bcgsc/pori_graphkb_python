@@ -385,7 +385,7 @@ class TestMatchPositionalVariant:
             assert variant in names
 
     def test_known_fusion_single_gene_no_match(self, conn):
-        known = '(BCR,?):fusion(e.13,e.?)'
+        known = '(TERT,?):fusion(e.1,e.?)'
         matches = match.match_positional_variant(conn, known)
         assert not matches
 

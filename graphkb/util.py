@@ -49,15 +49,13 @@ class IterableNamespace(argparse.Namespace):
 
 
 def convert_to_rid_list(records: Iterable[Record]) -> List[str]:
-    """
-    Given a list of records, return their record IDs
-    """
+    """Given a list of records or record id strings, return their record IDs."""
     result = []
     for record in records:
-        try:
+        if isinstance(record, str):
+            result.append(record)  # assume an @rid string
+        else:
             result.append(record['@rid'])
-        except TypeError:
-            result.append(record)
     return result
 
 
@@ -66,18 +64,14 @@ class FeatureNotFoundError(Exception):
 
 
 def looks_like_rid(rid: str) -> bool:
-    """
-    Check if an input string looks like a GraphKB ID
-    """
+    """Check if an input string looks like a GraphKB ID."""
     if re.match(r'^#-?\d+:-?\d+$', rid):
         return True
     return False
 
 
 def convert_aa_3to1(three_letter_notation: str) -> str:
-    """
-    Convert an Input string from 3 letter AA notation to 1 letter AA notation
-    """
+    """Convert an Input string from 3 letter AA notation to 1 letter AA notation."""
     result = []
 
     if ':' in three_letter_notation:
@@ -128,9 +122,7 @@ def millis_interval(start: datetime, end: datetime) -> int:
 
 
 def cache_key(request_body):
-    """
-    create a cache key for a query request to GraphKB
-    """
+    """Create a cache key for a query request to GraphKB."""
     body = json.dumps(request_body, sort_keys=True)
     hash_code = hashlib.md5(f'/query{body}'.encode('utf-8')).hexdigest()
     return hash_code
@@ -161,7 +153,7 @@ class GraphKBConnection:
         return None
 
     def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
-        """Request wrapper to handle adding common headers and logging
+        """Request wrapper to handle adding common headers and logging.
 
         Args:
             endpoint (string): api endpoint, excluding the base uri
@@ -202,7 +194,7 @@ class GraphKBConnection:
         return resp.json()
 
     def post(self, uri: str, data: Dict = {}, **kwargs) -> Dict:
-        """Convenience method for making post requests"""
+        """Convenience method for making post requests."""
         return self.request(uri, method='POST', data=json.dumps(data), **kwargs)
 
     def login(self, username: str, password: str) -> None:
@@ -226,9 +218,7 @@ class GraphKBConnection:
         self.login(self.username, self.password)
 
     def set_cache_data(self, request_body: Dict, result: List[Record]) -> None:
-        """
-        Explicitly add a query to the cache
-        """
+        """Explicitly add a query to the cache."""
         hash_code = cache_key(request_body)
         self.cache[hash_code] = result
 
