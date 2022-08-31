@@ -402,9 +402,22 @@ class TestMatchPositionalVariant:
         match.match_positional_variant(conn, genomic)
         # no assert b/c checking for no error rather than the result
 
-    @pytest.mark.skipif(True, reason="TODO: GERO-299 incomplete; cds and genomic fail test.")
+    def test_match_hgvsprotein_nonsense(self, conn):
+        """GERO-299 - small mutation missense vs nonsense test."""
+        one_letter = 'TP53:p.M237*'
+        three_letter = 'TP53:p.Met237Ter'
+        for mut in (one_letter, three_letter):
+            matches = match.match_positional_variant(conn, mut)
+            nonsense = [m for m in matches if 'nonsense' in m['displayName']]
+            missense = [m for m in matches if 'missense' in m['displayName']]
+            assert nonsense, f"{mut} should be a nonsense variant."
+            assert (
+                not missense
+            ), f"Nonsense {mut} is not a missense variant: {((m['displayName'], m['@rid']) for m in missense)}"
+
+    @pytest.mark.skipif(False, reason="TODO: GERO-299 incomplete; cds and genomic fail test.")
     def test_missense_is_not_nonsense(self, conn):
-        """GERO-299 - nonsense mutation creates a stop codon and is usually more severe."""
+        """GERO-299 - nonsense mutation creates a stop codon and is usually more severe than missense."""
         # equivalent TP53 notations
         genomic = 'chr17:g.7674252C>T'
         cds = 'ENST00000269305:c.711G>A'
@@ -412,6 +425,8 @@ class TestMatchPositionalVariant:
         for mut in (protein, genomic, cds):
             matches = match.match_positional_variant(conn, mut)
             nonsense = [m for m in matches if 'nonsense' in m['displayName']]
+            missense = [m for m in matches if 'missense' in m['displayName']]
+            assert missense, f"{mut} should be a missense variant."
             assert (
                 not nonsense
             ), f"Missense {mut} is not a nonsense variant: {((m['displayName'], m['@rid']) for m in nonsense)}"
