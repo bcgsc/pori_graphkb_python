@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from graphkb import GraphKBConnection, match
+from graphkb.constants import DEV_URL
 from graphkb.util import FeatureNotFoundError
 
 INCREASE_PREFIXES = ['up', 'increase', 'over', 'gain', 'amp']
@@ -22,7 +23,7 @@ def has_prefix(word: str, prefixes: List[str]) -> bool:
 
 @pytest.fixture(scope='module')
 def conn() -> GraphKBConnection:
-    conn = GraphKBConnection()
+    conn = GraphKBConnection(DEV_URL)
     conn.login(os.environ['GRAPHKB_USER'], os.environ['GRAPHKB_PASS'])
     return conn
 
