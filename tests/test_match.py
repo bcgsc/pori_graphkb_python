@@ -423,14 +423,18 @@ class TestMatchPositionalVariant:
         genomic = 'chr17:g.7674252C>T'
         cds = 'ENST00000269305:c.711G>A'
         protein = 'TP53:p.M237I'
+        failures = []
         for mut in (protein, genomic, cds):
             matches = match.match_positional_variant(conn, mut)
             nonsense = [m for m in matches if 'nonsense' in m['displayName']]
             missense = [m for m in matches if 'missense' in m['displayName']]
-            assert missense, f"{mut} should be a missense variant."
-            assert (
-                not nonsense
-            ), f"Missense {mut} is not a nonsense variant: {((m['displayName'], m['@rid']) for m in nonsense)}"
+            if not missense:
+                failures.append(f"{mut} should be a missense variant.")
+            if nonsense:
+                failures.append(
+                    f"Missense {mut} is NOT a nonsense variant: {[(m['displayName'], m['@rid']) for m in nonsense]}"
+                )
+        assert not failures
 
 
 class TestCacheMissingFeatures:
