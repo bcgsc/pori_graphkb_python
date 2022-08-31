@@ -1,7 +1,10 @@
 from .types import CategoryBaseTermMapping
 
 DEFAULT_LIMIT = 1000
-DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
+DEV_URL = "https://graphkbdev-api.bcgsc.ca/api"
+PROD_URL = "https://graphkb-api.bcgsc.ca/api"
+STAGING_URL = "https://graphkbstaging-api.bcgsc.ca/api"
+DEFAULT_URL = PROD_URL
 
 BASE_RETURN_PROPERTIES = [
     '@rid',
