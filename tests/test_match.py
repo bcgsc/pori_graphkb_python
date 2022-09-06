@@ -1,4 +1,5 @@
 import os
+import pprint
 import re
 from typing import List
 from unittest.mock import MagicMock
@@ -424,16 +425,27 @@ class TestMatchPositionalVariant:
         cds = 'ENST00000269305:c.711G>A'
         protein = 'TP53:p.M237I'
         failures = []
+        kb_variants = {}
+        category_variants = {}
         for mut in (protein, genomic, cds):
             matches = match.match_positional_variant(conn, mut)
             nonsense = [m for m in matches if 'nonsense' in m['displayName']]
             missense = [m for m in matches if 'missense' in m['displayName']]
+            kb_variants[mut] = sorted(set([m['displayName'] for m in matches]))
+            category_variants[mut] = sorted(
+                set([m['displayName'] for m in matches if m['@class'] == 'CategoryVariant'])
+            )
             if not missense:
                 failures.append(f"{mut} should be a missense variant.")
             if nonsense:
                 failures.append(
                     f"Missense {mut} is NOT a nonsense variant: {[(m['displayName'], m['@rid']) for m in nonsense]}"
                 )
+        if failures:
+            print("All matches")
+            pprint.pprint(kb_variants)
+            print("Category variants")
+            pprint.pprint(category_variants)  # help debugging
         assert not failures
 
 
