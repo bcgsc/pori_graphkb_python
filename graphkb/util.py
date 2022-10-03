@@ -90,10 +90,7 @@ def join_url(base_url: str, *parts) -> str:
     if not parts:
         return base_url
 
-    if base_url.endswith('/'):
-        base_url = base_url[:-1]
-
-    url = [base_url]
+    url = [base_url.rstrip('/')]
 
     for part in parts:
         if not part.startswith('/'):
@@ -111,7 +108,7 @@ def millis_interval(start: datetime, end: datetime) -> int:
     return millis
 
 
-def cache_key(request_body):
+def cache_key(request_body) -> str:
     """Create a cache key for a query request to GraphKB."""
     body = json.dumps(request_body, sort_keys=True)
     hash_code = hashlib.md5(f'/query{body}'.encode('utf-8')).hexdigest()
