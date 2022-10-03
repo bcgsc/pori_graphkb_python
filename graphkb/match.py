@@ -421,15 +421,15 @@ def match_positional_variant(
             )
     else:
         gene1 = parsed['reference1']
-    features = convert_to_rid_list(
-        get_equivalent_features(
-            conn,
-            gene1,
-            source=gene_source,
-            is_source_id=gene_is_source_id,
-            ignore_cache=ignore_cache,
-        )
+
+    gene1_features = get_equivalent_features(
+        conn,
+        gene1,
+        source=gene_source,
+        is_source_id=gene_is_source_id,
+        ignore_cache=ignore_cache,
     )
+    features = convert_to_rid_list(gene1_features)
 
     if not features:
         raise FeatureNotFoundError(
@@ -457,28 +457,27 @@ def match_positional_variant(
         gene2 = parsed['reference2']
 
     if gene2:
-        secondary_features = convert_to_rid_list(
-            get_equivalent_features(
-                conn,
-                gene2,
-                source=gene_source,
-                is_source_id=gene_is_source_id,
-                ignore_cache=ignore_cache,
-            )
+        gene2_features = get_equivalent_features(
+            conn,
+            gene2,
+            source=gene_source,
+            is_source_id=gene_is_source_id,
+            ignore_cache=ignore_cache,
         )
+        secondary_features = convert_to_rid_list(gene2_features)
         if not secondary_features:
             raise FeatureNotFoundError(
                 f'unable to find the gene ({gene2}) or any equivalent representations'
             )
     # disambiguate the variant type
-    types = convert_to_rid_list(
-        get_term_tree(
-            conn,
-            parsed['type'],
-            root_exclude_term='mutation' if secondary_features else '',
-            ignore_cache=ignore_cache,
-        )
+    variant_types_details = get_term_tree(
+        conn,
+        parsed['type'],
+        root_exclude_term='mutation' if secondary_features else '',
+        ignore_cache=ignore_cache,
     )
+
+    types = convert_to_rid_list(variant_types_details)
 
     if not types:
         variant_type = parsed['type']
@@ -518,6 +517,7 @@ def match_positional_variant(
                 ignore_cache=ignore_cache,
             ),
         )
+
     matches.extend(
         conn.query(
             {
