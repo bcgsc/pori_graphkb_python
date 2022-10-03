@@ -66,23 +66,17 @@ def convert_aa_3to1(three_letter_notation: str) -> str:
 
 
 def join_url(base_url: str, *parts) -> str:
-    """
-    Join parts of a URL into a full URL
-    """
+    """Join parts of a URL into a full URL."""
     if not parts:
         return base_url
 
-    url = [base_url.rstrip('/')]
+    url = [base_url.rstrip('/')] + [part.strip('/') for part in parts]
 
-    for part in parts:
-        if not part.startswith('/'):
-            url.append('/')
-        url.append(part)
-    return ''.join(url)
+    return '/'.join(url)
 
 
 def millis_interval(start: datetime, end: datetime) -> int:
-    """start and end are datetime instances"""
+    """Millisecond time from start and end datetime instances."""
     diff = end - start
     millis = diff.days * 24 * 60 * 60 * 1000
     millis += diff.seconds * 1000
