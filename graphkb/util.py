@@ -98,20 +98,28 @@ def cache_key(request_body) -> str:
 
 
 class GraphKBConnection:
-    def __init__(self, url: str = DEFAULT_URL, use_global_cache: bool = True):
+    def __init__(
+        self,
+        url: str = DEFAULT_URL,
+        username: str = '',
+        password: str = '',
+        use_global_cache: bool = True,
+    ):
         self.http = requests.Session()
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
         self.http.mount("https://", HTTPAdapter(max_retries=retries))
 
         self.token = ''
         self.url = url
-        self.username = ''
-        self.password = ''
+        self.username = username
+        self.password = password
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
         self.cache: Dict[Any, Any] = {} if not use_global_cache else QUERY_CACHE
         self.request_count = 0
         self.first_request: Optional[datetime] = None
         self.last_request: Optional[datetime] = None
+        if username and password:
+            self.login(username=username, password=password)
 
     @property
     def load(self) -> Optional[float]:
