@@ -1,3 +1,5 @@
+import argparse
+
 from .types import CategoryBaseTermMapping
 
 DEFAULT_LIMIT = 1000
@@ -20,6 +22,28 @@ GENERIC_RETURN_PROPERTIES = [
 
 GENE_RETURN_PROPERTIES = ['biotype'] + GENERIC_RETURN_PROPERTIES
 
+VARIANT_RETURN_PROPERTIES = (
+    BASE_RETURN_PROPERTIES
+    + [f'type.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'reference1.{p}' for p in GENE_RETURN_PROPERTIES]
+    + [f'reference2.{p}' for p in GENE_RETURN_PROPERTIES]
+    + ['zygosity', 'germline', 'displayName']
+)
+
+POS_VARIANT_RETURN_PROPERTIES = VARIANT_RETURN_PROPERTIES + [
+    'break1Start',
+    'break1End',
+    'break2Start',
+    'break2End',
+    'break1Repr',
+    'break2Repr',
+    'refSeq',
+    'untemplatedSeq',
+    'untemplatedSeqSize',
+    'truncation',
+    'assembly',
+]
+
 
 ONCOKB_SOURCE_NAME = 'oncokb'
 ONCOGENE = 'oncogenic'
@@ -37,6 +61,8 @@ RELEVANCE_BASE_TERMS: CategoryBaseTermMapping = [
     ('biological', ['functional effect', 'tumourigenesis', 'predisposing']),
 ]
 
+
+AMBIGUOUS_AA = ['x', '?', 'X']
 AA_3to1_MAPPING = {
     'Ala': 'A',
     'Arg': 'R',
@@ -62,3 +88,33 @@ AA_3to1_MAPPING = {
     'Val': 'V',
     'Ter': '*',
 }
+
+
+class IterableNamespace(argparse.Namespace):
+    def __init__(self, *pos, **kwargs):
+        argparse.Namespace.__init__(self, *pos, **kwargs)
+
+    def keys(self):
+        return self.__dict__.keys()
+
+    def items(self):
+        return self.__dict__.items()
+
+    def values(self):
+        return self.__dict__.values()
+
+    def __getitem__(self, key):
+        return getattr(self, key)
+
+
+INPUT_COPY_CATEGORIES = IterableNamespace(
+    AMP='amplification',
+    ANY_GAIN='copy gain',
+    ANY_LOSS='copy loss',
+    DEEP='deep deletion',
+    GAIN='low level copy gain',
+    LOSS='shallow deletion',
+)
+INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
+    UP='increased expression', DOWN='reduced expression'
+)
