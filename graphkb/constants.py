@@ -18,6 +18,14 @@ GENERIC_RETURN_PROPERTIES = [
     'deprecated',
 ] + BASE_RETURN_PROPERTIES
 
+GENE_RETURN_PROPERTIES = ['biotype'] + GENERIC_RETURN_PROPERTIES
+
+
+ONCOKB_SOURCE_NAME = 'oncokb'
+ONCOGENE = 'oncogenic'
+TUMOUR_SUPPRESSIVE = 'tumour suppressive'
+
+FUSION_NAMES = ['structural variant', 'fusion']
 BASE_THERAPEUTIC_TERMS = ['therapeutic efficacy', 'eligibility']
 # the order here is the order these are applied, the first category matched is returned
 RELEVANCE_BASE_TERMS: CategoryBaseTermMapping = [

@@ -4,8 +4,7 @@ Functions which return Variants from GraphKB which match some input variant defi
 from typing import Dict, List, Optional, Set, Union, cast
 
 from . import GraphKBConnection
-from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
-from .genes import GENE_RETURN_PROPERTIES
+from .constants import BASE_RETURN_PROPERTIES, GENE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
 from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list, looks_like_rid
 from .vocab import get_term_tree
