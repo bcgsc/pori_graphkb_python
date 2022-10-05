@@ -227,7 +227,16 @@ class GraphKBConnection:
         content = self.post(
             'parse', data={'content': hgvs_string, 'requireFeatures': requireFeatures}
         )
-        return cast(ParsedVariant, content['result'])
+        # GERO-303 - Check for negative position instead of negative offset for promoters.
+        #  eg. 'TERT:c.-124C>T' vs 'TERT:c.1-124C>T'
+        parsed = content['result']
+        if parsed.get('break1Start'):
+            break1Start = parsed.get('break1Start')
+            if break1Start.get('pos', 0) < 0 and break1Start.get('offset', 1) == 0:
+                # Change negative position, to position 1 and an offset.
+                break1Start['offset'] = break1Start['pos']
+                break1Start['pos'] = 1
+        return cast(ParsedVariant, parsed)
 
     def get_records_by_id(self, record_ids: List[str]) -> List[Record]:
         if not record_ids:

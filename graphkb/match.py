@@ -171,8 +171,7 @@ def match_category_variant(
 def match_copy_variant(
     conn: GraphKBConnection, gene_name: str, category: str, drop_homozygous: bool = False, **kwargs
 ) -> List[Variant]:
-    """
-    Returns a list of variants matching the input variant
+    """Returns a list of copy number GraphKB matches for the copy_category of the gene_name.
 
     Args:
         conn (GraphKBConnection): the graphkb connection object
