@@ -44,6 +44,17 @@ POS_VARIANT_RETURN_PROPERTIES = VARIANT_RETURN_PROPERTIES + [
     'assembly',
 ]
 
+STATEMENT_RETURN_PROPERTIES = (
+    BASE_RETURN_PROPERTIES
+    + ['sourceId', 'source.name', 'source.displayName']
+    + [f'conditions.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'subject.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'evidence.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'relevance.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'evidenceLevel.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + ['reviewStatus']
+)
+
 
 ONCOKB_SOURCE_NAME = 'oncokb'
 ONCOGENE = 'oncogenic'
