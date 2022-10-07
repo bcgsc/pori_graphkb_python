@@ -4,26 +4,8 @@ Methods for retrieving gene annotation lists from GraphKB
 from typing import Any, Dict, List, cast
 
 from . import GraphKBConnection
+from .constants import GENE_RETURN_PROPERTIES, ONCOGENE, ONCOKB_SOURCE_NAME, TUMOUR_SUPPRESSIVE
 from .types import Ontology, Statement, Variant
-
-ONCOKB_SOURCE_NAME = 'oncokb'
-ONCOGENE = 'oncogenic'
-TUMOUR_SUPPRESSIVE = 'tumour suppressive'
-
-FUSION_NAMES = ['structural variant', 'fusion']
-
-GENE_RETURN_PROPERTIES = [
-    'name',
-    '@rid',
-    '@class',
-    'sourceId',
-    'sourceIdVersion',
-    'source.name',
-    'source.@rid',
-    'displayName',
-    'biotype',
-    'deprecated',
-]
 
 
 def _get_oncokb_gene_list(

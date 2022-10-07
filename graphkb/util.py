@@ -1,4 +1,3 @@
-import argparse
 import hashlib
 import json
 import logging
@@ -19,23 +18,6 @@ QUERY_CACHE: Dict[Any, Any] = {}
 # https://stackoverflow.com/questions/11029717/how-do-i-disable-log-messages-from-the-requests-library
 
 logger = logging.getLogger('graphkb')
-
-
-class IterableNamespace(argparse.Namespace):
-    def __init__(self, *pos, **kwargs):
-        argparse.Namespace.__init__(self, *pos, **kwargs)
-
-    def keys(self):
-        return self.__dict__.keys()
-
-    def items(self):
-        return self.__dict__.items()
-
-    def values(self):
-        return self.__dict__.values()
-
-    def __getitem__(self, key):
-        return getattr(self, key)
 
 
 def convert_to_rid_list(records: Iterable[Record]) -> List[str]:
@@ -84,26 +66,17 @@ def convert_aa_3to1(three_letter_notation: str) -> str:
 
 
 def join_url(base_url: str, *parts) -> str:
-    """
-    Join parts of a URL into a full URL
-    """
+    """Join parts of a URL into a full URL."""
     if not parts:
         return base_url
 
-    if base_url.endswith('/'):
-        base_url = base_url[:-1]
+    url = [base_url.rstrip('/')] + [part.strip('/') for part in parts]
 
-    url = [base_url]
-
-    for part in parts:
-        if not part.startswith('/'):
-            url.append('/')
-        url.append(part)
-    return ''.join(url)
+    return '/'.join(url)
 
 
 def millis_interval(start: datetime, end: datetime) -> int:
-    """start and end are datetime instances"""
+    """Millisecond time from start and end datetime instances."""
     diff = end - start
     millis = diff.days * 24 * 60 * 60 * 1000
     millis += diff.seconds * 1000
@@ -111,7 +84,7 @@ def millis_interval(start: datetime, end: datetime) -> int:
     return millis
 
 
-def cache_key(request_body):
+def cache_key(request_body) -> str:
     """Create a cache key for a query request to GraphKB."""
     body = json.dumps(request_body, sort_keys=True)
     hash_code = hashlib.md5(f'/query{body}'.encode('utf-8')).hexdigest()
@@ -119,20 +92,28 @@ def cache_key(request_body):
 
 
 class GraphKBConnection:
-    def __init__(self, url: str = DEFAULT_URL, use_global_cache: bool = True):
+    def __init__(
+        self,
+        url: str = DEFAULT_URL,
+        username: str = '',
+        password: str = '',
+        use_global_cache: bool = True,
+    ):
         self.http = requests.Session()
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
         self.http.mount("https://", HTTPAdapter(max_retries=retries))
 
         self.token = ''
         self.url = url
-        self.username = ''
-        self.password = ''
+        self.username = username
+        self.password = password
         self.headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
         self.cache: Dict[Any, Any] = {} if not use_global_cache else QUERY_CACHE
         self.request_count = 0
         self.first_request: Optional[datetime] = None
         self.last_request: Optional[datetime] = None
+        if username and password:
+            self.login(username=username, password=password)
 
     @property
     def load(self) -> Optional[float]:

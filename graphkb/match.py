@@ -4,47 +4,16 @@ Functions which return Variants from GraphKB which match some input variant defi
 from typing import Dict, List, Optional, Set, Union, cast
 
 from . import GraphKBConnection
-from .constants import BASE_RETURN_PROPERTIES, GENERIC_RETURN_PROPERTIES
-from .genes import GENE_RETURN_PROPERTIES
+from .constants import (
+    AMBIGUOUS_AA,
+    INPUT_COPY_CATEGORIES,
+    INPUT_EXPRESSION_CATEGORIES,
+    POS_VARIANT_RETURN_PROPERTIES,
+    VARIANT_RETURN_PROPERTIES,
+)
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
-from .util import FeatureNotFoundError, IterableNamespace, convert_to_rid_list, looks_like_rid
+from .util import FeatureNotFoundError, convert_to_rid_list, looks_like_rid
 from .vocab import get_term_tree
-
-INPUT_COPY_CATEGORIES = IterableNamespace(
-    AMP='amplification',
-    ANY_GAIN='copy gain',
-    ANY_LOSS='copy loss',
-    DEEP='deep deletion',
-    GAIN='low level copy gain',
-    LOSS='shallow deletion',
-)
-INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
-    UP='increased expression', DOWN='reduced expression'
-)
-AMBIGUOUS_AA = ['x', '?', 'X']
-
-VARIANT_RETURN_PROPERTIES = (
-    BASE_RETURN_PROPERTIES
-    + [f'type.{p}' for p in GENERIC_RETURN_PROPERTIES]
-    + [f'reference1.{p}' for p in GENE_RETURN_PROPERTIES]
-    + [f'reference2.{p}' for p in GENE_RETURN_PROPERTIES]
-    + ['zygosity', 'germline', 'displayName']
-)
-
-POS_VARIANT_RETURN_PROPERTIES = VARIANT_RETURN_PROPERTIES + [
-    'break1Start',
-    'break1End',
-    'break2Start',
-    'break2End',
-    'break1Repr',
-    'break2Repr',
-    'refSeq',
-    'untemplatedSeq',
-    'untemplatedSeqSize',
-    'truncation',
-    'assembly',
-]
-
 
 FEATURES_CACHE: Set[str] = set()
 
