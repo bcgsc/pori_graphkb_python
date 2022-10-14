@@ -12,7 +12,7 @@ from .constants import (
     VARIANT_RETURN_PROPERTIES,
 )
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
-from .util import FeatureNotFoundError, convert_to_rid_list, looks_like_rid
+from .util import FeatureNotFoundError, convert_to_rid_list, logger, looks_like_rid
 from .vocab import get_term_tree
 
 FEATURES_CACHE: Set[str] = set()
@@ -389,6 +389,25 @@ def match_positional_variant(
             )
     else:
         gene1 = parsed['reference1']
+
+    if 'break1Start' in parsed:
+        break1Start = parsed.get('break1Start')
+        # GERO-303 - Check for negative position instead of negative offset for promoters.
+        #  eg. 'TERT:c.-124C>T' vs 'TERT:c.1-124C>T'
+        if break1Start.get('pos', 0) < 0 and break1Start.get('offset', 1) == 0:
+            force_positive_position = True
+            if force_positive_position:
+                logger.error(f"GERO-303 - switching negative position for negative offset")
+                logger.error(
+                    f"GERO-303 -   {gene1}:c.{break1Start['pos']} -> {gene1}:c.1{break1Start['pos']}"
+                )
+                # Change negative position, to position 1 and an offset.
+                break1Start['offset'] = break1Start['pos']
+                break1Start['pos'] = 1
+            else:
+                logger.warning(
+                    f"GERO-303 - keeping negative position: {gene1}:c.{break1Start['pos']}"
+                )
 
     gene1_features = get_equivalent_features(
         conn,

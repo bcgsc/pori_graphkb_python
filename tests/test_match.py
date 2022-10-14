@@ -406,6 +406,7 @@ class TestMatchPositionalVariant:
         assert match.match_positional_variant(conn, 'TERT:c.-124C>T')
 
     def test_tert_promoter_leading_one_alt_notation(self, conn):
+        # GERO-303 - technically this format is incorrect.
         assert match.match_positional_variant(conn, 'TERT:c.1-124C>T')
 
     @pytest.mark.skipif(True, reason="TODO: GERO-299 incomplete; cds and genomic fail test.")
