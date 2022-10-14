@@ -5,10 +5,7 @@ from .types import CategoryBaseTermMapping
 DEFAULT_LIMIT = 1000
 DEFAULT_URL = 'https://graphkb-api.bcgsc.ca/api'
 
-BASE_RETURN_PROPERTIES = [
-    '@rid',
-    '@class',
-]
+BASE_RETURN_PROPERTIES = ['@rid', '@class']
 
 GENERIC_RETURN_PROPERTIES = [
     'name',
@@ -44,6 +41,17 @@ POS_VARIANT_RETURN_PROPERTIES = VARIANT_RETURN_PROPERTIES + [
     'assembly',
 ]
 
+STATEMENT_RETURN_PROPERTIES = (
+    BASE_RETURN_PROPERTIES
+    + ['displayNameTemplate', 'sourceId', 'source.name', 'source.displayName']
+    + [f'conditions.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'subject.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'evidence.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'relevance.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + [f'evidenceLevel.{p}' for p in GENERIC_RETURN_PROPERTIES]
+    + ['reviewStatus']
+)
+
 
 ONCOKB_SOURCE_NAME = 'oncokb'
 ONCOGENE = 'oncogenic'
@@ -60,7 +68,6 @@ RELEVANCE_BASE_TERMS: CategoryBaseTermMapping = [
     ('cancer predisposition', ['pathogenic']),
     ('biological', ['functional effect', 'tumourigenesis', 'predisposing']),
 ]
-
 
 AMBIGUOUS_AA = ['x', '?', 'X']
 AA_3to1_MAPPING = {
