@@ -71,7 +71,7 @@ def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
 
 
 def get_therapeutic_associated_genes(graphkb_conn: GraphKBConnection) -> List[Ontology]:
-    """Set of all genes related to a cancer-associated statement in Graphkb."""
+    """Genes related to a cancer-associated statement in Graphkb."""
     therapeutic_relevance = get_terms_set(graphkb_conn, BASE_THERAPEUTIC_TERMS)
     statements = graphkb_conn.query(
         {
