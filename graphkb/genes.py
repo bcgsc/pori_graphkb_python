@@ -1,11 +1,21 @@
 """
 Methods for retrieving gene annotation lists from GraphKB
 """
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Tuple, cast
 
 from . import GraphKBConnection
-from .constants import GENE_RETURN_PROPERTIES, ONCOGENE, ONCOKB_SOURCE_NAME, TUMOUR_SUPPRESSIVE
+from .constants import (
+    GENE_RETURN_PROPERTIES,
+    ONCOGENE,
+    ONCOKB_SOURCE_NAME,
+    PHARMACOGENOMIC_RELEVANCE_TERMS,
+    PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST,
+    RELEVANCE_BASE_TERMS,
+    TUMOUR_SUPPRESSIVE,
+)
+from .match import get_equivalent_features
 from .types import Ontology, Statement, Variant
+from .util import get_rid, logger
 
 
 def _get_oncokb_gene_list(
@@ -117,3 +127,210 @@ def get_genes_from_variant_types(
         ),
     )
     return result
+
+
+def get_term_list(target_category) -> List[str]:
+    """Load the relevance terms for 'cancer predisposition' variants."""
+    for category, base_terms in RELEVANCE_BASE_TERMS:
+        if category == target_category and base_terms:
+            return base_terms
+    else:
+        raise AssertionError(f"Undefined '{target_category}' category")
+
+
+def get_preferred_gene_name(conn: GraphKBConnection, gene_name: str, source: str = '#39:5') -> str:
+    """Preferred gene symbol of a gene or transcript.
+
+    Args:
+        gene_name: the gene name to search features by
+        ignore_cache (bool, optional): bypass the cache to always force a new request
+        source: id of the preferred gene symbol source
+    Returns:
+        preferred displayName symbol.
+
+    Example:
+        return KRAS for get_preferred_gene_name(conn, 'NM_033360')
+        return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
+    """
+    eq = get_equivalent_features(conn=conn, gene_name=gene_name)
+    genes = [m for m in eq if m.get('biotype', '') == 'gene' and not m.get('deprecated', False)]
+    if not genes:
+        logger.error(f"No genes found for: {gene_name}")
+        return ''
+    if source:
+        source_filtered_genes = [m for m in genes if m.get('source', '') == source]
+        if not source_filtered_genes:
+            logger.error(f"No data from source {source} for {gene_name}")
+        else:
+            genes = source_filtered_genes
+
+    gene_names = [g['displayName'] for g in genes if g]
+    if len(gene_names) > 1:
+        logger.error(
+            f"Multiple gene names found for: {gene_name} - using {gene_names[0]}, ignoring {gene_names[1:]}"
+        )
+    return gene_names[0]
+
+
+def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[str, str]]:
+    """
+    Return two lists from GraphKB, one of cancer predisposition genes and one of associated variants.
+
+    GERO-272 - criteria for what counts as a "cancer predisposition" variant
+
+    In short:
+    * Statement 'source' is 'CGL'
+    * Statement 'relevance' is 'pathogenic'
+    * gene is gotten from any associated 'PositionalVariant' records
+
+    Example: https://graphkb.bcgsc.ca/view/Statement/155:11616
+
+    Returns:
+        genes: list of cancer predisposition genes
+        variants: dictionary mapping pharmacogenomic variant IDs to variant display names
+    """
+    genes = set()
+    non_genes = set()
+    infer_genes = set()
+    variants = {}
+
+    relevance = get_term_list("cancer predisposition")
+
+    for record in conn.query(
+        {
+            "target": "Statement",
+            "filters": [
+                {
+                    "evidence": {
+                        "target": "Source",
+                        "filters": {"@rid": get_rid(conn, "Source", "CGL")},
+                    },
+                    "relevance": {
+                        "target": "Vocabulary",
+                        "filters": {
+                            "@rid": [get_rid(conn, "Vocabulary", term) for term in relevance]
+                        },
+                    },
+                }
+            ],
+            "returnProperties": [
+                "conditions.@class",
+                "conditions.@rid",
+                "conditions.displayName",
+                "conditions.reference1.biotype",
+                "conditions.reference1.displayName",
+                "conditions.reference2.biotype",
+                "conditions.reference2.displayName",
+            ],
+        },
+        ignore_cache=False,
+    ):
+        for condition in record["conditions"]:  # type: ignore
+            if condition["@class"] == "PositionalVariant":
+                variants[condition["@rid"]] = condition["displayName"]
+                for reference in ["reference1", "reference2"]:
+                    name = (condition.get(reference) or {}).get("displayName", "")
+                    biotype = (condition.get(reference) or {}).get("biotype", "")
+                    if name and biotype == "gene":
+                        genes.add(name)
+                    elif name:
+                        gene = get_preferred_gene_name(conn, name)
+                        if gene:
+                            infer_genes.add((gene, name, biotype))
+                        else:
+                            non_genes.add((name, biotype))
+                            logger.error(
+                                f"Non-gene cancer predisposition {biotype}: {name} for {condition['displayName']}"
+                            )
+
+    for gene, name, biotype in infer_genes:
+        logger.debug(f"Found gene '{gene}' for '{name}' ({biotype})")
+        genes.add(gene)
+
+    for name, biotype in non_genes:
+        logger.error(f"Unable to find gene for '{name}' ({biotype})")
+
+    return sorted(genes), variants
+
+
+def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[str, str]]:
+    """
+    Return two lists from GraphKB, one of pharmacogenomic genes and one of associated variants.
+
+    SDEV-2733 - criteria for what counts as a "pharmacogenomic" variant
+
+    In short:
+    * Statement 'source' is not 'CGI' or 'CIViC'
+    * Statement 'relevance' is 'increased toxicity' or 'decreased toxicity'
+    * gene is gotten from any associated 'PositionalVariant' records
+
+    Example: https://graphkb.bcgsc.ca/view/Statement/154:9574
+
+    Returns:
+        genes: list of pharmacogenomic genes
+        variants: dictionary mapping pharmacogenomic variant IDs to variant display names
+    """
+    genes = set()
+    non_genes = set()
+    infer_genes = set()
+    variants = {}
+
+    for record in conn.query(
+        {
+            "target": "Statement",
+            "filters": [
+                {
+                    "relevance": {
+                        "target": "Vocabulary",
+                        "filters": {
+                            "@rid": [
+                                get_rid(conn, "Vocabulary", term)
+                                for term in PHARMACOGENOMIC_RELEVANCE_TERMS
+                            ]
+                        },
+                    }
+                }
+            ],
+            "returnProperties": [
+                "conditions.@class",
+                "conditions.@rid",
+                "conditions.displayName",
+                "conditions.reference1.biotype",
+                "conditions.reference1.displayName",
+                "conditions.reference2.biotype",
+                "conditions.reference2.displayName",
+                "source.name",
+            ],
+        },
+        ignore_cache=False,
+    ):
+        if record["source"]:  # type: ignore
+            if record["source"]["name"].lower() in PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST:  # type: ignore
+                continue
+
+        for condition in record["conditions"]:  # type: ignore
+            if condition["@class"] == "PositionalVariant":
+                variants[condition["@rid"]] = condition["displayName"]
+                for reference in ["reference1", "reference2"]:
+                    name = (condition.get(reference) or {}).get("displayName", "")
+                    biotype = (condition.get(reference) or {}).get("biotype", "")
+                    if name and biotype == "gene":
+                        genes.add(name)
+                    elif name:
+                        gene = get_preferred_gene_name(conn, name)
+                        if gene:
+                            infer_genes.add((gene, name, biotype))
+                        else:
+                            non_genes.add((name, biotype))
+                            logger.error(
+                                f"Non-gene pharmacogenomic {biotype}: {name} for {condition['displayName']}"
+                            )
+
+    for gene, name, biotype in infer_genes:
+        logger.debug(f"Found gene '{gene}' for '{name}' ({biotype})")
+        genes.add(gene)
+
+    for name, biotype in non_genes:
+        logger.error(f"Unable to find gene for '{name}' ({biotype})")
+
+    return sorted(genes), variants

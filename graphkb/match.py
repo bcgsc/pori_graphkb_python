@@ -88,40 +88,6 @@ def get_equivalent_features(
     )
 
 
-def get_preferred_gene_name(conn: GraphKBConnection, gene_name: str, source: str = '#39:5') -> str:
-    """Preferred gene symbol of a gene or transcript.
-
-    Args:
-        gene_name: the gene name to search features by
-        ignore_cache (bool, optional): bypass the cache to always force a new request
-        source: id of the preferred gene symbol source
-    Returns:
-        preferred displayName symbol.
-
-    Example:
-        return KRAS for get_preferred_gene_name(conn, 'NM_033360')
-        return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
-    """
-    eq = get_equivalent_features(conn=conn, gene_name=gene_name)
-    genes = [m for m in eq if m.get('biotype', '') == 'gene' and not m.get('deprecated', False)]
-    if not genes:
-        logger.error(f"No genes found for: {gene_name}")
-        return ''
-    if source:
-        source_filtered_genes = [m for m in genes if m.get('source', '') == source]
-        if not source_filtered_genes:
-            logger.error(f"No data from source {source} for {gene_name}")
-        else:
-            genes = source_filtered_genes
-
-    gene_names = [g['displayName'] for g in genes if g]
-    if len(gene_names) > 1:
-        logger.error(
-            f"Multiple gene names found for: {gene_name} - using {gene_names[0]}, ignoring {gene_names[1:]}"
-        )
-    return gene_names[0]
-
-
 def cache_missing_features(conn: GraphKBConnection) -> None:
     """
     Create a cache of features that exist to avoid repeatedly querying
