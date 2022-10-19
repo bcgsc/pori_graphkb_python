@@ -63,6 +63,15 @@ class TestGetEquivalentFeatures:
         assert 'ENSG00000133703.11' in kras
         assert 'ENSG00000133703' in kras
 
+    @pytest.mark.parametrize(
+        'alt_rep', ('NM_033360.4', 'NM_033360', 'ENSG00000133703.11', 'ENSG00000133703')
+    )
+    def test_get_preferred_gene_name(self, alt_rep, conn):
+        gene_name = match.get_preferred_gene_name(conn, alt_rep)
+        assert (
+            'KRAS' == gene_name
+        ), f"Expected KRAS as preferred gene name for {alt_rep}, not '{gene_name}'"
+
 
 class TestMatchCopyVariant:
     def test_bad_category(self, conn):
