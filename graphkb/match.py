@@ -392,21 +392,22 @@ def match_positional_variant(
 
     if 'break1Start' in parsed:
         break1Start = parsed.get('break1Start')
-        # GERO-303 - Check for negative position instead of negative offset for promoters.
+        # GERO-303 - Check for negative offset instead of negative position for promoters.
         #  eg. 'TERT:c.-124C>T' vs 'TERT:c.1-124C>T'
-        if break1Start.get('pos', 0) < 0 and break1Start.get('offset', 1) == 0:
-            force_positive_position = True
-            if force_positive_position:
-                logger.error(f"GERO-303 - switching negative position for negative offset")
+        if break1Start.get('pos', 0) == 1 and break1Start.get('offset', 1) < 0:
+            force_negative_position = True
+            if force_negative_position:
                 logger.error(
-                    f"GERO-303 -   {gene1}:c.{break1Start['pos']} -> {gene1}:c.1{break1Start['pos']}"
+                    "GERO-303 - switching legacy notation, negative offset at position 1, for negative position"
                 )
-                # Change negative position, to position 1 and an offset.
-                break1Start['offset'] = break1Start['pos']
-                break1Start['pos'] = 1
+                logger.error(
+                    f"GERO-303 -   {gene1}:c.1{break1Start['offset']} -> {gene1}:c.{break1Start['offset']}"
+                )
+                break1Start['pos'] = break1Start['offset']
+                break1Start['offset'] = 0
             else:
                 logger.warning(
-                    f"GERO-303 - keeping negative position: {gene1}:c.{break1Start['pos']}"
+                    f"GERO-303 - keeping negative offset with position: {gene1}:c.{break1Start['pos']}{break1Start['offset']}"
                 )
 
     gene1_features = get_equivalent_features(
