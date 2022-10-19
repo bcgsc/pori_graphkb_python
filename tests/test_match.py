@@ -47,6 +47,22 @@ class TestGetEquivalentFeatures:
         assert 'NM_033360.4' in kras
         assert 'ENSG00000133703.11' in kras
 
+    def test_expands_generalizations_kras(self, kras):
+        assert 'NM_033360.4' in kras
+        assert 'NM_033360' in kras
+        assert 'ENSG00000133703.11' in kras
+        assert 'ENSG00000133703' in kras
+
+    @pytest.mark.parametrize(
+        'alt_rep', ('NM_033360.4', 'NM_033360', 'ENSG00000133703.11', 'ENSG00000133703')
+    )
+    def test_expands_generalizations_refseq(self, alt_rep, conn):
+        kras = [f['displayName'] for f in match.get_equivalent_features(conn, alt_rep)]
+        assert 'NM_033360.4' in kras
+        assert 'NM_033360' in kras
+        assert 'ENSG00000133703.11' in kras
+        assert 'ENSG00000133703' in kras
+
 
 class TestMatchCopyVariant:
     def test_bad_category(self, conn):
