@@ -27,51 +27,37 @@ def conn():
     return conn
 
 
-@pytest.mark.parametrize('gene', CANONICAL_ONCOGENES)
-def test_finds_oncogene(conn, gene):
+def test_oncogene(conn):
     result = get_oncokb_oncogenes(conn)
-
     names = {row['name'] for row in result}
-    assert gene in names
+    for gene in CANONICAL_ONCOGENES:
+        assert gene in names
+    for gene in CANONICAL_TS:
+        assert gene not in names
 
 
-@pytest.mark.parametrize('gene', CANONICAL_TS)
-def test_ts_not_oncogene(conn, gene):
-    result = get_oncokb_oncogenes(conn)
-
-    names = {row['name'] for row in result}
-    assert gene not in names
-
-
-@pytest.mark.parametrize('gene', CANONICAL_ONCOGENES)
-def test_oncogene_not_ts(conn, gene):
+def test_tumour_supressors(conn):
     result = get_oncokb_tumour_supressors(conn)
-
     names = {row['name'] for row in result}
-    assert gene not in names
+    for gene in CANONICAL_TS:
+        assert gene in names
+    for gene in CANONICAL_ONCOGENES:
+        assert gene not in names
 
 
-@pytest.mark.parametrize('gene', CANONICAL_TS)
-def test_finds_ts(conn, gene):
-    result = get_oncokb_tumour_supressors(conn)
-
-    names = {row['name'] for row in result}
-    assert gene in names
-
-
-@pytest.mark.parametrize('gene', CANONICAL_FUSION_GENES)
-def test_find_fusion_genes(conn, gene):
+def test_find_fusion_genes(conn):
     result = get_genes_from_variant_types(conn, FUSION_NAMES)
     names = {row['name'] for row in result}
-    assert gene in names
+    for gene in CANONICAL_FUSION_GENES:
+        assert gene in names, f"{gene} was not identified as a fusion gene."
 
 
-@pytest.mark.parametrize('gene', CANNONICAL_THERAPY_GENES + CANONICAL_ONCOGENES + CANONICAL_TS)
-def test_get_therapeutic_associated_genes(conn, gene):
+def test_get_therapeutic_associated_genes(conn):
     gene_list = get_therapeutic_associated_genes(graphkb_conn=conn)
     assert gene_list, 'No get_therapeutic_associated_genes found'
     assert (
         len(gene_list) > 500
     ), f'Expected over 500 get_therapeutic_associated_genes but found {len(gene_list)}'
     names = {row['name'] for row in gene_list}
-    assert gene in names
+    for gene in CANNONICAL_THERAPY_GENES + CANONICAL_ONCOGENES + CANONICAL_TS:
+        assert gene in names, f"{gene} not found by get_therapeutic_associated_genes"
