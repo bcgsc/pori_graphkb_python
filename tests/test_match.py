@@ -405,7 +405,7 @@ class TestMatchPositionalVariant:
         matches = match.match_positional_variant(conn, known)
         assert not matches
 
-    def test_movel_specific_matches_general(self, conn):
+    def test_novel_specific_matches_general(self, conn):
         novel_specific = 'CDKN2A:p.T18888888888888888888M'
         matches = match.match_positional_variant(conn, novel_specific)
         names = {m['displayName'] for m in matches}
@@ -417,6 +417,16 @@ class TestMatchPositionalVariant:
         genomic = 'X:g.100611165A>T'
         match.match_positional_variant(conn, genomic)
         # no assert b/c checking for no error rather than the result
+
+    def test_tert_promoter(self, conn):
+        assert match.match_positional_variant(conn, 'TERT:c.-124C>T')
+
+    @pytest.mark.skipif(
+        True, reason="GERO-303 - technically incorrect notation for GSC backwards compatibility."
+    )
+    def test_tert_promoter_leading_one_alt_notation(self, conn):
+        # GERO-303 - technically this format is incorrect.
+        assert match.match_positional_variant(conn, 'TERT:c.1-124C>T')
 
     @pytest.mark.skipif(True, reason="TODO: GERO-299 incomplete; cds and genomic fail test.")
     def test_missense_is_not_nonsense(self, conn):
