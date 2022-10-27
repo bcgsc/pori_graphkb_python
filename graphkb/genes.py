@@ -9,7 +9,6 @@ from .constants import (
     GENE_RETURN_PROPERTIES,
     ONCOGENE,
     ONCOKB_SOURCE_NAME,
-    PHARMACOGENOMIC_RELEVANCE_TERMS,
     PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST,
     RELEVANCE_BASE_TERMS,
     TUMOUR_SUPPRESSIVE,
@@ -50,8 +49,7 @@ def _get_oncokb_gene_list(
 
 
 def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
-    """
-    Gets the list of oncogenes stored in GraphKB derived from OncoKB
+    """Gets the list of oncogenes stored in GraphKB derived from OncoKB.
 
     Args:
         conn: the graphkb connection object
@@ -63,8 +61,7 @@ def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
 
 
 def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
-    """
-    Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB
+    """Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB.
 
     Args:
         conn: the graphkb connection object
@@ -191,6 +188,10 @@ def get_preferred_gene_name(conn: GraphKBConnection, gene_name: str, source: str
         return KRAS for get_preferred_gene_name(conn, 'NM_033360')
         return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
     """
+    CHROMOSOMES = [f"chr{i}" for i in range(1, 24)] + ['chrX', 'chrY']
+    if gene_name in CHROMOSOMES:
+        logger.error(f"{gene_name} assumed to be a chromosome, not gene")
+        return ''
     eq = get_equivalent_features(conn=conn, gene_name=gene_name)
     genes = [m for m in eq if m.get('biotype', '') == 'gene' and not m.get('deprecated', False)]
     if not genes:
@@ -233,7 +234,7 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
     infer_genes = set()
     variants = {}
 
-    relevance = get_term_list("cancer predisposition")
+    relevance_rids = list(get_terms_set(conn, "cancer predisposition"))
 
     for record in conn.query(
         {
@@ -246,9 +247,7 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
                     },
                     "relevance": {
                         "target": "Vocabulary",
-                        "filters": {
-                            "@rid": [get_rid(conn, "Vocabulary", term) for term in relevance]
-                        },
+                        "filters": {"@rid": relevance_rids},
                     },
                 }
             ],
@@ -314,6 +313,8 @@ def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[s
     infer_genes = set()
     variants = {}
 
+    relevance_rids = list(get_terms_set(conn, "pharmacogenomic"))
+
     for record in conn.query(
         {
             "target": "Statement",
@@ -321,13 +322,8 @@ def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[s
                 {
                     "relevance": {
                         "target": "Vocabulary",
-                        "filters": {
-                            "@rid": [
-                                get_rid(conn, "Vocabulary", term)
-                                for term in PHARMACOGENOMIC_RELEVANCE_TERMS
-                            ]
-                        },
-                    }
+                        "filters": {"@rid": relevance_rids},
+                    },
                 }
             ],
             "returnProperties": [

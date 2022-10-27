@@ -187,10 +187,8 @@ def get_term_by_name(
 def get_terms_set(
     graphkb_conn: GraphKBConnection, base_terms: Iterable[str], ignore_cache: bool = False
 ) -> Set[str]:
-    """
-    Get a set of terms of vocabulary given some base/parent term names. Returns the record
-    IDs for the resulting terms
-    """
+    """Get a set of vocabulary rids given some base/parent term names."""
+    base_terms = [base_terms] if isinstance(base_terms, str) else base_terms
     cache_key = tuple(sorted(base_terms))
     if graphkb_conn.cache.get(cache_key, None) and not ignore_cache:
         return graphkb_conn.cache[cache_key]

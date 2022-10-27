@@ -62,7 +62,7 @@ ONCOKB_SOURCE_NAME = 'oncokb'
 ONCOGENE = 'oncogenic'
 TUMOUR_SUPPRESSIVE = 'tumour suppressive'
 FUSION_NAMES = ['structural variant', 'fusion']
-PHARMACOGENOMIC_RELEVANCE_TERMS = ["decreased toxicity", "increased toxicity"]
+
 PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST = ["cancer genome interpreter", "civic"]
 
 BASE_THERAPEUTIC_TERMS = ['therapeutic efficacy', 'eligibility']
