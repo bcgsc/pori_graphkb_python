@@ -10,7 +10,6 @@ from .constants import (
     ONCOGENE,
     ONCOKB_SOURCE_NAME,
     PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST,
-    RELEVANCE_BASE_TERMS,
     TUMOUR_SUPPRESSIVE,
 )
 from .match import get_equivalent_features
@@ -163,15 +162,6 @@ def get_genes_from_variant_types(
         ),
     )
     return result
-
-
-def get_term_list(target_category) -> List[str]:
-    """Load the relevance terms for 'cancer predisposition' variants."""
-    for category, base_terms in RELEVANCE_BASE_TERMS:
-        if category == target_category and base_terms:
-            return base_terms
-    else:
-        raise AssertionError(f"Undefined '{target_category}' category")
 
 
 def get_preferred_gene_name(conn: GraphKBConnection, gene_name: str, source: str = '#39:5') -> str:
