@@ -385,11 +385,11 @@ class TestMatchPositionalVariant:
             assert variant in names
 
     def test_known_fusion_single_gene_no_match(self, conn):
-        known = '(BCR,?):fusion(e.13,e.?)'
+        known = '(TERT,?):fusion(e.1,e.?)'
         matches = match.match_positional_variant(conn, known)
         assert not matches
 
-    def test_movel_specific_matches_general(self, conn):
+    def test_novel_specific_matches_general(self, conn):
         novel_specific = 'CDKN2A:p.T18888888888888888888M'
         matches = match.match_positional_variant(conn, novel_specific)
         names = {m['displayName'] for m in matches}
@@ -401,6 +401,30 @@ class TestMatchPositionalVariant:
         genomic = 'X:g.100611165A>T'
         match.match_positional_variant(conn, genomic)
         # no assert b/c checking for no error rather than the result
+
+    def test_tert_promoter(self, conn):
+        assert match.match_positional_variant(conn, 'TERT:c.-124C>T')
+
+    @pytest.mark.skipif(
+        True, reason="GERO-303 - technically incorrect notation for GSC backwards compatibility."
+    )
+    def test_tert_promoter_leading_one_alt_notation(self, conn):
+        # GERO-303 - technically this format is incorrect.
+        assert match.match_positional_variant(conn, 'TERT:c.1-124C>T')
+
+    @pytest.mark.skipif(True, reason="TODO: GERO-299 incomplete; cds and genomic fail test.")
+    def test_missense_is_not_nonsense(self, conn):
+        """GERO-299 - nonsense mutation creates a stop codon and is usually more severe."""
+        # equivalent TP53 notations
+        genomic = 'chr17:g.7674252C>T'
+        cds = 'ENST00000269305:c.711G>A'
+        protein = 'TP53:p.M237I'
+        for mut in (protein, genomic, cds):
+            matches = match.match_positional_variant(conn, mut)
+            nonsense = [m for m in matches if 'nonsense' in m['displayName']]
+            assert (
+                not nonsense
+            ), f"Missense {mut} is not a nonsense variant: {((m['displayName'], m['@rid']) for m in nonsense)}"
 
 
 class TestCacheMissingFeatures:

@@ -4,26 +4,15 @@ Methods for retrieving gene annotation lists from GraphKB
 from typing import Any, Dict, List, cast
 
 from . import GraphKBConnection
+from .constants import (
+    BASE_THERAPEUTIC_TERMS,
+    GENE_RETURN_PROPERTIES,
+    ONCOGENE,
+    ONCOKB_SOURCE_NAME,
+    TUMOUR_SUPPRESSIVE,
+)
 from .types import Ontology, Statement, Variant
-
-ONCOKB_SOURCE_NAME = 'oncokb'
-ONCOGENE = 'oncogenic'
-TUMOUR_SUPPRESSIVE = 'tumour suppressive'
-
-FUSION_NAMES = ['structural variant', 'fusion']
-
-GENE_RETURN_PROPERTIES = [
-    'name',
-    '@rid',
-    '@class',
-    'sourceId',
-    'sourceIdVersion',
-    'source.name',
-    'source.@rid',
-    'displayName',
-    'biotype',
-    'deprecated',
-]
+from .vocab import get_terms_set
 
 
 def _get_oncokb_gene_list(
@@ -79,6 +68,43 @@ def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
         gene (Feature) records
     """
     return _get_oncokb_gene_list(conn, TUMOUR_SUPPRESSIVE)
+
+
+def get_therapeutic_associated_genes(graphkb_conn: GraphKBConnection) -> List[Ontology]:
+    """Genes related to a cancer-associated statement in Graphkb."""
+    therapeutic_relevance = get_terms_set(graphkb_conn, BASE_THERAPEUTIC_TERMS)
+    statements = graphkb_conn.query(
+        {
+            'target': 'Statement',
+            'filters': {'relevance': sorted(list(therapeutic_relevance))},
+            'returnProperties': ['reviewStatus']
+            + [f'conditions.{prop}' for prop in GENE_RETURN_PROPERTIES]
+            + [
+                f'conditions.reference{ref}.{prop}'
+                for prop in GENE_RETURN_PROPERTIES
+                for ref in ('1', '2')
+            ],
+        }
+    )
+    genes: List[Ontology] = []
+    for statement in statements:
+        if statement['reviewStatus'] == 'failed':
+            continue
+        for condition in statement['conditions']:
+            if condition['@class'] == 'Feature':
+                genes.append(condition)
+            elif condition['@class'].endswith('Variant'):
+                cond = cast(Variant, condition)
+                if cond['reference1'] and cond['reference1']['@class'] == 'Feature':
+                    genes.append(cond['reference1'])
+                if cond['reference2'] and cond['reference2']['@class'] == 'Feature':
+                    genes.append(cond['reference2'])
+    unique_genes: List[Ontology] = []
+    for gene in genes:
+        if not gene.get('deprecated', False):
+            if gene['@rid'] not in [g['@rid'] for g in unique_genes]:
+                unique_genes.append(gene)
+    return unique_genes
 
 
 def get_genes_from_variant_types(
