@@ -3,12 +3,12 @@ import argparse
 from .types import CategoryBaseTermMapping
 
 DEFAULT_LIMIT = 1000
-
 GKB_BASE_URL = "https://graphkb-api.bcgsc.ca/api"
 GKB_STAGING_URL = "https://graphkbstaging-api.bcgsc.ca/api"
 GKB_DEV_URL = "https://graphkbdev-api.bcgsc.ca/api"
 DEFAULT_URL = GKB_BASE_URL
 
+PREFERRED_GENE_SOURCE = "#39:5"  # HGNC
 
 BASE_RETURN_PROPERTIES = ['@rid', '@class']
 
@@ -75,6 +75,10 @@ RELEVANCE_BASE_TERMS: CategoryBaseTermMapping = [
     ('cancer predisposition', ['pathogenic']),
     ('biological', ['functional effect', 'tumourigenesis', 'predisposing']),
 ]
+
+CHROMOSOMES_HG38 = [f"chr{i}" for i in range(1, 23)] + ['chrX', 'chrY', 'chrM']
+CHROMOSOMES_HG19 = [str(i) for i in range(1, 23)] + ['x', 'y', 'mt']
+CHROMOSOMES = CHROMOSOMES_HG38 + CHROMOSOMES_HG19
 
 AMBIGUOUS_AA = ['x', '?', 'X']
 AA_3to1_MAPPING = {

@@ -6,10 +6,12 @@ from typing import Any, Dict, List, Tuple, cast
 from . import GraphKBConnection
 from .constants import (
     BASE_THERAPEUTIC_TERMS,
+    CHROMOSOMES,
     GENE_RETURN_PROPERTIES,
     ONCOGENE,
     ONCOKB_SOURCE_NAME,
     PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST,
+    PREFERRED_GENE_SOURCE,
     TUMOUR_SUPPRESSIVE,
 )
 from .match import get_equivalent_features
@@ -164,7 +166,9 @@ def get_genes_from_variant_types(
     return result
 
 
-def get_preferred_gene_name(conn: GraphKBConnection, gene_name: str, source: str = '#39:5') -> str:
+def get_preferred_gene_name(
+    conn: GraphKBConnection, gene_name: str, source: str = PREFERRED_GENE_SOURCE
+) -> str:
     """Preferred gene symbol of a gene or transcript.
 
     Args:
@@ -178,7 +182,6 @@ def get_preferred_gene_name(conn: GraphKBConnection, gene_name: str, source: str
         return KRAS for get_preferred_gene_name(conn, 'NM_033360')
         return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
     """
-    CHROMOSOMES = [f"chr{i}" for i in range(1, 24)] + ['chrX', 'chrY']
     if gene_name in CHROMOSOMES:
         logger.error(f"{gene_name} assumed to be a chromosome, not gene")
         return ''
