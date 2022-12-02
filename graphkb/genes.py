@@ -186,12 +186,12 @@ def get_preferred_gene_name(
         logger.error(f"{gene_name} assumed to be a chromosome, not gene")
         return ''
     eq = get_equivalent_features(conn=conn, gene_name=gene_name)
-    genes = [m for m in eq if m.get('biotype', '') == 'gene' and not m.get('deprecated', False)]
+    genes = [m for m in eq if m.get('biotype') == 'gene' and not m.get('deprecated')]
     if not genes:
         logger.error(f"No genes found for: {gene_name}")
         return ''
     if source:
-        source_filtered_genes = [m for m in genes if m.get('source', '') == source]
+        source_filtered_genes = [m for m in genes if m.get('source') == source]
         if not source_filtered_genes:
             logger.error(f"No data from source {source} for {gene_name}")
         else:
