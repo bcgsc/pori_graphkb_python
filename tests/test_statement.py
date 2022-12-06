@@ -4,6 +4,8 @@ import pytest
 
 from graphkb import statement
 
+from .test_match import conn
+
 
 @pytest.fixture()
 def graphkb_conn():
@@ -79,3 +81,14 @@ class TestCategorizeRelevance:
             graphkb_conn, '1', [('blargh', ['some', 'blargh'])]
         )
         assert category == 'blargh'
+
+
+class TestStatementMatch:
+    def test_truncating_categories(self, conn):
+        variant = {
+            '@class': 'CategoryVariant',
+            '@rid': '#161:429',
+            'displayName': 'RB1 truncating',
+        }
+        statements = statement.get_statements_from_variants(conn, [variant])
+        assert statements

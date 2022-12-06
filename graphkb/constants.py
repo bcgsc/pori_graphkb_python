@@ -73,6 +73,7 @@ RELEVANCE_BASE_TERMS: CategoryBaseTermMapping = [
     ('cancer predisposition', ['pathogenic']),
     ('biological', ['functional effect', 'tumourigenesis', 'predisposing']),
 ]
+FAILED_REVIEW_STATUS = 'failed'
 
 AMBIGUOUS_AA = ['x', '?', 'X']
 AA_3to1_MAPPING = {
