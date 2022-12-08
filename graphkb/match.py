@@ -12,7 +12,7 @@ from .constants import (
     VARIANT_RETURN_PROPERTIES,
 )
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
-from .util import FeatureNotFoundError, convert_to_rid_list, looks_like_rid
+from .util import FeatureNotFoundError, convert_to_rid_list, logger, looks_like_rid
 from .vocab import get_term_tree
 
 FEATURES_CACHE: Set[str] = set()
@@ -26,8 +26,7 @@ def get_equivalent_features(
     source: str = '',
     source_id_version: str = '',
 ) -> List[Ontology]:
-    """
-    Match an equivalent list of features given some input feature name (or ID)
+    """Match an equivalent list of features given some input feature name (or ID).
 
     Args:
         gene_name: the gene name to search features by
@@ -62,14 +61,19 @@ def get_equivalent_features(
     if source:
         filters.append({'source': {'target': 'Source', 'filters': {'name': source}}})
 
+    if gene_name.count('.') == 1 and gene_name.split('.')[-1].isnumeric():
+        # eg. ENSG00000133703.11 or NM_033360.4
+        logger.debug(
+            f"Assuming {gene_name} has a .version_format - ignoring the version for equivalent features"
+        )
+        gene_name = gene_name.split('.')[0]
+
     if is_source_id or source_id_version:
         filters.append({'sourceId': gene_name})
-
         if source_id_version:
             filters.append(
                 {'OR': [{'sourceIdVersion': source_id_version}, {'sourceIdVersion': None}]}
             )
-
     elif FEATURES_CACHE and gene_name.lower() not in FEATURES_CACHE and not ignore_cache:
         return []
     else:

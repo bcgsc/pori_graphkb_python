@@ -248,3 +248,27 @@ class GraphKBConnection:
         if len(source) != 1:
             raise AssertionError(f'Unable to unqiuely identify source with name {name}')
         return source[0]
+
+
+def get_rid(conn: GraphKBConnection, target: str, name: str) -> str:
+    """
+    Retrieve a record by name and target
+
+    Args:
+        conn: GraphKBConnection
+        target: record type to query
+        name: the name of the record to retrieve
+
+    Returns:
+        str: @rid of the record
+
+    Raises:
+        AssertionError: if the term was not found or more than 1 match was found (expected to be unique)
+    """
+    result = conn.query(
+        {"target": target, "filters": {"name": name}, "returnProperties": ["@rid"]},
+        ignore_cache=False,
+    )
+    assert len(result) == 1, f"unable to find unique '{target}' ID for '{name}'"
+
+    return result[0]["@rid"]
