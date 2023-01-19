@@ -131,6 +131,7 @@ def test_get_pharmacogenomic_info(conn):
             assert False, f"No rid found for a pharmacogenomic with {gene}"
 
 
+@pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
 def test_get_cancer_predisposition_info(conn):
     genes, matches = get_cancer_predisposition_info(conn)
     for gene in CANCER_PREDISP_INITIAL_GENES:
