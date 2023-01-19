@@ -9,6 +9,7 @@ from .test_match import conn
 
 EXCLUDE_INTEGRATION_TESTS = os.environ.get('EXCLUDE_INTEGRATION_TESTS') == '1'
 
+
 @pytest.fixture()
 def graphkb_conn():
     def make_rid_list(*values):

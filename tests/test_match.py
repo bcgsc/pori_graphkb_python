@@ -366,7 +366,9 @@ class TestMatchPositionalVariant:
         )
         assert matches
 
-    @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     @pytest.mark.parametrize(
         'known_variant,related_variants,unrelated_variants',
         [
