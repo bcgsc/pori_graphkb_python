@@ -1,11 +1,13 @@
 from unittest.mock import Mock
 
+import os
 import pytest
 
 from graphkb import statement
 
 from .test_match import conn
 
+EXCLUDE_INTEGRATION_TESTS = os.environ.get('EXCLUDE_INTEGRATION_TESTS') == '1'
 
 @pytest.fixture()
 def graphkb_conn():
@@ -83,6 +85,7 @@ class TestCategorizeRelevance:
         assert category == 'blargh'
 
 
+@pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
 class TestStatementMatch:
     def test_truncating_categories(self, conn):
         variant = {

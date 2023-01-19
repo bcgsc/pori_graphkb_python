@@ -8,6 +8,8 @@ import pytest
 from graphkb import GraphKBConnection, match
 from graphkb.util import FeatureNotFoundError
 
+EXCLUDE_INTEGRATION_TESTS = os.environ.get('EXCLUDE_INTEGRATION_TESTS') == '1'
+
 INCREASE_PREFIXES = ['up', 'increase', 'over', 'gain', 'amp']
 DECREASE_PREFIXES = ['down', 'decrease', 'reduce', 'under', 'loss', 'delet']
 GENERAL_MUTATION = 'mutation'
@@ -364,6 +366,7 @@ class TestMatchPositionalVariant:
         )
         assert matches
 
+    @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
     @pytest.mark.parametrize(
         'known_variant,related_variants,unrelated_variants',
         [
