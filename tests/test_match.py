@@ -358,7 +358,9 @@ class TestMatchPositionalVariant:
         matches = match.match_positional_variant(conn, 'p.G12D', reference1=reference1)
         assert matches
 
-    @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_match_explicit_references(self, conn):
         reference1 = conn.query({'target': 'Feature', 'filters': {'name': 'BCR'}})[0]['@rid']
         reference2 = conn.query({'target': 'Feature', 'filters': {'name': 'ABL1'}})[0]['@rid']
@@ -419,7 +421,9 @@ class TestMatchPositionalVariant:
         assert novel_specific not in names
         assert 'CDKN2A mutation' in names
 
-    @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_genomic_coordinates(self, conn):
         genomic = 'X:g.100611165A>T'
         match.match_positional_variant(conn, genomic)
