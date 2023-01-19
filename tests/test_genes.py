@@ -17,6 +17,8 @@ from graphkb.genes import (
     get_therapeutic_associated_genes,
 )
 
+EXCLUDE_INTEGRATION_TESTS = os.environ.get('EXCLUDE_INTEGRATION_TESTS') == '1'
+
 CANONICAL_ONCOGENES = ['kras', 'nras', 'alk']
 CANONICAL_TS = ['cdkn2a', 'tp53']
 CANONICAL_FUSION_GENES = ['alk', 'ewsr1', 'fli1']
@@ -145,6 +147,7 @@ def test_get_preferred_gene_name_kras(alt_rep, conn):
     ), f"Expected KRAS as preferred gene name for {alt_rep}, not '{gene_name}'"
 
 
+@pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
 def test_find_fusion_genes(conn):
     result = get_genes_from_variant_types(conn, FUSION_NAMES)
     names = {row['name'] for row in result}
