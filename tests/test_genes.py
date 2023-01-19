@@ -156,6 +156,7 @@ def test_find_fusion_genes(conn):
         assert gene in names, f"{gene} was not identified as a fusion gene."
 
 
+@pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
 def test_get_therapeutic_associated_genes(conn):
     gene_list = get_therapeutic_associated_genes(graphkb_conn=conn)
     assert gene_list, 'No get_therapeutic_associated_genes found'
