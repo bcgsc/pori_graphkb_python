@@ -122,6 +122,9 @@ class TestMatchCopyVariant:
         for variant_type in types_selected:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_low_gain_excludes_amplification(self, conn):
         matches = match.match_copy_variant(conn, 'KRAS', match.INPUT_COPY_CATEGORIES.GAIN)
 
@@ -168,6 +171,9 @@ class TestMatchExpressionVariant:
                 conn, 'not a real gene name', match.INPUT_EXPRESSION_CATEGORIES.UP
             )
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_known_reduced_expression(self, conn):
         matches = match.match_expression_variant(
             conn, 'PTEN', match.INPUT_EXPRESSION_CATEGORIES.DOWN
