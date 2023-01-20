@@ -438,6 +438,9 @@ class TestMatchPositionalVariant:
         match.match_positional_variant(conn, genomic)
         # no assert b/c checking for no error rather than the result
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_tert_promoter(self, conn):
         assert match.match_positional_variant(conn, 'TERT:c.-124C>T')
 
