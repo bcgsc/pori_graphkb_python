@@ -100,7 +100,7 @@ class GraphKBConnection:
         use_global_cache: bool = True,
     ):
         self.http = requests.Session()
-        retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+        retries = Retry(total=30, backoff_factor=10, status_forcelist=[429, 500, 502, 503, 504])
         self.http.mount("https://", HTTPAdapter(max_retries=retries))
 
         self.token = ''
