@@ -34,7 +34,7 @@ jobs:
         black --check -S -l 100 graphkb tests
     - name: Test with pytest
       run: |
-        pip install pytest 6.1.2
+        pip install pytest==6.1.2
         pytest --junitxml=junit/test-results-${{ matrix.python-version }}.xml --cov graphkb --cov-report term --cov-report xml
       env:
         GRAPHKB_USER: ${{ secrets.GKB_TEST_USER }}
