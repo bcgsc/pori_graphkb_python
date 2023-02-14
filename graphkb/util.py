@@ -154,7 +154,7 @@ class GraphKBConnection:
             for attempt in range(10):
                 time.sleep(2)  # wait a bit between retries
                 try:
-                    logger.debug(f'/{endpoint} - {str(err)} - retrying')
+                    #logger.debug(f'/{endpoint} - {str(err)} - retrying')
                     # try to get more error details
                     self.refresh_login()
                     self.request_count += 1
