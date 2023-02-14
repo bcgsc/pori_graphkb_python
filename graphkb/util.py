@@ -150,7 +150,7 @@ class GraphKBConnection:
         self.last_request = start_time
         try:
             resp = requests.request(method, url, headers=self.headers, timeout=(10, 10), **kwargs)
-        except requests.exceptions.ConnectionError as err:
+        except (requests.exceptions.ConnectionError, OSError) as err:
             for attempt in range(10):
                 time.sleep(2)  # wait a bit between retries
                 try:
@@ -161,7 +161,7 @@ class GraphKBConnection:
                     resp = requests.request(
                         method, url, headers=self.headers, timeout=(10, 10), **kwargs
                     )
-                except requests.exceptions.ConnectionError as err:
+                except (requests.exceptions.ConnectionError, OSError) as err:
                     continue
                 except Exception as err:
                     raise (err)
