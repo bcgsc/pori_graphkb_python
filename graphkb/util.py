@@ -154,20 +154,20 @@ class GraphKBConnection:
             # try to get more error details
             self.refresh_login()
             self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(10, 10), **kwargs)
         except OSError as err:
             logger.debug(f'/{endpoint} - {str(err)} - retrying')
             # try to get more error details
             self.refresh_login()
             self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(10, 10), **kwargs)
 
         if resp.status_code == 401 or resp.status_code == 403:
             # try to re-login if the token expired
 
             self.refresh_login()
             self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(10, 10), **kwargs)
         timing = millis_interval(start_time, datetime.now())
         logger.debug(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
 
