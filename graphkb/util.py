@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import re
+import time
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, cast
 
@@ -100,7 +101,13 @@ class GraphKBConnection:
         use_global_cache: bool = True,
     ):
         self.http = requests.Session()
-        retries = Retry(total=6, backoff_factor=30, status_forcelist=[429, 500, 502, 503, 504])
+        retries = Retry(
+            total=100,
+            connect=5,
+            status=5,
+            backoff_factor=5,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
         self.http.mount("https://", HTTPAdapter(max_retries=retries))
 
         self.token = ''
@@ -123,7 +130,12 @@ class GraphKBConnection:
             )
         return None
 
-    def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
+    def request(
+        self,
+        endpoint: str,
+        method: str = 'GET',
+        **kwargs,
+    ) -> Dict:
         """Request wrapper to handle adding common headers and logging.
 
         Args:
@@ -135,18 +147,54 @@ class GraphKBConnection:
         """
         url = join_url(self.url, endpoint)
         self.request_count += 1
+
+        # don't want to use a read timeout if the request is not idempotent
+        # otherwise you may wind up making unintended changes
+        timeout = None
+        if endpoint in ['query', 'parse']:
+            timeout = (connect_timeout = 7, read_timeout = 61)
+
         start_time = datetime.now()
+
         if not self.first_request:
             self.first_request = start_time
         self.last_request = start_time
-        resp = requests.request(method, url, headers=self.headers, **kwargs)
 
-        if resp.status_code == 401 or resp.status_code == 403:
-            # try to re-login if the token expired
+        # including check on OSError due to https://stackoverflow.com/questions/74253820/cannot-catch-requests-exceptions-connectionerror-with-try-except
+        # ConnectionError may be thrown instead of getting a resp object with a checkable status code,
+        # but might still want to try again.
+        # manual retry examples:
+        # https://blog.miguelgrinberg.com/post/how-to-retry-with-class
+        # https://www.peterbe.com/plog/best-practice-with-retries-with-requests
+        # add manual retry:
+        attempts = range(15)
+        for attempt in attempts:
+            if attempt > 0:
+                time.sleep(2)  # wait a bit between retries
+            try:
+                self.refresh_login()
+                self.request_count += 1
+                resp = requests.request(
+                    method,
+                    url,
+                    headers=self.headers,
+                    timeout=timeout,
+                    **kwargs,
+                )
+                if resp.status_code == 401 or resp.status_code == 403:
+                    logger.debug(f'/{endpoint} - {resp.status_code} - retrying')
+                    # try to re-login if the token expired
+                    continue
+                else:
+                    break
+            except (requests.exceptions.ConnectionError, OSError) as err:
+                if attempt < len(attempts) - 1:
+                    logger.debug(f'/{endpoint} - {str(err)} - retrying')
+                    continue
+                raise err
+            except Exception as err2:
+                raise err2
 
-            self.refresh_login()
-            self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, **kwargs)
         timing = millis_interval(start_time, datetime.now())
         logger.debug(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
 
@@ -171,15 +219,31 @@ class GraphKBConnection:
     def login(self, username: str, password: str) -> None:
         self.username = username
         self.password = password
+        connect_timeout = 7
+        read_timeout = 61
 
         # use requests package directly to avoid recursion loop on login failure
-        self.request_count += 1
-        resp = requests.request(
-            url=f'{self.url}/token',
-            method='POST',
-            headers=self.headers,
-            data=json.dumps({'username': username, 'password': password}),
-        )
+        attempts = range(10)
+        for attempt in attempts:
+            if attempt > 0:
+                time.sleep(2)  # wait a bit between retries
+            try:
+                self.request_count += 1
+                resp = requests.request(
+                    url=f'{self.url}/token',
+                    method='POST',
+                    headers=self.headers,
+                    timeout=(connect_timeout, read_timeout),
+                    data=json.dumps({'username': username, 'password': password}),
+                )
+                break
+            except (requests.exceptions.ConnectionError, OSError) as err:
+                if attempt < len(attempts) - 1:
+                    logger.debug(f'/login - {str(err)} - retrying')
+                    continue
+                raise err
+            except Exception as err2:
+                raise err2
         resp.raise_for_status()
         content = resp.json()
         self.token = content['kbToken']
@@ -213,7 +277,10 @@ class GraphKBConnection:
                 return self.cache[hash_code]
 
         while True:
-            content = self.post('query', data={**request_body, 'limit': limit, 'skip': len(result)})
+            content = self.post(
+                'query',
+                data={**request_body, 'limit': limit, 'skip': len(result)},
+            )
             records = content['result']
             result.extend(records)
             if len(records) < limit or not paginate:
