@@ -149,7 +149,7 @@ class GraphKBConnection:
             self.first_request = start_time
         self.last_request = start_time
         try:
-            resp = requests.request(method, url, headers=self.headers, timeout=(16, 16), **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(10, 27), **kwargs)
         except (requests.exceptions.ConnectionError, OSError) as err:
             for attempt in range(10):
                 time.sleep(2)  # wait a bit between retries
@@ -159,7 +159,7 @@ class GraphKBConnection:
                     self.refresh_login()
                     self.request_count += 1
                     resp = requests.request(
-                        method, url, headers=self.headers, timeout=(16, 16), **kwargs
+                        method, url, headers=self.headers, timeout=(10, 27), **kwargs
                     )
                 except (requests.exceptions.ConnectionError, OSError) as err:
                     continue
@@ -171,7 +171,7 @@ class GraphKBConnection:
 
             self.refresh_login()
             self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, timeout=(16, 16), **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(10, 27), **kwargs)
         timing = millis_interval(start_time, datetime.now())
         logger.debug(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
 
