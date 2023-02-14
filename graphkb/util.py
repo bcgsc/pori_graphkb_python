@@ -148,6 +148,14 @@ class GraphKBConnection:
         if not self.first_request:
             self.first_request = start_time
         self.last_request = start_time
+
+        # including check on OSError due to https://stackoverflow.com/questions/74253820/cannot-catch-requests-exceptions-connectionerror-with-try-except
+        # ConnectionError may be thrown instead of getting a resp object with a checkable status code,
+        # but might still want to try again.
+        # manual retry examples:
+        # https://blog.miguelgrinberg.com/post/how-to-retry-with-class
+        # https://www.peterbe.com/plog/best-practice-with-retries-with-requests
+        # add manual retry:
         try:
             resp = requests.request(method, url, headers=self.headers, timeout=(7, 61), **kwargs)
         except (requests.exceptions.ConnectionError, OSError) as err:
@@ -161,17 +169,16 @@ class GraphKBConnection:
                     resp = requests.request(
                         method, url, headers=self.headers, timeout=(7, 61), **kwargs
                     )
-                except (requests.exceptions.ConnectionError, OSError) as err:
+                    if resp.status_code == 401 or resp.status_code == 403:
+                        # try to re-login if the token expired
+                        continue
+                    else:
+                        break
+                except (requests.exceptions.ConnectionError, OSError):
                     continue
                 except Exception as err2:
                     raise err2
 
-        if resp.status_code == 401 or resp.status_code == 403:
-            # try to re-login if the token expired
-
-            self.refresh_login()
-            self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, timeout=(7, 61), **kwargs)
         timing = millis_interval(start_time, datetime.now())
         logger.debug(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
 
@@ -198,13 +205,24 @@ class GraphKBConnection:
         self.password = password
 
         # use requests package directly to avoid recursion loop on login failure
-        self.request_count += 1
-        resp = requests.request(
-            url=f'{self.url}/token',
-            method='POST',
-            headers=self.headers,
-            data=json.dumps({'username': username, 'password': password}),
-        )
+        for attempt in range(10):
+            time.sleep(2)  # wait a bit between retries
+            try:
+                # logger.debug(f'/{endpoint} - {str(err)} - retrying')
+                # try to get more error details
+                self.request_count += 1
+                resp = requests.request(
+                    url=f'{self.url}/token',
+                    method='POST',
+                    headers=self.headers,
+                    timeout=(7, 61),
+                    data=json.dumps({'username': username, 'password': password}),
+                )
+                break
+            except (requests.exceptions.ConnectionError, OSError):
+                continue
+            except Exception as err2:
+                raise err2
         resp.raise_for_status()
         content = resp.json()
         self.token = content['kbToken']
