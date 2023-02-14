@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import re
+import time
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, cast
 
@@ -150,17 +151,20 @@ class GraphKBConnection:
         try:
             resp = requests.request(method, url, headers=self.headers, timeout=(10, 10), **kwargs)
         except requests.exceptions.ConnectionError as err:
-            logger.debug(f'/{endpoint} - {str(err)} - retrying')
-            # try to get more error details
-            self.refresh_login()
-            self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, timeout=(10, 10), **kwargs)
-        except OSError as err:
-            logger.debug(f'/{endpoint} - {str(err)} - retrying')
-            # try to get more error details
-            self.refresh_login()
-            self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, timeout=(10, 10), **kwargs)
+            for attempt in range(10):
+                time.sleep(2)  # wait a bit between retries
+                try:
+                    logger.debug(f'/{endpoint} - {str(err)} - retrying')
+                    # try to get more error details
+                    self.refresh_login()
+                    self.request_count += 1
+                    resp = requests.request(
+                        method, url, headers=self.headers, timeout=(10, 10), **kwargs
+                    )
+                except requests.exceptions.ConnectionError as err:
+                    continue
+                except Exception as err:
+                    raise (err)
 
         if resp.status_code == 401 or resp.status_code == 403:
             # try to re-login if the token expired
