@@ -141,15 +141,12 @@ class GraphKBConnection:
         self.last_request = start_time
         try:
             resp = requests.request(method, url, headers=self.headers, **kwargs)
-        except Exception as err:
+        except requests.exceptions.ConnectionError as err:
+            logger.debug(f'/{endpoint} - {str(err)} - retrying')
             # try to get more error details
-            message = str(err)
-            try:
-                message += ' ' + resp.json()['message']
-            except Exception:
-                pass
-
-            raise Exception(message)
+            self.refresh_login()
+            self.request_count += 1
+            resp = requests.request(method, url, headers=self.headers, **kwargs)
 
         if resp.status_code == 401 or resp.status_code == 403:
             # try to re-login if the token expired
