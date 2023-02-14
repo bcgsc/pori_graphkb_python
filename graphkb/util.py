@@ -149,29 +149,29 @@ class GraphKBConnection:
             self.first_request = start_time
         self.last_request = start_time
         try:
-            resp = requests.request(method, url, headers=self.headers, timeout=(7, 31), **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(7, 61), **kwargs)
         except (requests.exceptions.ConnectionError, OSError) as err:
             for attempt in range(10):
                 time.sleep(2)  # wait a bit between retries
                 try:
-                    #logger.debug(f'/{endpoint} - {str(err)} - retrying')
+                    # logger.debug(f'/{endpoint} - {str(err)} - retrying')
                     # try to get more error details
                     self.refresh_login()
                     self.request_count += 1
                     resp = requests.request(
-                        method, url, headers=self.headers, timeout=(7, 31), **kwargs
+                        method, url, headers=self.headers, timeout=(7, 61), **kwargs
                     )
                 except (requests.exceptions.ConnectionError, OSError) as err:
                     continue
-                except Exception as err:
-                    raise (err)
+                except Exception as err2:
+                    raise err2
 
         if resp.status_code == 401 or resp.status_code == 403:
             # try to re-login if the token expired
 
             self.refresh_login()
             self.request_count += 1
-            resp = requests.request(method, url, headers=self.headers, timeout=(7, 31), **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(7, 61), **kwargs)
         timing = millis_interval(start_time, datetime.now())
         logger.debug(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
 
