@@ -148,7 +148,7 @@ class GraphKBConnection:
             self.first_request = start_time
         self.last_request = start_time
         try:
-            resp = requests.request(method, url, headers=self.headers, timeout=(100, 100), **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(10, 10), **kwargs)
         except requests.exceptions.ConnectionError as err:
             logger.debug(f'/{endpoint} - {str(err)} - retrying')
             # try to get more error details
