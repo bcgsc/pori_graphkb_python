@@ -163,7 +163,7 @@ class GraphKBConnection:
         # https://blog.miguelgrinberg.com/post/how-to-retry-with-class
         # https://www.peterbe.com/plog/best-practice-with-retries-with-requests
         # add manual retry:
-        attempts = range(10)
+        attempts = range(15)
         for attempt in attempts:
             if attempt > 0:
                 time.sleep(2)  # wait a bit between retries
