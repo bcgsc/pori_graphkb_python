@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, cast
 
 import requests
+from requests.exceptions import NewConnectionError
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -139,7 +140,17 @@ class GraphKBConnection:
         if not self.first_request:
             self.first_request = start_time
         self.last_request = start_time
-        resp = requests.request(method, url, headers=self.headers, **kwargs)
+        try:
+            resp = requests.request(method, url, headers=self.headers, **kwargs)
+        except Exception as err:
+            # try to get more error details
+            message = str(err)
+            try:
+                message += ' ' + resp.json()['message']
+            except Exception:
+                pass
+
+            raise Exception(message)
 
         if resp.status_code == 401 or resp.status_code == 403:
             # try to re-login if the token expired
