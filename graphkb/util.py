@@ -130,7 +130,14 @@ class GraphKBConnection:
             )
         return None
 
-    def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
+    def request(
+        self,
+        endpoint: str,
+        method: str = 'GET',
+        connect_timeout: int = 7,
+        read_timeout: int = 61,
+        **kwargs,
+    ) -> Dict:
         """Request wrapper to handle adding common headers and logging.
 
         Args:
@@ -156,28 +163,33 @@ class GraphKBConnection:
         # https://blog.miguelgrinberg.com/post/how-to-retry-with-class
         # https://www.peterbe.com/plog/best-practice-with-retries-with-requests
         # add manual retry:
-        try:
-            resp = requests.request(method, url, headers=self.headers, timeout=(7, 61), **kwargs)
-        except (requests.exceptions.ConnectionError, OSError) as err:
-            for attempt in range(10):
+        attempts = range(10)
+        for attempt in attempts:
+            if attempt > 0:
                 time.sleep(2)  # wait a bit between retries
-                try:
-                    # logger.debug(f'/{endpoint} - {str(err)} - retrying')
-                    # try to get more error details
-                    self.refresh_login()
-                    self.request_count += 1
-                    resp = requests.request(
-                        method, url, headers=self.headers, timeout=(7, 61), **kwargs
-                    )
-                    if resp.status_code == 401 or resp.status_code == 403:
-                        # try to re-login if the token expired
-                        continue
-                    else:
-                        break
-                except (requests.exceptions.ConnectionError, OSError):
+            try:
+                self.refresh_login()
+                self.request_count += 1
+                resp = requests.request(
+                    method,
+                    url,
+                    headers=self.headers,
+                    timeout=(connect_timeout, read_timeout),
+                    **kwargs,
+                )
+                if resp.status_code == 401 or resp.status_code == 403:
+                    logger.debug(f'/{endpoint} - {resp.status_code} - retrying')
+                    # try to re-login if the token expired
                     continue
-                except Exception as err2:
-                    raise err2
+                else:
+                    break
+            except (requests.exceptions.ConnectionError, OSError) as err:
+                if attempt < len(attempts) - 1:
+                    logger.debug(f'/{endpoint} - {str(err)} - retrying')
+                    continue
+                raise err
+            except Exception as err2:
+                raise err2
 
         timing = millis_interval(start_time, datetime.now())
         logger.debug(f'/{endpoint} - {resp.status_code} - {timing} ms')  # type: ignore
@@ -203,24 +215,29 @@ class GraphKBConnection:
     def login(self, username: str, password: str) -> None:
         self.username = username
         self.password = password
+        connect_timeout = 7
+        read_timeout = 61
 
         # use requests package directly to avoid recursion loop on login failure
-        for attempt in range(10):
-            time.sleep(2)  # wait a bit between retries
+        attempts = range(10)
+        for attempt in attempts:
+            if attempt > 0:
+                time.sleep(2)  # wait a bit between retries
             try:
-                # logger.debug(f'/{endpoint} - {str(err)} - retrying')
-                # try to get more error details
                 self.request_count += 1
                 resp = requests.request(
                     url=f'{self.url}/token',
                     method='POST',
                     headers=self.headers,
-                    timeout=(7, 61),
+                    timeout=(connect_timeout, read_timeout),
                     data=json.dumps({'username': username, 'password': password}),
                 )
                 break
-            except (requests.exceptions.ConnectionError, OSError):
-                continue
+            except (requests.exceptions.ConnectionError, OSError) as err:
+                if attempt < len(attempts) - 1:
+                    logger.debug(f'/login - {str(err)} - retrying')
+                    continue
+                raise err
             except Exception as err2:
                 raise err2
         resp.raise_for_status()
