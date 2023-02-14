@@ -399,7 +399,6 @@ def match_positional_variant(
         conn,
         gene1,
         source=gene_source,
-        is_source_id=gene_is_source_id,
         ignore_cache=ignore_cache,
     )
     features = convert_to_rid_list(gene1_features)
@@ -483,7 +482,7 @@ def match_positional_variant(
                 {
                     'target': convert_to_rid_list(filtered),
                     'queryType': 'similarTo',
-                    'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
+                    'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf', 'GeneralizationOf'],
                     'treeEdges': ['Infers'],
                     'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
                 },
