@@ -6,7 +6,6 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, cast
 
 import requests
-from requests.exceptions import NewConnectionError
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
