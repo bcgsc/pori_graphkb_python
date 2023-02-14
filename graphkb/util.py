@@ -100,7 +100,13 @@ class GraphKBConnection:
         use_global_cache: bool = True,
     ):
         self.http = requests.Session()
-        retries = Retry(total=100, backoff_factor=15, status_forcelist=[429, 500, 502, 503, 504])
+        retries = Retry(
+            total=100,
+            connect=5,
+            status=5,
+            backoff_factor=5,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
         self.http.mount("https://", HTTPAdapter(max_retries=retries))
 
         self.token = ''
@@ -135,13 +141,21 @@ class GraphKBConnection:
         """
         url = join_url(self.url, endpoint)
         self.request_count += 1
+
         start_time = datetime.now()
+
         if not self.first_request:
             self.first_request = start_time
         self.last_request = start_time
         try:
-            resp = requests.request(method, url, headers=self.headers, **kwargs)
+            resp = requests.request(method, url, headers=self.headers, timeout=(100, 100), **kwargs)
         except requests.exceptions.ConnectionError as err:
+            logger.debug(f'/{endpoint} - {str(err)} - retrying')
+            # try to get more error details
+            self.refresh_login()
+            self.request_count += 1
+            resp = requests.request(method, url, headers=self.headers, **kwargs)
+        except OSError as err:
             logger.debug(f'/{endpoint} - {str(err)} - retrying')
             # try to get more error details
             self.refresh_login()
@@ -220,7 +234,10 @@ class GraphKBConnection:
                 return self.cache[hash_code]
 
         while True:
-            content = self.post('query', data={**request_body, 'limit': limit, 'skip': len(result)})
+            content = self.post(
+                'query',
+                data={**request_body, 'limit': limit, 'skip': len(result)},
+            )
             records = content['result']
             result.extend(records)
             if len(records) < limit or not paginate:
