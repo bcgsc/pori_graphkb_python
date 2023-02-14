@@ -34,7 +34,9 @@ jobs:
         pip install black
         black --check -S -l 100 graphkb tests
     - name: Test with pytest
-      run: pytest --junitxml=junit/test-results-${{ matrix.python-version }}.xml --cov graphkb --cov-report term --cov-report xml --durations 10 -vv
+      run: |
+        pip list
+        pytest --junitxml=junit/test-results-${{ matrix.python-version }}.xml --cov graphkb --cov-report term --cov-report xml --durations 10 -vv
       env:
         GRAPHKB_USER: ${{ secrets.GKB_TEST_USER }}
         GRAPHKB_PASS: ${{ secrets.GKB_TEST_PASS }}
