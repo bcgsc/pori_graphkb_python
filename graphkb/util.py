@@ -147,12 +147,14 @@ class GraphKBConnection:
         """
         url = join_url(self.url, endpoint)
         self.request_count += 1
+        connect_timeout = 7
+        read_timeout = 61
 
         # don't want to use a read timeout if the request is not idempotent
         # otherwise you may wind up making unintended changes
         timeout = None
         if endpoint in ['query', 'parse']:
-            timeout = (connect_timeout = 7, read_timeout = 61)
+            timeout = (connect_timeout, read_timeout)
 
         start_time = datetime.now()
 
@@ -160,17 +162,12 @@ class GraphKBConnection:
             self.first_request = start_time
         self.last_request = start_time
 
-        # including check on OSError due to https://stackoverflow.com/questions/74253820/cannot-catch-requests-exceptions-connectionerror-with-try-except
-        # ConnectionError may be thrown instead of getting a resp object with a checkable status code,
-        # but might still want to try again.
-        # manual retry examples:
-        # https://blog.miguelgrinberg.com/post/how-to-retry-with-class
-        # https://www.peterbe.com/plog/best-practice-with-retries-with-requests
-        # add manual retry:
+        # using a manual retry as well as using the requests Retry() object because
+        # a ConnectionError or OSError might be thrown and we still want to retry in those cases
         attempts = range(15)
         for attempt in attempts:
             if attempt > 0:
-                time.sleep(2)  # wait a bit between retries
+                time.sleep(2)  # wait between retries
             try:
                 self.refresh_login()
                 self.request_count += 1
@@ -226,7 +223,7 @@ class GraphKBConnection:
         attempts = range(10)
         for attempt in attempts:
             if attempt > 0:
-                time.sleep(2)  # wait a bit between retries
+                time.sleep(2)  # wait between retries
             try:
                 self.request_count += 1
                 resp = requests.request(
