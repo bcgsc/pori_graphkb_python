@@ -163,7 +163,9 @@ class GraphKBConnection:
         self.last_request = start_time
 
         # using a manual retry as well as using the requests Retry() object because
-        # a ConnectionError or OSError might be thrown and we still want to retry in those cases
+        # a ConnectionError or OSError might be thrown and we still want to retry in those cases.
+        # about catching OSError as well as ConnectionError:
+        # https://stackoverflow.com/questions/74253820
         attempts = range(15)
         for attempt in attempts:
             if attempt > 0:
