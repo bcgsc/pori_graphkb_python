@@ -16,13 +16,16 @@ from graphkb.genes import (
     get_preferred_gene_name,
     get_therapeutic_associated_genes,
 )
+from graphkb.util import get_rid
 
 EXCLUDE_INTEGRATION_TESTS = os.environ.get('EXCLUDE_INTEGRATION_TESTS') == '1'
 
 CANONICAL_ONCOGENES = ['kras', 'nras', 'alk']
 CANONICAL_TS = ['cdkn2a', 'tp53']
 CANONICAL_FUSION_GENES = ['alk', 'ewsr1', 'fli1']
+CANONICAL_STRUCTURAL_VARIANT_GENES = ['brca1', 'dpyd', 'pten']
 CANNONICAL_THERAPY_GENES = ['erbb2', 'brca2', 'egfr']
+
 
 PHARMACOGENOMIC_INITIAL_GENES = [
     'ACYP2',
@@ -149,11 +152,20 @@ def test_get_preferred_gene_name_kras(alt_rep, conn):
 
 
 @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
-def test_find_fusion_genes(conn):
-    result = get_genes_from_variant_types(conn, FUSION_NAMES)
+def test_find_genes_by_variant_type_structural_variant(conn):
+    result = get_genes_from_variant_types(conn, ['structural variant'])
     names = {row['name'] for row in result}
-    for gene in CANONICAL_FUSION_GENES:
-        assert gene in names, f"{gene} was not identified as a fusion gene."
+    for gene in CANONICAL_STRUCTURAL_VARIANT_GENES:
+        assert gene in names, f"{gene} was not identified as a structural variant gene."
+
+
+@pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
+def test_find_no_genes_by_variant_type_with_nonmatching_source_record_id(conn):
+    refseq_id = get_rid(conn, target='source', name='refseq')
+    result = get_genes_from_variant_types(
+        conn, ['structural variant'], source_record_ids=[refseq_id]
+    )
+    assert not result
 
 
 @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
