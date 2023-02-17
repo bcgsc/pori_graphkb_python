@@ -65,6 +65,15 @@ class TestGetEquivalentFeatures:
         assert 'ENSG00000133703.11' in kras
         assert 'ENSG00000133703' in kras
 
+    def test_checks_by_source_id_kras(self, conn):
+        kras = [
+            f['displayName']
+            for f in match.get_equivalent_features(
+                conn, 'nm_033360', source='refseq', source_id_version='4', is_source_id=True
+            )
+        ]
+        assert 'KRAS' in kras
+
 
 class TestMatchCopyVariant:
     def test_bad_category(self, conn):
