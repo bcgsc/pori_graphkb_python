@@ -8,6 +8,8 @@ import pytest
 from graphkb import GraphKBConnection, match
 from graphkb.util import FeatureNotFoundError
 
+EXCLUDE_INTEGRATION_TESTS = os.environ.get('EXCLUDE_INTEGRATION_TESTS') == '1'
+
 INCREASE_PREFIXES = ['up', 'increase', 'over', 'gain', 'amp']
 DECREASE_PREFIXES = ['down', 'decrease', 'reduce', 'under', 'loss', 'delet']
 GENERAL_MUTATION = 'mutation'
@@ -46,6 +48,31 @@ class TestGetEquivalentFeatures:
     def test_expands_generalizations(self, kras):
         assert 'NM_033360.4' in kras
         assert 'ENSG00000133703.11' in kras
+
+    def test_expands_generalizations_kras(self, kras):
+        assert 'NM_033360.4' in kras
+        assert 'NM_033360' in kras
+        assert 'ENSG00000133703.11' in kras
+        assert 'ENSG00000133703' in kras
+
+    @pytest.mark.parametrize(
+        'alt_rep', ('NM_033360.4', 'NM_033360', 'ENSG00000133703.11', 'ENSG00000133703')
+    )
+    def test_expands_generalizations_refseq(self, alt_rep, conn):
+        kras = [f['displayName'] for f in match.get_equivalent_features(conn, alt_rep)]
+        assert 'NM_033360.4' in kras
+        assert 'NM_033360' in kras
+        assert 'ENSG00000133703.11' in kras
+        assert 'ENSG00000133703' in kras
+
+    def test_checks_by_source_id_kras(self, conn):
+        kras = [
+            f['displayName']
+            for f in match.get_equivalent_features(
+                conn, 'nm_033360', source='refseq', source_id_version='4', is_source_id=True
+            )
+        ]
+        assert 'KRAS' in kras
 
 
 class TestMatchCopyVariant:
@@ -104,6 +131,9 @@ class TestMatchCopyVariant:
         for variant_type in types_selected:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_low_gain_excludes_amplification(self, conn):
         matches = match.match_copy_variant(conn, 'KRAS', match.INPUT_COPY_CATEGORIES.GAIN)
 
@@ -150,6 +180,9 @@ class TestMatchExpressionVariant:
                 conn, 'not a real gene name', match.INPUT_EXPRESSION_CATEGORIES.UP
             )
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_known_reduced_expression(self, conn):
         matches = match.match_expression_variant(
             conn, 'PTEN', match.INPUT_EXPRESSION_CATEGORIES.DOWN
@@ -179,6 +212,9 @@ class TestMatchExpressionVariant:
         for variant_type in types_selected:
             assert not has_prefix(variant_type, INCREASE_PREFIXES)
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_known_increased_expression(self, conn):
         matches = match.match_expression_variant(conn, 'CA9', match.INPUT_EXPRESSION_CATEGORIES.UP)
         assert matches
@@ -340,6 +376,9 @@ class TestMatchPositionalVariant:
         matches = match.match_positional_variant(conn, 'p.G12D', reference1=reference1)
         assert matches
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_match_explicit_references(self, conn):
         reference1 = conn.query({'target': 'Feature', 'filters': {'name': 'BCR'}})[0]['@rid']
         reference2 = conn.query({'target': 'Feature', 'filters': {'name': 'ABL1'}})[0]['@rid']
@@ -348,6 +387,9 @@ class TestMatchPositionalVariant:
         )
         assert matches
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     @pytest.mark.parametrize(
         'known_variant,related_variants,unrelated_variants',
         [
@@ -397,11 +439,17 @@ class TestMatchPositionalVariant:
         assert novel_specific not in names
         assert 'CDKN2A mutation' in names
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_genomic_coordinates(self, conn):
         genomic = 'X:g.100611165A>T'
         match.match_positional_variant(conn, genomic)
         # no assert b/c checking for no error rather than the result
 
+    @pytest.mark.skipif(
+        EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests"
+    )
     def test_tert_promoter(self, conn):
         assert match.match_positional_variant(conn, 'TERT:c.-124C>T')
 
