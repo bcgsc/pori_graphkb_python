@@ -1,8 +1,7 @@
 name: publish gh-pages docs
 on:
   push:
-    branches:
-      - master
+
 jobs:
 
   build:
@@ -25,8 +24,3 @@ jobs:
         pip list
         markdown_refdocs graphkb -o docs/reference --link
         mkdocs build
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build-docs
