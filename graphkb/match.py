@@ -483,7 +483,7 @@ def match_positional_variant(
                 {
                     'target': convert_to_rid_list(filtered),
                     'queryType': 'similarTo',
-                    'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf'],
+                    'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf', 'GeneralizationOf'],
                     'treeEdges': ['Infers'],
                     'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
                 },
