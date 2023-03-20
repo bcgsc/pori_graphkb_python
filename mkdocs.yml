@@ -12,7 +12,7 @@ plugins:
             usage_examples/tutorial.md: https://bcgsc.github.io/pori/graphkb/scripting/intro_tutorial/
             usage_examples/intro_tutorial.md: https://bcgsc.github.io/pori/graphkb/scripting/intro_tutorial/
             matching/index.md: https://bcgsc.github.io/pori/graphkb/matching/
-            matching/: https://bcgsc.github.io/pori/graphkb/matching/
+            matching.md: https://bcgsc.github.io/pori/graphkb/matching/
             matching/gene.md: https://bcgsc.github.io/pori/graphkb/matching/gene/
             usage_examples/snpsift/: https://bcgsc.github.io/pori/graphkb/scripting/snpsift/
             usage_examples/variant_strings/: https://bcgsc.github.io/pori/graphkb/scripting/variant_strings/
