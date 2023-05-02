@@ -21,6 +21,11 @@ class Ontology(Record):
     source: RecordLink
     displayName: str
 
+class OntologyTerm(Record):
+    name: Optional[str]
+    sourceId: Optional[str]
+    sourceIdVersion: Optional[str]
+    displayName: Optional[str]
 
 OntologyLink = Union[str, Ontology]
 
