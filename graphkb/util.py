@@ -4,14 +4,14 @@ import logging
 import re
 import time
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Optional, cast
+from typing import Any, Dict, Iterable, List, Optional, Union, cast
 
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from .constants import DEFAULT_LIMIT, DEFAULT_URL, AA_3to1_MAPPING
-from .types import ParsedVariant, Record
+from .constants import DEFAULT_LIMIT, DEFAULT_URL, AA_3to1_MAPPING, TYPES_TO_NOTATION
+from .types import OntologyTerm, ParsedVariant, PositionalVariant, Record
 
 QUERY_CACHE: Dict[Any, Any] = {}
 
@@ -338,3 +338,202 @@ def get_rid(conn: GraphKBConnection, target: str, name: str) -> str:
     assert len(result) == 1, f"unable to find unique '{target}' ID for '{name}'"
 
     return result[0]["@rid"]
+
+def ontologyTermRepr(term: Union[OntologyTerm, str]) -> str:
+    if type(term) is not str:
+        if getattr(term, 'displayName', None) and term.displayName != '':
+            return term.displayName
+        if getattr(term, 'sourceId', None) and term.sourceId != '':
+            return term.sourceId
+        if getattr(term, 'name', None) and term.name != '':
+            return term.name
+        return ''
+    return term
+
+def stripParentheses(breakRepr: str) -> str:
+    match = re.search(r"^([a-z])\.\((.+)\)$", breakRepr)
+
+    if match:
+        return f"{match.group(1)}.{match.group(2)}"
+    return breakRepr
+
+def stripRefSeq(breakRepr: str) -> str:
+    match = re.search(r"^([a-z])\.[A-Z]*([0-9]*[A-Z]*)$", breakRepr)
+
+    if match:
+        return f"{match.group(1)}.{match.group(2)}"
+    return breakRepr
+
+def stripDisplayName(
+    displayName: str,
+    withRef: bool = True,
+    withRefSeq: bool = True,
+) -> str:
+
+    match: object = re.search(r"^(.*)(\:)(.*)$", displayName)
+    if match and not withRef:
+        if withRefSeq:
+            return match.group(3)
+        displayName = match.group(2) + match.group(3)
+
+    match: object = re.search(r"^(.*\:)([a-z]\.)(.*)$", displayName)
+    if match and not withRefSeq:
+        ref: str = match.group(1) if match.group(1) != ':' else ''
+        prefix: str = match.group(2)
+        rest: str = match.group(3)
+        new_matches: Union[bool, object] = True
+
+        # refSeq before position
+        while new_matches:
+            new_matches = re.search(r"(.*)([A-Z]|\?)([0-9]+)(.*)", rest)
+            if new_matches:
+                rest = new_matches.group(1) + new_matches.group(3) + new_matches.group(4)
+
+        # refSeq before '>'
+        new_matches = re.search(r"^([0-9]*)([A-Z]*|\?)(\>)(.*)$", rest)
+        if new_matches:
+            rest = new_matches.group(1) + new_matches.group(3) + new_matches.group(4)
+
+        displayName = ref + prefix + rest
+
+    return displayName
+
+def stringifyVariant(
+    variant: Union[PositionalVariant, ParsedVariant],
+    withRef: bool = True,
+    withRefSeq: bool = True,
+) -> str:
+    """
+    Convert variant record to a string representation (displayName/hgvs)
+
+    Args:
+        variant: the input variant
+        withRef (bool, optional): include the reference part
+        withRefSeq (bool, optional): include the reference sequence in the variant part
+
+    Returns:
+        str: The string representation
+    """
+
+    displayName: str = variant.get('displayName', '')
+
+    # If variant is a PositionalVariant (i.e. variant with a displayName) and
+    # we already have the appropriate string representation,
+    # then return it right away
+    if displayName != '' and (withRef and withRefSeq):
+        return displayName
+
+    # If variant is a PositionalVariant (i.e. variant with a displayName) and
+    # we DO NOT have the appropriate string representation,
+    # then strip unwanted features, than return it right away
+    if displayName != '':
+        return stripDisplayName(displayName, withRef, withRefSeq)
+
+
+    # If variant is a ParsedVariant (i.e. variant without a displayName yet),
+    # the following will return a stringify representation (displayName/hgvs) of that variant
+    # based on: https://github.com/bcgsc/pori_graphkb_parser/blob/ae3738842a4c208ab30f58c08ae987594d632504/src/variant.ts#L206-L292
+
+    parsed: ParsedVariant = variant
+    result: List[str] = []
+
+    # Extracting parsed values into individual variables
+    break1Repr: str = parsed.get('break1Repr', '')
+    break2Repr: str = parsed.get('break2Repr', '')
+    multiFeature: bool = parsed.get('multiFeature', False)
+    noFeatures: bool = parsed.get('noFeatures', False)
+    notationType: str = parsed.get('notationType', '')
+    reference1: str = parsed.get('reference1', '')
+    reference2: str = parsed.get('reference2', '')
+    refSeq: str = parsed.get('refSeq', '')
+    truncation: int = parsed.get('truncation', None)
+    type: str = parsed.get('type', '')
+    untemplatedSeq: str = parsed.get('untemplatedSeq', '')
+    untemplatedSeqSize: int = parsed.get('untemplatedSeqSize', None)
+
+    # formating notationType
+    if notationType == '':
+        variantType = ontologyTermRepr(type)
+        notationType = TYPES_TO_NOTATION.get(variantType, '')
+    if notationType == '':
+        notationType = re.sub(r"\s", "-", variantType)
+
+    # If multiFeature
+    if multiFeature or (reference2 != '' and reference1 != reference2):
+        if withRef and not noFeatures:
+            result.append(f"({reference1}:{reference2})")
+        result.append(notationType)
+        if withRefSeq:
+            break1Repr_noParentheses = stripParentheses(break1Repr)
+            break2Repr_noParentheses = stripParentheses(break2Repr)
+            result.append(
+                f"({break1Repr_noParentheses},{break2Repr_noParentheses})"
+            )
+        else:
+            break1Repr_noParentheses_noRefSeq = stripRefSeq(stripParentheses(break1Repr))
+            break2Repr_noParentheses_noRefSeq = stripRefSeq(stripParentheses(break2Repr))
+            result.append(
+                f"({break1Repr_noParentheses_noRefSeq},{break2Repr_noParentheses_noRefSeq})"
+            )
+        if untemplatedSeq != '':
+            result.append(untemplatedSeq)
+        elif untemplatedSeqSize:
+            result.append(str(untemplatedSeqSize))
+        return ''.join(result)
+
+
+    # Continuous notation...
+
+    # Reference
+    if withRef and not noFeatures:
+        result.append(f"{reference1}:")
+
+    # BreakRep
+    if withRefSeq:
+        result.append(break1Repr)
+        if break2Repr != '':
+            result.append(f"_{break2Repr[2:]}")
+    else:
+        result.append(stripRefSeq(break1Repr))
+        if break2Repr != '':
+            result.append(f"_{stripRefSeq(break2Repr)[2:]}")
+    
+
+    # refSeq, truncation, notationType, untemplatedSeq, untemplatedSeqSize
+    if any(i in notationType for i in ['ext', 'fs']) or (
+        notationType == '>'
+        and break1Repr.startswith('p.')
+    ):
+        result.append(untemplatedSeq)
+    if notationType == 'mis' and break1Repr.startswith('p.'):
+        result.append(untemplatedSeq)
+    elif notationType != '>':
+        if notationType == 'delins':
+            if withRefSeq:
+                result.append(f"del{refSeq}ins")
+            else:
+                result.append(f"delins")
+        else:
+            result.append(notationType)
+        if truncation and truncation != 1:
+            if truncation < 0:
+                result.append(truncation)
+            else:
+                result.append(f"*{truncation}")
+        if any(i in notationType for i in ['dup', 'del', 'inv']):
+            if withRefSeq:
+                result.append(refSeq)
+        if any(i in notationType for i in ['ins', 'delins']): 
+            if untemplatedSeq != '':
+                result.append(untemplatedSeq)
+            elif untemplatedSeqSize:
+                result.append(str(untemplatedSeqSize))
+    elif not break1Repr.startswith('p.'):
+        if withRefSeq:
+            refSeq = refSeq if refSeq != '' else '?'
+        else:
+            refSeq = ''
+        untemplatedSeq = untemplatedSeq if untemplatedSeq != '' else '?'
+        result.append(f"{refSeq}{notationType}{untemplatedSeq}")
+
+    return ''.join(result)

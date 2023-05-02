@@ -12,7 +12,13 @@ from .constants import (
     VARIANT_RETURN_PROPERTIES,
 )
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
-from .util import FeatureNotFoundError, convert_to_rid_list, logger, looks_like_rid
+from .util import (
+    convert_to_rid_list,
+    FeatureNotFoundError,
+    logger,
+    looks_like_rid,
+    stringifyVariant,
+)
 from .vocab import get_term_tree
 
 FEATURES_CACHE: Set[str] = set()
