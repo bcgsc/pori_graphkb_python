@@ -1,5 +1,7 @@
 import argparse
 
+from typing import Dict
+
 from .types import CategoryBaseTermMapping
 
 DEFAULT_LIMIT = 1000
@@ -137,3 +139,37 @@ INPUT_COPY_CATEGORIES = IterableNamespace(
 INPUT_EXPRESSION_CATEGORIES = IterableNamespace(
     UP='increased expression', DOWN='reduced expression'
 )
+
+# From: https://github.com/bcgsc/pori_graphkb_parser/blob/ae3738842a4c208ab30f58c08ae987594d632504/src/constants.ts#L33-L80
+TYPES_TO_NOTATION: Dict[str, str] = {
+    'acetylation': 'ac',
+    'copy gain': 'copygain',
+    'copy loss': 'copyloss',
+    'deletion': 'del',
+    'duplication': 'dup',
+    'extension': 'ext',
+    'frameshift': 'fs',
+    'fusion': 'fusion',
+    'indel': 'delins',
+    'insertion': 'ins',
+    'inversion': 'inv',
+    'inverted translocation': 'itrans',
+    'methylation': 'me',
+    'missense mutation': 'mis',
+    'mutation': 'mut',
+    'nonsense mutation': '>',
+    'phosphorylation': 'phos',
+    'splice-site': 'spl',
+    'substitution': '>',
+    'translocation': 'trans',
+    'truncating frameshift mutation': 'fs',
+    'ubiquitination': 'ub',
+    # deprecated forms and aliases
+    'frameshift mutation': 'fs',
+    'frameshift truncation': 'fs',
+    'missense variant': 'mis',
+    'truncating frameshift': 'fs',
+    'missense': 'mis',
+    'mutations': 'mut',
+    'nonsense': '>',
+}
