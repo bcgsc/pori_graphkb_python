@@ -593,7 +593,18 @@ def match_positional_variant(
         cat_variant_query(secondary_features, types, None)
 
     # Adding back generic PositionalVariant to the matches
-    matches.extend(filtered_similarAndGeneric)
+    if filtered_similarAndGeneric:
+        matches.extend(
+            conn.query(
+                {
+                    'target': convert_to_rid_list(filtered_similarAndGeneric),
+                    'queryType': 'descendants',
+                    'edges': [],
+                    'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
+                },
+                ignore_cache=ignore_cache,
+            ),
+        )
 
     result: Dict[str, Variant] = {}
     for row in matches:
