@@ -165,6 +165,8 @@ def match_category_variant(
                     ],
                 },
                 'queryType': 'similarTo',
+                'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf', 'GeneralizationOf'],
+                'treeEdges': ['Infers'],
                 'returnProperties': VARIANT_RETURN_PROPERTIES,
             },
             ignore_cache=ignore_cache,
