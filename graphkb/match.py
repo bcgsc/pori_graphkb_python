@@ -295,6 +295,8 @@ def compare_positional_variants(
         )
         return variant_str == reference_variant_str
 
+    # For break1, check if positions are overlaping between the variant and the reference.
+    # Continue only if True.
     if not positions_overlap(
         cast(BasicPosition, variant['break1Start']),
         cast(BasicPosition, reference_variant['break1Start']),
@@ -304,6 +306,9 @@ def compare_positional_variants(
     ):
         return False
 
+    # For break2, check if positions are overlaping between the variant and the reference.
+    # Continue only if True or no break2.
+    # TODO: check for variant without break2 but reference_variant with one.
     if variant.get('break2Start'):
         if not reference_variant.get('break2Start'):
             return False
@@ -316,6 +321,8 @@ def compare_positional_variants(
         ):
             return False
 
+    # If both variants have untemplated sequence,
+    # check for size and content.
     if (
         variant.get('untemplatedSeq', None) is not None
         and reference_variant.get('untemplatedSeq', None) is not None
@@ -327,6 +334,7 @@ def compare_positional_variants(
             if variant['untemplatedSeqSize'] != reference_variant['untemplatedSeqSize']:
                 return False
 
+        # TODO: Is this 1st conditional necessary?
         if (
             reference_variant['untemplatedSeq'] is not None
             and variant['untemplatedSeq'] is not None
@@ -340,6 +348,8 @@ def compare_positional_variants(
             elif len(variant['untemplatedSeq']) != len(reference_variant['untemplatedSeq']):
                 return False
 
+    # If both variants have a reference sequence,
+    # check if they are the same.
     if (
         variant.get('refSeq', None) is not None
         and reference_variant.get('refSeq', None) is not None
@@ -350,6 +360,7 @@ def compare_positional_variants(
         ):
             if reference_variant['refSeq'].lower() != variant['refSeq'].lower():  # type: ignore
                 return False
+        # TODO: Is this conditional necessary?
         elif len(variant['refSeq']) != len(reference_variant['refSeq']):  # type: ignore
             return False
 
