@@ -266,6 +266,7 @@ def positions_overlap(
 def compare_positional_variants(
     variant: Union[PositionalVariant, ParsedVariant],
     reference_variant: Union[PositionalVariant, ParsedVariant],
+    generic: bool = True,
 ) -> bool:
     """
     Compare 2 variant records from GraphKB to determine if they are equivalent
@@ -273,10 +274,27 @@ def compare_positional_variants(
     Args:
         variant: the input variant
         reference_variant: the reference (matched) variant record
+        generic (bool, optional): also include the more generic variants
 
     Returns:
         bool: True if the records are equivalent
     """
+
+    # If specific vs more-generic variants are not to be considered as equivalent,
+    # check if their stringify representation match and return True or False right away.
+    if not generic:
+        variant_str: str = stringifyVariant(
+            variant,
+            withRef=False,    # Reference(s) will not be included in the string repr.
+            withRefSeq=False, # Reference sequence will not be included in the string repr.
+        )
+        reference_variant_str: str = stringifyVariant(
+            reference_variant,
+            withRef=False,    # Reference(s) will not be included in the string repr.
+            withRefSeq=False, # Reference sequence will not be included in the string repr.
+        )
+        return variant_str == reference_variant_str
+
     if not positions_overlap(
         cast(BasicPosition, variant['break1Start']),
         cast(BasicPosition, reference_variant['break1Start']),
