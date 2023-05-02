@@ -510,6 +510,7 @@ def match_positional_variant(
             {'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=ignore_cache
         ),
     ):
+        # TODO: Check if variant and reference_variant should be interchanged
         if compare_positional_variants(
             variant = parsed,
             reference_variant = cast(PositionalVariant, row),
