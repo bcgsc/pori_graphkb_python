@@ -501,7 +501,8 @@ def match_positional_variant(
         {'break1Start.@class': parsed['break1Start']['@class']},
     ]
 
-    filtered: List[Record] = []
+    filtered_similarOnly: List[Record] = [] # For post filter match use
+    filtered_similarAndGeneric: List[Record] = [] # To be added to the matches at the very end
 
     for row in cast(
         List[Record],
@@ -509,16 +510,26 @@ def match_positional_variant(
             {'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=ignore_cache
         ),
     ):
-        if compare_positional_variants(parsed, cast(PositionalVariant, row)):
-            filtered.append(row)
+        if compare_positional_variants(
+            variant = parsed,
+            reference_variant = cast(PositionalVariant, row),
+            generic = True,
+        ):
+            filtered_similarAndGeneric.append(row)
+            if compare_positional_variants(
+                variant = parsed,
+                reference_variant = cast(PositionalVariant, row),
+                generic = False, # Similar variants only
+            ):
+                filtered_similarOnly.append(row)
 
     # post filter matches
     matches: List[Record] = []
-    if filtered:
+    if filtered_similarOnly:
         matches.extend(
             conn.query(
                 {
-                    'target': convert_to_rid_list(filtered),
+                    'target': convert_to_rid_list(filtered_similarOnly),
                     'queryType': 'similarTo',
                     'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf', 'GeneralizationOf'],
                     'treeEdges': ['Infers'],
@@ -579,6 +590,9 @@ def match_positional_variant(
         # match single gene fusions for either gene
         cat_variant_query(features, types, None)
         cat_variant_query(secondary_features, types, None)
+
+    # Adding back generic PositionalVariant to the matches
+    matches.extend(filtered_similarAndGeneric)
 
     result: Dict[str, Variant] = {}
     for row in matches:
