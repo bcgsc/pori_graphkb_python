@@ -9,8 +9,8 @@ try:
 except ImportError:
     from typing_extensions import TypedDict
 
-Record: TypedDict = TypedDict('Record', {'@rid': str, '@class': str})
-EmbeddedRecord: TypedDict = TypedDict('EmbeddedRecord', {'@class': str})
+Record: TypedDict = TypedDict("Record", {"@rid": str, "@class": str})
+EmbeddedRecord: TypedDict = TypedDict("EmbeddedRecord", {"@class": str})
 
 RecordLink = Union[str, Record]
 
@@ -21,11 +21,13 @@ class Ontology(Record):
     source: RecordLink
     displayName: str
 
+
 class OntologyTerm(Record):
     name: Optional[str]
     sourceId: Optional[str]
     sourceIdVersion: Optional[str]
     displayName: Optional[str]
+
 
 OntologyLink = Union[str, Ontology]
 
