@@ -339,6 +339,7 @@ def get_rid(conn: GraphKBConnection, target: str, name: str) -> str:
 
     return result[0]["@rid"]
 
+
 def ontologyTermRepr(term: Union[OntologyTerm, str]) -> str:
     if type(term) is not str:
         if getattr(term, 'displayName', None) and term.displayName != '':
@@ -350,12 +351,14 @@ def ontologyTermRepr(term: Union[OntologyTerm, str]) -> str:
         return ''
     return term
 
+
 def stripParentheses(breakRepr: str) -> str:
     match = re.search(r"^([a-z])\.\((.+)\)$", breakRepr)
 
     if match:
         return f"{match.group(1)}.{match.group(2)}"
     return breakRepr
+
 
 def stripRefSeq(breakRepr: str) -> str:
     match = re.search(r"^([a-z])\.[A-Z]*([0-9]*[A-Z]*)$", breakRepr)
@@ -364,12 +367,12 @@ def stripRefSeq(breakRepr: str) -> str:
         return f"{match.group(1)}.{match.group(2)}"
     return breakRepr
 
+
 def stripDisplayName(
     displayName: str,
     withRef: bool = True,
     withRefSeq: bool = True,
 ) -> str:
-
     match: object = re.search(r"^(.*)(\:)(.*)$", displayName)
     if match and not withRef:
         if withRefSeq:
@@ -397,6 +400,7 @@ def stripDisplayName(
         displayName = ref + prefix + rest
 
     return displayName
+
 
 def stringifyVariant(
     variant: Union[PositionalVariant, ParsedVariant],
@@ -428,7 +432,6 @@ def stringifyVariant(
     # then strip unwanted features, than return it right away
     if displayName != '':
         return stripDisplayName(displayName, withRef, withRefSeq)
-
 
     # If variant is a ParsedVariant (i.e. variant without a displayName yet),
     # the following will return a stringify representation (displayName/hgvs) of that variant
@@ -466,9 +469,7 @@ def stringifyVariant(
         if withRefSeq:
             break1Repr_noParentheses = stripParentheses(break1Repr)
             break2Repr_noParentheses = stripParentheses(break2Repr)
-            result.append(
-                f"({break1Repr_noParentheses},{break2Repr_noParentheses})"
-            )
+            result.append(f"({break1Repr_noParentheses},{break2Repr_noParentheses})")
         else:
             break1Repr_noParentheses_noRefSeq = stripRefSeq(stripParentheses(break1Repr))
             break2Repr_noParentheses_noRefSeq = stripRefSeq(stripParentheses(break2Repr))
@@ -480,7 +481,6 @@ def stringifyVariant(
         elif untemplatedSeqSize:
             result.append(str(untemplatedSeqSize))
         return ''.join(result)
-
 
     # Continuous notation...
 
@@ -497,12 +497,10 @@ def stringifyVariant(
         result.append(stripRefSeq(break1Repr))
         if break2Repr != '':
             result.append(f"_{stripRefSeq(break2Repr)[2:]}")
-    
 
     # refSeq, truncation, notationType, untemplatedSeq, untemplatedSeqSize
     if any(i in notationType for i in ['ext', 'fs']) or (
-        notationType == '>'
-        and break1Repr.startswith('p.')
+        notationType == '>' and break1Repr.startswith('p.')
     ):
         result.append(untemplatedSeq)
     if notationType == 'mis' and break1Repr.startswith('p.'):
@@ -523,7 +521,7 @@ def stringifyVariant(
         if any(i in notationType for i in ['dup', 'del', 'inv']):
             if withRefSeq:
                 result.append(refSeq)
-        if any(i in notationType for i in ['ins', 'delins']): 
+        if any(i in notationType for i in ['ins', 'delins']):
             if untemplatedSeq != '':
                 result.append(untemplatedSeq)
             elif untemplatedSeqSize:

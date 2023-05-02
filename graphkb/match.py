@@ -285,13 +285,13 @@ def compare_positional_variants(
     if not generic:
         variant_str: str = stringifyVariant(
             variant,
-            withRef=False,    # Reference(s) will not be included in the string repr.
-            withRefSeq=False, # Reference sequence will not be included in the string repr.
+            withRef=False,  # Reference(s) will not be included in the string repr.
+            withRefSeq=False,  # Reference sequence will not be included in the string repr.
         )
         reference_variant_str: str = stringifyVariant(
             reference_variant,
-            withRef=False,    # Reference(s) will not be included in the string repr.
-            withRefSeq=False, # Reference sequence will not be included in the string repr.
+            withRef=False,  # Reference(s) will not be included in the string repr.
+            withRefSeq=False,  # Reference sequence will not be included in the string repr.
         )
         return variant_str == reference_variant_str
 
@@ -501,8 +501,8 @@ def match_positional_variant(
         {'break1Start.@class': parsed['break1Start']['@class']},
     ]
 
-    filtered_similarOnly: List[Record] = [] # For post filter match use
-    filtered_similarAndGeneric: List[Record] = [] # To be added to the matches at the very end
+    filtered_similarOnly: List[Record] = []  # For post filter match use
+    filtered_similarAndGeneric: List[Record] = []  # To be added to the matches at the very end
 
     for row in cast(
         List[Record],
@@ -512,15 +512,15 @@ def match_positional_variant(
     ):
         # TODO: Check if variant and reference_variant should be interchanged
         if compare_positional_variants(
-            variant = parsed,
-            reference_variant = cast(PositionalVariant, row),
-            generic = True,
+            variant=parsed,
+            reference_variant=cast(PositionalVariant, row),
+            generic=True,
         ):
             filtered_similarAndGeneric.append(row)
             if compare_positional_variants(
-                variant = parsed,
-                reference_variant = cast(PositionalVariant, row),
-                generic = False, # Similar variants only
+                variant=parsed,
+                reference_variant=cast(PositionalVariant, row),
+                generic=False,  # Similar variants only
             ):
                 filtered_similarOnly.append(row)
 
