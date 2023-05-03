@@ -366,7 +366,7 @@ def stripRefSeq(breakRepr: str) -> str:
     if match:
         return f"{match.group(1)}.{match.group(3)}"
 
-    # TODO: Deal with cases like "p.?889_?890"
+    # TODO: Deal with cases like "p.?889_?890", "chr4:g.55593604_55593605delGGinsTT", ...
 
     return breakRepr
 
@@ -402,6 +402,9 @@ def stripDisplayName(
 
         displayName = ref + prefix + rest
 
+    # TODO: Deal with more complex cases like fusion, cds with offset (ex. 'VHL:c.464-2G>A')
+    # and other complex cases (ex. 'VHL:c.330_331delCAinsTT')
+
     return displayName
 
 
@@ -432,7 +435,7 @@ def stringifyVariant(
 
     # If variant is a PositionalVariant (i.e. variant with a displayName) and
     # we DO NOT have the appropriate string representation,
-    # then strip unwanted features, than return it right away
+    # then strip unwanted features, then return it right away
     if displayName != '':
         return stripDisplayName(displayName, withRef, withRefSeq)
 
@@ -536,5 +539,7 @@ def stringifyVariant(
             refSeq = ''
         untemplatedSeq = untemplatedSeq if untemplatedSeq != '' else '?'
         result.append(f"{refSeq}{notationType}{untemplatedSeq}")
+
+    # TODO: Deal with more complexes cases like 'MED12:p.(?34_?68)mut'
 
     return ''.join(result)
