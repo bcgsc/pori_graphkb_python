@@ -361,10 +361,13 @@ def stripParentheses(breakRepr: str) -> str:
 
 
 def stripRefSeq(breakRepr: str) -> str:
-    match = re.search(r"^([a-z])\.[A-Z]*([0-9]*[A-Z]*)$", breakRepr)
-
+    # 1 leading RefSeq
+    match = re.search(r"^([a-z])\.([A-Z]*|\?)([0-9]*[A-Z]*)$", breakRepr)
     if match:
-        return f"{match.group(1)}.{match.group(2)}"
+        return f"{match.group(1)}.{match.group(3)}"
+
+    # TODO: Deal with cases like "p.?889_?890"
+
     return breakRepr
 
 
