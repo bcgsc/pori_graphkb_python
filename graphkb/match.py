@@ -12,7 +12,13 @@ from .constants import (
     VARIANT_RETURN_PROPERTIES,
 )
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
-from .util import FeatureNotFoundError, convert_to_rid_list, logger, looks_like_rid
+from .util import (
+    convert_to_rid_list,
+    FeatureNotFoundError,
+    logger,
+    looks_like_rid,
+    stringifyVariant,
+)
 from .vocab import get_term_tree
 
 FEATURES_CACHE: Set[str] = set()
@@ -165,6 +171,8 @@ def match_category_variant(
                     ],
                 },
                 'queryType': 'similarTo',
+                'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf', 'GeneralizationOf'],
+                'treeEdges': ['Infers'],
                 'returnProperties': VARIANT_RETURN_PROPERTIES,
             },
             ignore_cache=ignore_cache,
@@ -258,6 +266,7 @@ def positions_overlap(
 def compare_positional_variants(
     variant: Union[PositionalVariant, ParsedVariant],
     reference_variant: Union[PositionalVariant, ParsedVariant],
+    generic: bool = True,
 ) -> bool:
     """
     Compare 2 variant records from GraphKB to determine if they are equivalent
@@ -265,10 +274,29 @@ def compare_positional_variants(
     Args:
         variant: the input variant
         reference_variant: the reference (matched) variant record
+        generic (bool, optional): also include the more generic variants
 
     Returns:
         bool: True if the records are equivalent
     """
+
+    # If specific vs more-generic variants are not to be considered as equivalent,
+    # check if their stringify representation match and return True or False right away.
+    if not generic:
+        variant_str: str = stringifyVariant(
+            variant,
+            withRef=False,  # Reference(s) will not be included in the string repr.
+            withRefSeq=False,  # Reference sequence will not be included in the string repr.
+        )
+        reference_variant_str: str = stringifyVariant(
+            reference_variant,
+            withRef=False,  # Reference(s) will not be included in the string repr.
+            withRefSeq=False,  # Reference sequence will not be included in the string repr.
+        )
+        return variant_str == reference_variant_str
+
+    # For break1, check if positions are overlaping between the variant and the reference.
+    # Continue only if True.
     if not positions_overlap(
         cast(BasicPosition, variant['break1Start']),
         cast(BasicPosition, reference_variant['break1Start']),
@@ -278,6 +306,9 @@ def compare_positional_variants(
     ):
         return False
 
+    # For break2, check if positions are overlaping between the variant and the reference.
+    # Continue only if True or no break2.
+    # TODO: check for variant without break2 but reference_variant with one.
     if variant.get('break2Start'):
         if not reference_variant.get('break2Start'):
             return False
@@ -290,6 +321,8 @@ def compare_positional_variants(
         ):
             return False
 
+    # If both variants have untemplated sequence,
+    # check for size and content.
     if (
         variant.get('untemplatedSeq', None) is not None
         and reference_variant.get('untemplatedSeq', None) is not None
@@ -314,6 +347,8 @@ def compare_positional_variants(
             elif len(variant['untemplatedSeq']) != len(reference_variant['untemplatedSeq']):
                 return False
 
+    # If both variants have a reference sequence,
+    # check if they are the same.
     if (
         variant.get('refSeq', None) is not None
         and reference_variant.get('refSeq', None) is not None
@@ -464,7 +499,8 @@ def match_positional_variant(
         {'break1Start.@class': parsed['break1Start']['@class']},
     ]
 
-    filtered: List[Record] = []
+    filtered_similarOnly: List[Record] = []  # For post filter match use
+    filtered_similarAndGeneric: List[Record] = []  # To be added to the matches at the very end
 
     for row in cast(
         List[Record],
@@ -472,16 +508,27 @@ def match_positional_variant(
             {'target': 'PositionalVariant', 'filters': query_filters}, ignore_cache=ignore_cache
         ),
     ):
-        if compare_positional_variants(parsed, cast(PositionalVariant, row)):
-            filtered.append(row)
+        # TODO: Check if variant and reference_variant should be interchanged
+        if compare_positional_variants(
+            variant=parsed,
+            reference_variant=cast(PositionalVariant, row),
+            generic=True,
+        ):
+            filtered_similarAndGeneric.append(row)
+            if compare_positional_variants(
+                variant=parsed,
+                reference_variant=cast(PositionalVariant, row),
+                generic=False,  # Similar variants only
+            ):
+                filtered_similarOnly.append(row)
 
     # post filter matches
     matches: List[Record] = []
-    if filtered:
+    if filtered_similarOnly:
         matches.extend(
             conn.query(
                 {
-                    'target': convert_to_rid_list(filtered),
+                    'target': convert_to_rid_list(filtered_similarOnly),
                     'queryType': 'similarTo',
                     'edges': ['AliasOf', 'DeprecatedBy', 'CrossReferenceOf', 'GeneralizationOf'],
                     'treeEdges': ['Infers'],
@@ -542,6 +589,20 @@ def match_positional_variant(
         # match single gene fusions for either gene
         cat_variant_query(features, types, None)
         cat_variant_query(secondary_features, types, None)
+
+    # Adding back generic PositionalVariant to the matches
+    if filtered_similarAndGeneric:
+        matches.extend(
+            conn.query(
+                {
+                    'target': convert_to_rid_list(filtered_similarAndGeneric),
+                    'queryType': 'descendants',
+                    'edges': [],
+                    'returnProperties': POS_VARIANT_RETURN_PROPERTIES,
+                },
+                ignore_cache=ignore_cache,
+            ),
+        )
 
     result: Dict[str, Variant] = {}
     for row in matches:
