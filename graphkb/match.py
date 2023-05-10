@@ -19,7 +19,7 @@ from .util import (
     looks_like_rid,
     stringifyVariant,
 )
-from .vocab import get_term_tree
+from .vocab import get_equivalent_terms, get_term_tree
 
 FEATURES_CACHE: Set[str] = set()
 
@@ -477,25 +477,11 @@ def match_positional_variant(
             raise FeatureNotFoundError(
                 f'unable to find the gene ({gene2}) or any equivalent representations'
             )
-    # disambiguate the variant type
-    variant_types_details = get_term_tree(
-        conn,
-        parsed['type'],
-        root_exclude_term='mutation' if secondary_features else '',
-        ignore_cache=ignore_cache,
-    )
-
-    types = convert_to_rid_list(variant_types_details)
-
-    if not types:
-        variant_type = parsed['type']
-        raise ValueError(f'unable to find the term/category ({variant_type}) or any equivalent')
 
     # match the existing mutations (positional)
     query_filters = [
         {'reference1': features},
         {'reference2': secondary_features},
-        {'type': types},
         {'break1Start.@class': parsed['break1Start']['@class']},
     ]
 
@@ -537,6 +523,20 @@ def match_positional_variant(
                 ignore_cache=ignore_cache,
             ),
         )
+
+    # disambiguate the variant type
+    variant_types_details = get_equivalent_terms(
+        conn,
+        parsed['type'],
+        root_exclude_term='mutation' if secondary_features else '',
+        ignore_cache=ignore_cache,
+    )
+    
+    types = convert_to_rid_list(variant_types_details)
+
+    if not types:
+        variant_type = parsed['type']
+        raise ValueError(f'unable to find the term/category ({variant_type}) or any equivalent')
 
     matches.extend(
         conn.query(
