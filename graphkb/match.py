@@ -334,7 +334,6 @@ def compare_positional_variants(
             if variant['untemplatedSeqSize'] != reference_variant['untemplatedSeqSize']:
                 return False
 
-        # TODO: Is this 1st conditional necessary?
         if (
             reference_variant['untemplatedSeq'] is not None
             and variant['untemplatedSeq'] is not None
@@ -360,7 +359,6 @@ def compare_positional_variants(
         ):
             if reference_variant['refSeq'].lower() != variant['refSeq'].lower():  # type: ignore
                 return False
-        # TODO: Is this conditional necessary?
         elif len(variant['refSeq']) != len(reference_variant['refSeq']):  # type: ignore
             return False
 
