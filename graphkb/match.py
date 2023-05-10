@@ -531,7 +531,7 @@ def match_positional_variant(
         root_exclude_term='mutation' if secondary_features else '',
         ignore_cache=ignore_cache,
     )
-    
+
     types = convert_to_rid_list(variant_types_details)
 
     if not types:
