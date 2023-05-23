@@ -431,11 +431,7 @@ def match_positional_variant(
         gene1 = parsed['reference1']
 
     gene1_features = get_equivalent_features(
-        conn,
-        gene1,
-        source=gene_source,
-        is_source_id=gene_is_source_id,
-        ignore_cache=ignore_cache,
+        conn, gene1, source=gene_source, is_source_id=gene_is_source_id, ignore_cache=ignore_cache,
     )
     features = convert_to_rid_list(gene1_features)
 
@@ -496,9 +492,7 @@ def match_positional_variant(
     ):
         # TODO: Check if variant and reference_variant should be interchanged
         if compare_positional_variants(
-            variant=parsed,
-            reference_variant=cast(PositionalVariant, row),
-            generic=True,
+            variant=parsed, reference_variant=cast(PositionalVariant, row), generic=True,
         ):
             filtered_similarAndGeneric.append(row)
             if compare_positional_variants(
@@ -533,7 +527,7 @@ def match_positional_variant(
     )
 
     types = convert_to_rid_list(variant_types_details)
-    
+
     matches.extend(
         conn.query(
             {
