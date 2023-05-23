@@ -460,7 +460,6 @@ class TestMatchPositionalVariant:
         # GERO-303 - technically this format is incorrect.
         assert match.match_positional_variant(conn, 'TERT:c.1-124C>T')
 
-    @pytest.mark.skipif(True, reason="TODO: GERO-299 incomplete; cds and genomic fail test.")
     def test_missense_is_not_nonsense(self, conn):
         """GERO-299 - nonsense mutation creates a stop codon and is usually more severe."""
         # equivalent TP53 notations
