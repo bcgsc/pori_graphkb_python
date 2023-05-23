@@ -533,11 +533,7 @@ def match_positional_variant(
     )
 
     types = convert_to_rid_list(variant_types_details)
-
-    if not types:
-        variant_type = parsed['type']
-        raise ValueError(f'unable to find the term/category ({variant_type}) or any equivalent')
-
+    
     matches.extend(
         conn.query(
             {
