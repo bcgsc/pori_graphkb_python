@@ -1,6 +1,4 @@
-"""
-Methods for retrieving gene annotation lists from GraphKB
-"""
+"""Methods for retrieving gene annotation lists from GraphKB."""
 from typing import Any, Dict, List, Tuple, cast
 
 from . import GraphKBConnection
@@ -50,7 +48,7 @@ def _get_oncokb_gene_list(
 
 
 def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
-    """Gets the list of oncogenes stored in GraphKB derived from OncoKB.
+    """Get the list of oncogenes stored in GraphKB derived from OncoKB.
 
     Args:
         conn: the graphkb connection object
@@ -62,7 +60,7 @@ def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
 
 
 def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
-    """Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB.
+    """Get the list of tumour supressor genes stored in GraphKB derived from OncoKB.
 
     Args:
         conn: the graphkb connection object
@@ -116,8 +114,7 @@ def get_genes_from_variant_types(
     source_record_ids: List[str] = [],
     ignore_cache: bool = False,
 ) -> List[Ontology]:
-    """
-    Retrieve a list of Genes which are found in variants on the given types
+    """Retrieve a list of Genes which are found in variants on the given types.
 
     Args:
         conn: the graphkb connection object
