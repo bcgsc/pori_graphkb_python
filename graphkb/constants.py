@@ -1,5 +1,4 @@
 import argparse
-
 from typing import Dict
 
 from .types import CategoryBaseTermMapping

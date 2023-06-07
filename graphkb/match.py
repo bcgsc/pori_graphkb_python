@@ -13,8 +13,8 @@ from .constants import (
 )
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
 from .util import (
-    convert_to_rid_list,
     FeatureNotFoundError,
+    convert_to_rid_list,
     logger,
     looks_like_rid,
     stringifyVariant,

@@ -10,7 +10,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from .constants import DEFAULT_LIMIT, DEFAULT_URL, AA_3to1_MAPPING, TYPES_TO_NOTATION
+from .constants import DEFAULT_LIMIT, DEFAULT_URL, TYPES_TO_NOTATION, AA_3to1_MAPPING
 from .types import OntologyTerm, ParsedVariant, PositionalVariant, Record
 
 QUERY_CACHE: Dict[Any, Any] = {}

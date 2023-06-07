@@ -1,6 +1,8 @@
-import pytest
 import os
-from graphkb import util, GraphKBConnection
+
+import pytest
+
+from graphkb import GraphKBConnection, util
 
 
 class OntologyTerm:

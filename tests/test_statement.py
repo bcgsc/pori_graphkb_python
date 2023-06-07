@@ -1,6 +1,6 @@
+import os
 from unittest.mock import Mock
 
-import os
 import pytest
 
 from graphkb import statement
