@@ -6,7 +6,6 @@ import os
 import pytest
 
 from graphkb import GraphKBConnection
-from graphkb.constants import FUSION_NAMES
 from graphkb.genes import (
     get_cancer_predisposition_info,
     get_genes_from_variant_types,

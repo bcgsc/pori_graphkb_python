@@ -36,9 +36,7 @@ def graphkb_conn():
 
     query_mock = Mock()
     query_mock.side_effect = return_values
-    conn = Mock(query=query_mock, cache={})
-
-    return conn
+    return Mock(query=query_mock, cache={})
 
 
 class TestCategorizeRelevance:

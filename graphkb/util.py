@@ -498,7 +498,7 @@ def stringifyVariant(
             if withRefSeq:
                 result.append(f"del{refSeq}ins")
             else:
-                result.append(f"delins")
+                result.append("delins")
         else:
             result.append(notationType)
         if truncation and truncation != 1:
