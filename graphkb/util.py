@@ -130,12 +130,7 @@ class GraphKBConnection:
             )
         return None
 
-    def request(
-        self,
-        endpoint: str,
-        method: str = 'GET',
-        **kwargs,
-    ) -> Dict:
+    def request(self, endpoint: str, method: str = 'GET', **kwargs) -> Dict:
         """Request wrapper to handle adding common headers and logging.
 
         Args:
@@ -174,11 +169,7 @@ class GraphKBConnection:
                 self.refresh_login()
                 self.request_count += 1
                 resp = requests.request(
-                    method,
-                    url,
-                    headers=self.headers,
-                    timeout=timeout,
-                    **kwargs,
+                    method, url, headers=self.headers, timeout=timeout, **kwargs
                 )
                 if resp.status_code == 401 or resp.status_code == 403:
                     logger.debug(f'/{endpoint} - {resp.status_code} - retrying')
@@ -276,10 +267,7 @@ class GraphKBConnection:
                 return self.cache[hash_code]
 
         while True:
-            content = self.post(
-                'query',
-                data={**request_body, 'limit': limit, 'skip': len(result)},
-            )
+            content = self.post('query', data={**request_body, 'limit': limit, 'skip': len(result)})
             records = content['result']
             result.extend(records)
             if len(records) < limit or not paginate:
@@ -371,11 +359,7 @@ def stripRefSeq(breakRepr: str) -> str:
     return breakRepr
 
 
-def stripDisplayName(
-    displayName: str,
-    withRef: bool = True,
-    withRefSeq: bool = True,
-) -> str:
+def stripDisplayName(displayName: str, withRef: bool = True, withRefSeq: bool = True) -> str:
     match: object = re.search(r"^(.*)(\:)(.*)$", displayName)
     if match and not withRef:
         if withRefSeq:
@@ -409,9 +393,7 @@ def stripDisplayName(
 
 
 def stringifyVariant(
-    variant: Union[PositionalVariant, ParsedVariant],
-    withRef: bool = True,
-    withRefSeq: bool = True,
+    variant: Union[PositionalVariant, ParsedVariant], withRef: bool = True, withRefSeq: bool = True
 ) -> str:
     """
     Convert variant record to a string representation (displayName/hgvs)

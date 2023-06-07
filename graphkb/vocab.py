@@ -6,10 +6,7 @@ from .util import convert_to_rid_list
 
 
 def query_by_name(ontology_class: str, base_term_name: str) -> Dict:
-    return {
-        'target': ontology_class,
-        'filters': {'name': base_term_name},
-    }
+    return {'target': ontology_class, 'filters': {'name': base_term_name}}
 
 
 def get_equivalent_terms(
@@ -53,10 +50,7 @@ def get_equivalent_terms(
             convert_to_rid_list(
                 conn.query(
                     {
-                        'target': {
-                            'target': root_records,
-                            'queryType': 'descendants',
-                        },
+                        'target': {'target': root_records, 'queryType': 'descendants'},
                         'queryType': 'similarTo',
                         'treeEdges': [],
                         'returnProperties': [
@@ -107,10 +101,7 @@ def get_term_tree(
         List[Ontology],
         conn.query(
             {
-                'target': {
-                    'target': base_records,
-                    'queryType': 'ancestors',
-                },
+                'target': {'target': base_records, 'queryType': 'ancestors'},
                 'queryType': 'similarTo',
                 'treeEdges': [],
                 'returnProperties': ['sourceId', 'sourceIdVersion', 'deprecated', 'name', '@rid'],

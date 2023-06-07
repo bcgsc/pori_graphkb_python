@@ -89,10 +89,6 @@ class TestCategorizeRelevance:
 @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
 class TestStatementMatch:
     def test_truncating_categories(self, conn):
-        variant = {
-            '@class': 'CategoryVariant',
-            '@rid': '#161:429',
-            'displayName': 'RB1 truncating',
-        }
+        variant = {'@class': 'CategoryVariant', '@rid': '#161:429', 'displayName': 'RB1 truncating'}
         statements = statement.get_statements_from_variants(conn, [variant])
         assert statements

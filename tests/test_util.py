@@ -46,11 +46,7 @@ def test_convert_aa_3to1(input, result):
 
 class TestOntologyTermRepr:
     @pytest.mark.parametrize(
-        'termStr,termRepr',
-        [
-            ['missense mutation', 'missense mutation'],
-            ['', ''],
-        ],
+        'termStr,termRepr', [['missense mutation', 'missense mutation'], ['', '']]
     )
     def test_ontologyTermRepr_str(self, termStr, termRepr):
         assert util.ontologyTermRepr(termStr) == termRepr

@@ -238,10 +238,7 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
                         "target": "Source",
                         "filters": {"@rid": get_rid(conn, "Source", "CGL")},
                     },
-                    "relevance": {
-                        "target": "Vocabulary",
-                        "filters": {"@rid": relevance_rids},
-                    },
+                    "relevance": {"target": "Vocabulary", "filters": {"@rid": relevance_rids}},
                 }
             ],
             "returnProperties": [
@@ -312,12 +309,7 @@ def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[s
         {
             "target": "Statement",
             "filters": [
-                {
-                    "relevance": {
-                        "target": "Vocabulary",
-                        "filters": {"@rid": relevance_rids},
-                    },
-                }
+                {"relevance": {"target": "Vocabulary", "filters": {"@rid": relevance_rids}}}
             ],
             "returnProperties": [
                 "conditions.@class",
