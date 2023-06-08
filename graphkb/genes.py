@@ -1,10 +1,12 @@
 """Methods for retrieving gene annotation lists from GraphKB."""
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, Dict, List, Sequence, Set, Tuple, cast
 
 from . import GraphKBConnection
 from .constants import (
     BASE_THERAPEUTIC_TERMS,
     CHROMOSOMES,
+    FAILED_REVIEW_STATUS,
+    GENERIC_RETURN_PROPERTIES,
     GENE_RETURN_PROPERTIES,
     ONCOGENE,
     ONCOKB_SOURCE_NAME,
@@ -124,14 +126,18 @@ def get_genes_from_variant_types(
     Returns:
         List.<dict>: gene (Feature) records
     """
+    filters: List[Dict[str, Any]] = []
+    if types:
+        filters.append(
+            {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
+        )
+
     variants = cast(
         List[Variant],
         conn.query(
             {
                 'target': 'Variant',
-                'filters': [
-                    {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
-                ],
+                'filters': filters,
                 'returnProperties': ['reference1', 'reference2'],
             },
             ignore_cache=ignore_cache,
@@ -139,20 +145,17 @@ def get_genes_from_variant_types(
     )
 
     genes = set()
-
     for variant in variants:
         genes.add(variant['reference1'])
-
         if variant['reference2']:
             genes.add(variant['reference2'])
+    if not genes:
+        return []
 
     filters: List[Dict[str, Any]] = [{'biotype': 'gene'}]
-
     if source_record_ids:
         filters.append({'source': source_record_ids, 'operator': 'IN'})
 
-    if not genes:
-        return []
     result = cast(
         List[Ontology],
         conn.query(
@@ -351,3 +354,88 @@ def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[s
         logger.error(f"Unable to find gene for '{name}' ({biotype})")
 
     return sorted(genes), variants
+
+
+def convert_to_rid_set(records: Sequence[Dict]) -> Set[str]:
+    return {r['@rid'] for r in records}
+
+
+def get_gene_information(
+    graphkb_conn: GraphKBConnection, gene_names: Sequence[str]
+) -> List[Dict[str, bool]]:
+    """Create a list of gene_info flag dicts for IPR report upload.
+
+    Function is originally from pori_ipr_python::annotate.py
+
+    Gene flags (categories) are: ['cancerRelated', 'knownFusionPartner', 'knownSmallMutation',
+                                  'oncogene', 'therapeuticAssociated', 'tumourSuppressor']
+
+    Args:
+        graphkb_conn ([type]): [description]
+        gene_names ([type]): [description]
+    Returns:
+        List of gene_info dicts of form [{'name':<gene_str>, <flag>: True}]
+        Keys of False values are simply omitted from ipr upload to reduce info transfer.
+            eg. [{'cancerRelated': True,
+                  'knownFusionPartner': True,
+                  'knownSmallMutation': True,
+                  'name': 'TERT',
+                  'oncogene': True}]
+    """
+    logger.info('fetching variant related genes list')
+    # For query speed, only fetch the minimum needed details
+    ret_props = [
+        'conditions.@rid',
+        'conditions.@class',
+        'conditions.reference1',
+        'conditions.reference2',
+        'reviewStatus',
+    ]
+    body: Dict[str, Any] = {'target': 'Statement', 'returnProperties': ret_props}
+
+    gene_names = sorted(set(gene_names))
+    statements = graphkb_conn.query(body)
+    statements = [s for s in statements if s.get('reviewStatus') != FAILED_REVIEW_STATUS]
+
+    gene_flags: Dict[str, Set[str]] = {
+        'cancerRelated': set(),
+        'knownFusionPartner': set(),
+        'knownSmallMutation': set(),
+    }
+
+    for statement in statements:
+        for condition in statement['conditions']:
+            if not condition.get('reference1'):
+                continue
+            gene_flags['cancerRelated'].add(condition['reference1'])
+            if condition['reference2']:
+                gene_flags['cancerRelated'].add(condition['reference2'])
+                gene_flags['knownFusionPartner'].add(condition['reference1'])
+                gene_flags['knownFusionPartner'].add(condition['reference2'])
+            elif condition['@class'] == 'PositionalVariant':
+                gene_flags['knownSmallMutation'].add(condition['reference1'])
+
+    logger.info('fetching oncogenes list')
+    gene_flags['oncogene'] = convert_to_rid_set(get_oncokb_oncogenes(graphkb_conn))
+    logger.info('fetching tumour supressors list')
+    gene_flags['tumourSuppressor'] = convert_to_rid_set(get_oncokb_tumour_supressors(graphkb_conn))
+
+    logger.info('fetching therapeutic associated genes lists')
+    gene_flags['therapeuticAssociated'] = convert_to_rid_set(
+        get_therapeutic_associated_genes(graphkb_conn)
+    )
+
+    logger.info(f"Setting gene_info flags on {len(gene_names)} genes")
+    result = []
+    for gene_name in gene_names:
+        equivalent = convert_to_rid_set(get_equivalent_features(graphkb_conn, gene_name))
+        row = {'name': gene_name}
+        flagged = False
+        for flag in gene_flags:
+            # make smaller JSON to upload since all default to false already
+            if equivalent.intersection(gene_flags[flag]):
+                row[flag] = flagged = True
+        if flagged:
+            result.append(row)
+
+    return result
