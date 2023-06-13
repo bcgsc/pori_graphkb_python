@@ -1,6 +1,6 @@
+import os
 from unittest.mock import Mock
 
-import os
 import pytest
 
 from graphkb import statement
@@ -36,9 +36,7 @@ def graphkb_conn():
 
     query_mock = Mock()
     query_mock.side_effect = return_values
-    conn = Mock(query=query_mock, cache={})
-
-    return conn
+    return Mock(query=query_mock, cache={})
 
 
 class TestCategorizeRelevance:
@@ -89,10 +87,6 @@ class TestCategorizeRelevance:
 @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
 class TestStatementMatch:
     def test_truncating_categories(self, conn):
-        variant = {
-            '@class': 'CategoryVariant',
-            '@rid': '#161:429',
-            'displayName': 'RB1 truncating',
-        }
+        variant = {'@class': 'CategoryVariant', '@rid': '#161:429', 'displayName': 'RB1 truncating'}
         statements = statement.get_statements_from_variants(conn, [variant])
         assert statements

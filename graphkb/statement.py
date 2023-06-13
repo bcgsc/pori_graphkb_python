@@ -23,9 +23,7 @@ def categorize_relevance(
 
 
 def get_statements_from_variants(
-    graphkb_conn: GraphKBConnection,
-    variants: List[Variant],
-    failed_review: bool = False,
+    graphkb_conn: GraphKBConnection, variants: List[Variant], failed_review: bool = False
 ) -> List[Statement]:
     """Given a list of variant records from GraphKB, return related statements.
 

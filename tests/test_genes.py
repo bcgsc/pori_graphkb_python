@@ -6,10 +6,10 @@ import os
 import pytest
 
 from graphkb import GraphKBConnection
-from graphkb.constants import FUSION_NAMES
 from graphkb.genes import (
     get_cancer_predisposition_info,
     get_genes_from_variant_types,
+    get_gene_information,
     get_oncokb_oncogenes,
     get_oncokb_tumour_supressors,
     get_pharmacogenomic_info,
@@ -178,3 +178,55 @@ def test_get_therapeutic_associated_genes(conn):
     names = {row['name'] for row in gene_list}
     for gene in CANNONICAL_THERAPY_GENES + CANONICAL_ONCOGENES + CANONICAL_TS:
         assert gene in names, f"{gene} not found by get_therapeutic_associated_genes"
+
+
+@pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
+def test_get_gene_information(conn):
+    gene_info = get_gene_information(
+        conn,
+        CANONICAL_ONCOGENES
+        + CANONICAL_TS
+        + CANONICAL_FUSION_GENES
+        + CANONICAL_STRUCTURAL_VARIANT_GENES
+        + CANNONICAL_THERAPY_GENES
+        + ['notagenename'],
+    )
+    assert gene_info
+    nongene_flagged = [g['name'] for g in gene_info if g['name'] == 'notagenename']
+    assert not nongene_flagged, f"Improper gene category: {nongene_flagged}"
+
+    for gene in CANONICAL_ONCOGENES:
+        assert gene in [
+            g['name'] for g in gene_info if g.get('oncogene')
+        ], f"Missed oncogene {gene}"
+
+    for gene in CANONICAL_TS:
+        assert gene in [
+            g['name'] for g in gene_info if g.get('tumourSuppressor')
+        ], f"Missed 'tumourSuppressor' {gene}"
+
+    for gene in CANONICAL_FUSION_GENES:
+        assert gene in [
+            g['name'] for g in gene_info if g.get('knownFusionPartner')
+        ], f"Missed knownFusionPartner {gene}"
+
+    for gene in CANONICAL_STRUCTURAL_VARIANT_GENES:
+        assert gene in [
+            g['name'] for g in gene_info if g.get('knownSmallMutation')
+        ], f"Missed knownSmallMutation {gene}"
+
+    for gene in CANNONICAL_THERAPY_GENES:
+        assert gene in [
+            g['name'] for g in gene_info if g.get('therapeuticAssociated')
+        ], f"Missed therapeuticAssociated {gene}"
+
+    for gene in (
+        CANONICAL_ONCOGENES
+        + CANONICAL_TS
+        + CANONICAL_FUSION_GENES
+        + CANONICAL_STRUCTURAL_VARIANT_GENES
+        + CANNONICAL_THERAPY_GENES
+    ):
+        assert gene in [
+            g['name'] for g in gene_info if g.get('cancerRelated')
+        ], f"Missed cancerRelated {gene}"

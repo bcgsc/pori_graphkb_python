@@ -147,10 +147,7 @@ class TestMatchCopyVariant:
             assert not has_prefix(variant_type, DECREASE_PREFIXES)
 
 
-@pytest.mark.parametrize(
-    'pos1,pos2_start,pos2_end',
-    [[3, 2, 5], [2, None, 5], [3, 2, None]],
-)
+@pytest.mark.parametrize('pos1,pos2_start,pos2_end', [[3, 2, 5], [2, None, 5], [3, 2, None]])
 def test_range_overlap(pos1, pos2_start, pos2_end):
     assert match.positions_overlap({'pos': pos1}, {'pos': pos2_start}, {'pos': pos2_end})
 
@@ -274,18 +271,15 @@ class TestComparePositionalVariants:
     def test_ambiguous_refseq(self, seq1, seq2):
         # ambiguous AA matches anything the same length
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': seq1},
-            {'break1Start': {'pos': 1}, 'refSeq': seq2},
+            {'break1Start': {'pos': 1}, 'refSeq': seq1}, {'break1Start': {'pos': 1}, 'refSeq': seq2}
         )
 
     def test_refseq_length_mismatch(self):
         assert not match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': '??'},
-            {'break1Start': {'pos': 1}, 'refSeq': 'T'},
+            {'break1Start': {'pos': 1}, 'refSeq': '??'}, {'break1Start': {'pos': 1}, 'refSeq': 'T'}
         )
         assert not match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': '?'},
-            {'break1Start': {'pos': 1}, 'refSeq': 'TT'},
+            {'break1Start': {'pos': 1}, 'refSeq': '?'}, {'break1Start': {'pos': 1}, 'refSeq': 'TT'}
         )
 
     def test_diff_altseq(self):
@@ -302,14 +296,12 @@ class TestComparePositionalVariants:
 
     def test_diff_refseq(self):
         assert not match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'M'},
-            {'break1Start': {'pos': 1}, 'refSeq': 'R'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'M'}, {'break1Start': {'pos': 1}, 'refSeq': 'R'}
         )
 
     def test_same_refseq_matches(self):
         assert match.compare_positional_variants(
-            {'break1Start': {'pos': 1}, 'refSeq': 'R'},
-            {'break1Start': {'pos': 1}, 'refSeq': 'R'},
+            {'break1Start': {'pos': 1}, 'refSeq': 'R'}, {'break1Start': {'pos': 1}, 'refSeq': 'R'}
         )
 
     def test_range_vs_sub(self):
@@ -352,24 +344,15 @@ class TestMatchPositionalVariant:
 
     def test_uncertain_position_not_supported(self, conn):
         with pytest.raises(NotImplementedError):
-            match.match_positional_variant(
-                conn,
-                '(BCR,ABL1):fusion(e.13_24,e.3)',
-            )
+            match.match_positional_variant(conn, '(BCR,ABL1):fusion(e.13_24,e.3)')
 
     def test_bad_gene_name(self, conn):
         with pytest.raises(FeatureNotFoundError):
-            match.match_positional_variant(
-                conn,
-                'ME-AS-A-GENE:p.G12D',
-            )
+            match.match_positional_variant(conn, 'ME-AS-A-GENE:p.G12D')
 
     def test_bad_gene2_name(self, conn):
         with pytest.raises(FeatureNotFoundError):
-            match.match_positional_variant(
-                conn,
-                '(BCR,ME-AS-A-GENE):fusion(e.13,e.3)',
-            )
+            match.match_positional_variant(conn, '(BCR,ME-AS-A-GENE):fusion(e.13,e.3)')
 
     def test_match_explicit_reference1(self, conn):
         reference1 = conn.query({'target': 'Feature', 'filters': {'name': 'KRAS'}})[0]['@rid']
