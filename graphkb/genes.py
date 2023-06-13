@@ -22,18 +22,18 @@ from .vocab import get_terms_set
 def _get_oncokb_gene_list(
     conn: GraphKBConnection, relevance: str, ignore_cache: bool = False
 ) -> List[Ontology]:
-    source = conn.get_source(ONCOKB_SOURCE_NAME)['@rid']
+    source = conn.get_source(ONCOKB_SOURCE_NAME)["@rid"]
 
     statements = cast(
         List[Statement],
         conn.query(
             {
-                'target': 'Statement',
-                'filters': [
-                    {'source': source},
-                    {'relevance': {'target': 'Vocabulary', 'filters': {'name': relevance}}},
+                "target": "Statement",
+                "filters": [
+                    {"source": source},
+                    {"relevance": {"target": "Vocabulary", "filters": {"name": relevance}}},
                 ],
-                'returnProperties': [f'subject.{prop}' for prop in GENE_RETURN_PROPERTIES],
+                "returnProperties": [f"subject.{prop}" for prop in GENE_RETURN_PROPERTIES],
             },
             ignore_cache=ignore_cache,
         ),
@@ -41,9 +41,9 @@ def _get_oncokb_gene_list(
     genes: Dict[str, Ontology] = {}
 
     for statement in statements:
-        if statement['subject'].get('biotype', '') == 'gene':
-            record_id = statement['subject']['@rid']
-            genes[record_id] = statement['subject']
+        if statement["subject"].get("biotype", "") == "gene":
+            record_id = statement["subject"]["@rid"]
+            genes[record_id] = statement["subject"]
 
     return [gene for gene in genes.values()]
 
@@ -77,34 +77,34 @@ def get_therapeutic_associated_genes(graphkb_conn: GraphKBConnection) -> List[On
     therapeutic_relevance = get_terms_set(graphkb_conn, BASE_THERAPEUTIC_TERMS)
     statements = graphkb_conn.query(
         {
-            'target': 'Statement',
-            'filters': {'relevance': sorted(list(therapeutic_relevance))},
-            'returnProperties': ['reviewStatus']
-            + [f'conditions.{prop}' for prop in GENE_RETURN_PROPERTIES]
+            "target": "Statement",
+            "filters": {"relevance": sorted(list(therapeutic_relevance))},
+            "returnProperties": ["reviewStatus"]
+            + [f"conditions.{prop}" for prop in GENE_RETURN_PROPERTIES]
             + [
-                f'conditions.reference{ref}.{prop}'
+                f"conditions.reference{ref}.{prop}"
                 for prop in GENE_RETURN_PROPERTIES
-                for ref in ('1', '2')
+                for ref in ("1", "2")
             ],
         }
     )
     genes: List[Ontology] = []
     for statement in statements:
-        if statement['reviewStatus'] == 'failed':
+        if statement["reviewStatus"] == "failed":
             continue
-        for condition in statement['conditions']:
-            if condition['@class'] == 'Feature':
+        for condition in statement["conditions"]:
+            if condition["@class"] == "Feature":
                 genes.append(condition)
-            elif condition['@class'].endswith('Variant'):
+            elif condition["@class"].endswith("Variant"):
                 cond = cast(Variant, condition)
-                if cond['reference1'] and cond['reference1']['@class'] == 'Feature':
-                    genes.append(cond['reference1'])
-                if cond['reference2'] and cond['reference2']['@class'] == 'Feature':
-                    genes.append(cond['reference2'])
+                if cond["reference1"] and cond["reference1"]["@class"] == "Feature":
+                    genes.append(cond["reference1"])
+                if cond["reference2"] and cond["reference2"]["@class"] == "Feature":
+                    genes.append(cond["reference2"])
     unique_genes: List[Ontology] = []
     for gene in genes:
-        if not gene.get('deprecated', False):
-            if gene['@rid'] not in [g['@rid'] for g in unique_genes]:
+        if not gene.get("deprecated", False):
+            if gene["@rid"] not in [g["@rid"] for g in unique_genes]:
                 unique_genes.append(gene)
     return unique_genes
 
@@ -128,16 +128,16 @@ def get_genes_from_variant_types(
     filters: List[Dict[str, Any]] = []
     if types:
         filters.append(
-            {'type': {'target': 'Vocabulary', 'filters': {'name': types, 'operator': 'IN'}}}
+            {"type": {"target": "Vocabulary", "filters": {"name": types, "operator": "IN"}}}
         )
 
     variants = cast(
         List[Variant],
         conn.query(
             {
-                'target': 'Variant',
-                'filters': filters,
-                'returnProperties': ['reference1', 'reference2'],
+                "target": "Variant",
+                "filters": filters,
+                "returnProperties": ["reference1", "reference2"],
             },
             ignore_cache=ignore_cache,
         ),
@@ -145,20 +145,20 @@ def get_genes_from_variant_types(
 
     genes = set()
     for variant in variants:
-        genes.add(variant['reference1'])
-        if variant['reference2']:
-            genes.add(variant['reference2'])
+        genes.add(variant["reference1"])
+        if variant["reference2"]:
+            genes.add(variant["reference2"])
     if not genes:
         return []
 
-    filters: List[Dict[str, Any]] = [{'biotype': 'gene'}]
+    filters: List[Dict[str, Any]] = [{"biotype": "gene"}]
     if source_record_ids:
-        filters.append({'source': source_record_ids, 'operator': 'IN'})
+        filters.append({"source": source_record_ids, "operator": "IN"})
 
     result = cast(
         List[Ontology],
         conn.query(
-            {'target': list(genes), 'returnProperties': GENE_RETURN_PROPERTIES, 'filters': filters},
+            {"target": list(genes), "returnProperties": GENE_RETURN_PROPERTIES, "filters": filters},
             ignore_cache=ignore_cache,
         ),
     )
@@ -183,20 +183,20 @@ def get_preferred_gene_name(
     """
     if gene_name in CHROMOSOMES:
         logger.error(f"{gene_name} assumed to be a chromosome, not gene")
-        return ''
+        return ""
     eq = get_equivalent_features(conn=conn, gene_name=gene_name)
-    genes = [m for m in eq if m.get('biotype') == 'gene' and not m.get('deprecated')]
+    genes = [m for m in eq if m.get("biotype") == "gene" and not m.get("deprecated")]
     if not genes:
         logger.error(f"No genes found for: {gene_name}")
-        return ''
+        return ""
     if source:
-        source_filtered_genes = [m for m in genes if m.get('source') == source]
+        source_filtered_genes = [m for m in genes if m.get("source") == source]
         if not source_filtered_genes:
             logger.error(f"No data from source {source} for {gene_name}")
         else:
             genes = source_filtered_genes
 
-    gene_names = [g['displayName'] for g in genes if g]
+    gene_names = [g["displayName"] for g in genes if g]
     if len(gene_names) > 1:
         logger.error(
             f"Multiple gene names found for: {gene_name} - using {gene_names[0]}, ignoring {gene_names[1:]}"
@@ -356,7 +356,7 @@ def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[s
 
 
 def convert_to_rid_set(records: Sequence[Dict]) -> Set[str]:
-    return {r['@rid'] for r in records}
+    return {r["@rid"] for r in records}
 
 
 def get_gene_information(
@@ -381,46 +381,46 @@ def get_gene_information(
                   'name': 'TERT',
                   'oncogene': True}]
     """
-    logger.info('fetching variant related genes list')
+    logger.info("fetching variant related genes list")
     # For query speed, only fetch the minimum needed details
     ret_props = [
-        'conditions.@rid',
-        'conditions.@class',
-        'conditions.reference1',
-        'conditions.reference2',
-        'reviewStatus',
+        "conditions.@rid",
+        "conditions.@class",
+        "conditions.reference1",
+        "conditions.reference2",
+        "reviewStatus",
     ]
-    body: Dict[str, Any] = {'target': 'Statement', 'returnProperties': ret_props}
+    body: Dict[str, Any] = {"target": "Statement", "returnProperties": ret_props}
 
     gene_names = sorted(set(gene_names))
     statements = graphkb_conn.query(body)
-    statements = [s for s in statements if s.get('reviewStatus') != FAILED_REVIEW_STATUS]
+    statements = [s for s in statements if s.get("reviewStatus") != FAILED_REVIEW_STATUS]
 
     gene_flags: Dict[str, Set[str]] = {
-        'cancerRelated': set(),
-        'knownFusionPartner': set(),
-        'knownSmallMutation': set(),
+        "cancerRelated": set(),
+        "knownFusionPartner": set(),
+        "knownSmallMutation": set(),
     }
 
     for statement in statements:
-        for condition in statement['conditions']:
-            if not condition.get('reference1'):
+        for condition in statement["conditions"]:
+            if not condition.get("reference1"):
                 continue
-            gene_flags['cancerRelated'].add(condition['reference1'])
-            if condition['reference2']:
-                gene_flags['cancerRelated'].add(condition['reference2'])
-                gene_flags['knownFusionPartner'].add(condition['reference1'])
-                gene_flags['knownFusionPartner'].add(condition['reference2'])
-            elif condition['@class'] == 'PositionalVariant':
-                gene_flags['knownSmallMutation'].add(condition['reference1'])
+            gene_flags["cancerRelated"].add(condition["reference1"])
+            if condition["reference2"]:
+                gene_flags["cancerRelated"].add(condition["reference2"])
+                gene_flags["knownFusionPartner"].add(condition["reference1"])
+                gene_flags["knownFusionPartner"].add(condition["reference2"])
+            elif condition["@class"] == "PositionalVariant":
+                gene_flags["knownSmallMutation"].add(condition["reference1"])
 
-    logger.info('fetching oncogenes list')
-    gene_flags['oncogene'] = convert_to_rid_set(get_oncokb_oncogenes(graphkb_conn))
-    logger.info('fetching tumour supressors list')
-    gene_flags['tumourSuppressor'] = convert_to_rid_set(get_oncokb_tumour_supressors(graphkb_conn))
+    logger.info("fetching oncogenes list")
+    gene_flags["oncogene"] = convert_to_rid_set(get_oncokb_oncogenes(graphkb_conn))
+    logger.info("fetching tumour supressors list")
+    gene_flags["tumourSuppressor"] = convert_to_rid_set(get_oncokb_tumour_supressors(graphkb_conn))
 
-    logger.info('fetching therapeutic associated genes lists')
-    gene_flags['therapeuticAssociated'] = convert_to_rid_set(
+    logger.info("fetching therapeutic associated genes lists")
+    gene_flags["therapeuticAssociated"] = convert_to_rid_set(
         get_therapeutic_associated_genes(graphkb_conn)
     )
 
@@ -428,7 +428,7 @@ def get_gene_information(
     result = []
     for gene_name in gene_names:
         equivalent = convert_to_rid_set(get_equivalent_features(graphkb_conn, gene_name))
-        row = {'name': gene_name}
+        row = {"name": gene_name}
         flagged = False
         for flag in gene_flags:
             # make smaller JSON to upload since all default to false already
