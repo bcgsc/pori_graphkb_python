@@ -8,8 +8,8 @@ import pytest
 from graphkb import GraphKBConnection
 from graphkb.genes import (
     get_cancer_predisposition_info,
-    get_genes_from_variant_types,
     get_gene_information,
+    get_genes_from_variant_types,
     get_oncokb_oncogenes,
     get_oncokb_tumour_supressors,
     get_pharmacogenomic_info,
