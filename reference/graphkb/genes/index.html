@@ -11,7 +11,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.14">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
     
     
       
@@ -19,7 +19,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.85bb2934.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.26e3688c.min.css">
       
       
 
@@ -251,6 +251,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#get_gene_information" class="md-nav__link">
+    get_gene_information()
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -270,9 +277,9 @@
 
 
 <h1 id="graphkbgenes">graphkb/genes</h1>
-<p>Methods for retrieving gene annotation lists from GraphKB</p>
+<p>Methods for retrieving gene annotation lists from GraphKB.</p>
 <h2 id="get_oncokb_oncogenes">get_oncokb_oncogenes()</h2>
-<p>Gets the list of oncogenes stored in GraphKB derived from OncoKB.</p>
+<p>Get the list of oncogenes stored in GraphKB derived from OncoKB.</p>
 <pre><code class="language-python">def get_oncokb_oncogenes(conn: GraphKBConnection) -&gt; List[Ontology]:
 </code></pre>
 <p><strong>Args</strong></p>
@@ -284,7 +291,7 @@
 <li>List[<a href="../types/#class-ontology">Ontology</a>]: gene (Feature) records</li>
 </ul>
 <h2 id="get_oncokb_tumour_supressors">get_oncokb_tumour_supressors()</h2>
-<p>Gets the list of tumour supressor genes stored in GraphKB derived from OncoKB.</p>
+<p>Get the list of tumour supressor genes stored in GraphKB derived from OncoKB.</p>
 <pre><code class="language-python">def get_oncokb_tumour_supressors(conn: GraphKBConnection) -&gt; List[Ontology]:
 </code></pre>
 <p><strong>Args</strong></p>
@@ -308,7 +315,7 @@
 <li>List[<a href="../types/#class-ontology">Ontology</a>]</li>
 </ul>
 <h2 id="get_genes_from_variant_types">get_genes_from_variant_types()</h2>
-<p>Retrieve a list of Genes which are found in variants on the given types</p>
+<p>Retrieve a list of Genes which are found in variants on the given types.</p>
 <pre><code class="language-python">def get_genes_from_variant_types(
     conn: GraphKBConnection,
     types: List[str],
@@ -382,6 +389,24 @@ return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
 <p><strong>Returns</strong></p>
 <ul>
 <li><code>Tuple[List[str], Dict[str, str]]</code>: list of pharmacogenomic genes variants: dictionary mapping pharmacogenomic variant IDs to variant display names</li>
+</ul>
+<h2 id="get_gene_information">get_gene_information()</h2>
+<p>Create a list of gene_info flag dicts for IPR report upload.</p>
+<p>Function is originally from pori_ipr_python::annotate.py</p>
+<p>Gene flags (categories) are: ['cancerRelated', 'knownFusionPartner', 'knownSmallMutation',
+'oncogene', 'therapeuticAssociated', 'tumourSuppressor']</p>
+<pre><code class="language-python">def get_gene_information(
+    graphkb_conn: GraphKBConnection, gene_names: Sequence[str]
+) -&gt; List[Dict[str, bool]]:
+</code></pre>
+<p><strong>Args</strong></p>
+<ul>
+<li>graphkb_conn (<a href="../util/#class-graphkbconnection">GraphKBConnection</a>): [description]</li>
+<li>gene_names (<code>Sequence[str]</code>): [description]</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>List[Dict]</code>: <gene_str>, <flag>: True}] Keys of False values are simply omitted from ipr upload to reduce info transfer. eg. [{'cancerRelated': True, 'knownFusionPartner': True, 'knownSmallMutation': True, 'name': 'TERT', 'oncogene': True}]</li>
 </ul>
 
 
