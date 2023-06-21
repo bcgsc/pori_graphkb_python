@@ -335,6 +335,15 @@ def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[s
                     biotype = (condition.get(reference) or {}).get("biotype", "")
                     if name and biotype == "gene":
                         genes.add(name)
+                    elif (
+                        name == "chr2"
+                        and condition["@rid"] == "#160:5557"
+                        and condition["displayName"]
+                        == "chr2:g.233760235_233760235nc_000002.12:g.233760235ta[7]>ta[8]"
+                    ):
+                        # SDEV-3006 - quiet error msg of known missing gene UGT1A1 ENSG00000241635
+                        logger.debug(f"Using UGT1A1 for {condition['displayName']}")
+                        infer_genes.add(("UGT1A1", condition["displayName"], name))
                     elif name:
                         gene = get_preferred_gene_name(conn, name)
                         if gene:
