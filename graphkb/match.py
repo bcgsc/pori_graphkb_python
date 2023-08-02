@@ -370,47 +370,47 @@ def compare_positional_variants(
 def type_screening(
     conn: GraphKBConnection,
     parsed: ParsedVariant,
-    updateTypes = False,
+    updateTypes=False,
 ) -> str:
     """
-        [KBDEV-1056]
-        Given a parsed variant notation, ensure that for some structural variant type
-        (e.g. duplication, deletion, insertion, indel, copy number, inversion, etc.)
-        is only returned when the length of the variation meets a threshold,
-        otherwise 'mutation' is returned as default.
+    [KBDEV-1056]
+    Given a parsed variant notation, ensure that for some structural variant type
+    (e.g. duplication, deletion, insertion, indel, copy number, inversion, etc.)
+    is only returned when the length of the variation meets a threshold,
+    otherwise 'mutation' is returned as default.
 
-        Args:
-            conn (GraphKBConnection): the graphkb connection object
-            parsed (ParsedVariant): the variant notation parsed as a dictionary by the API
-            updateTypes (boolean): if True the API is queried for an updated list of terms,
-                                   otherwise an hard-coded list is used
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+        parsed (ParsedVariant): the variant notation parsed as a dictionary by the API
+        updateTypes (boolean): if True the API is queried for an updated list of terms,
+                               otherwise an hard-coded list is used
 
-        Returns:
-            A string describing the variation type
+    Returns:
+        A string describing the variation type
 
-        Example:
-            # structural variant type returned as 'mutation' IF length < threshold (50)
-            type_screening(conn, {
-                    'type': 'deletion',
-                    'break1Start': {'pos': 1},
-                    'break2Start': {'pos': 5},
-                }) -> 'mutation'
+    Example:
+        # structural variant type returned as 'mutation' IF length < threshold (50)
+        type_screening(conn, {
+                'type': 'deletion',
+                'break1Start': {'pos': 1},
+                'break2Start': {'pos': 5},
+            }) -> 'mutation'
 
-        Example:
-            # structural variant type returned as-is IF length >= threshold (50)
-            type_screening(conn, {
-                    'type': 'deletion',
-                    'break1Start': {'pos': 1},
-                    'break2Start': {'pos': 50},
-                }) -> 'deletion'
+    Example:
+        # structural variant type returned as-is IF length >= threshold (50)
+        type_screening(conn, {
+                'type': 'deletion',
+                'break1Start': {'pos': 1},
+                'break2Start': {'pos': 50},
+            }) -> 'deletion'
 
-        Example:
-            # fusion & translocation always returned as-is
-            type_screening(conn, {'type': 'fusion'}) -> 'fusion'
+    Example:
+        # fusion & translocation always returned as-is
+        type_screening(conn, {'type': 'fusion'}) -> 'fusion'
 
-        Example:
-            # non structural always returned as-is
-            type_screening(conn, {'type': 'substitution'}) -> 'substitution'
+    Example:
+        # non structural always returned as-is
+        type_screening(conn, {'type': 'substitution'}) -> 'substitution'
     """
 
     # Will use either hardcoded type list or an updated list from the API
@@ -419,14 +419,14 @@ def type_screening(
         rids = list(get_terms_set(conn, ['structural variant']))
         records = conn.get_records_by_id(rids)
         structuralVariantTypes = [el['name'] for el in records]
-    
+
     # Returning original type
     if parsed['type'] not in structuralVariantTypes:
         return parsed['type']
     if parsed.get('untemplatedSeqSize', 0) >= STRUCTURAL_VARIANT_SIZE_THRESHOLD:
         return parsed['type']
     if parsed['type'] in ['fusion, translocation']:
-        return parsed['type'] 
+        return parsed['type']
 
     # Positions
     pos_start = parsed.get('break1Start', {}).get('pos', 0)

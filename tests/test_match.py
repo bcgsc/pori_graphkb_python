@@ -470,3 +470,10 @@ class TestCacheMissingFeatures:
         match.cache_missing_features(mock_conn)
         assert "kras" in match.FEATURES_CACHE
         assert "alice" in match.FEATURES_CACHE
+
+
+# class TestTypeScreening:
+#     def test_type_screening(self, conn):
+#         parsed = 
+#         screened_type = match.type_screening(parsed)
+#         assert 

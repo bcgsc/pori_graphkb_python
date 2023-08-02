@@ -1,0 +1,107 @@
+{
+    "TSC2:c.3365G>C": {
+        "comment": "KBDEV-1024",
+        "matches": {
+            "displayName": [
+                ""
+            ],
+            "type": [
+                ""
+            ]
+        },
+        "does_not_matches":{
+            "displayName": [
+                ""
+            ],
+            "type": [
+                ""
+            ]
+        }
+    },
+    "TSC2:c.4700G>A": {
+        "comment": "",
+        "matches": {
+            "displayName": [
+                "ENST00000219476:c.4700G>A",
+                "ENST00000219476:r.4810G>A",
+                "TSC2 mutation",
+                "TSC2:p.G1567D",
+                "chr16:g.2086230G>A"
+            ],
+            "type": [
+                "missense mutation",
+                "mutation",
+                "substitution"
+            ]
+        },
+        "does_not_matches":{
+            "displayName": [
+                "TSC2 nonsense"
+            ],
+            "type": [
+                "nonsense"
+            ]
+        }
+    },
+    "KRAS:p.G12D": {
+        "comment": "",
+        "matches": {
+            "displayName": [
+                "ENST00000256078:r.225_226delinsAC",
+                "ENST00000311936.7:c.35G>A",
+                "KRAS mutation",
+                "KRAS:c.35G>A",
+                "KRAS:p.(G12_G13)mut",
+                "KRAS:p.?12mut",
+                "KRAS:p.G12",
+                "KRAS:p.G12D",
+                "KRAS:p.G12X",
+                "KRAS:p.G12mut"
+            ],
+            "type": [
+                "indel",
+                "missense",
+                "missense mutation",
+                "mutation",
+                "substitution"
+            ]
+        },
+        "does_not_matches":{
+            "displayName": [
+                "chr12:g.25245349_25245351delinsGCT",
+                "cosm516",
+                "ensp00000452512:p.G12V"
+            ],
+            "type": [
+                "nonsense"
+            ]
+        }
+    },
+    "TP53:p.M237I": {
+        "comment": "GERO-299",
+        "matches": {
+            "displayName": [
+                "ENST00000269305:r.901G>T",
+                "TP53 missense",
+                "TP53 mutation",
+                "TP53:p.M237I",
+                "TP53:p.M237X",
+                "chr17:g.7577570C>T"
+            ],
+            "type": [
+                "missense",
+                "missense mutation",
+                "mutation",
+                "substitution"
+            ]
+        },
+        "does_not_matches":{
+            "displayName": [
+                "TP53 nonsense"
+            ],
+            "type": [
+                "nonsense"
+            ]
+        }
+    }
+}
