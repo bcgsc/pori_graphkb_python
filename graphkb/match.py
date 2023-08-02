@@ -9,6 +9,8 @@ from .constants import (
     INPUT_COPY_CATEGORIES,
     INPUT_EXPRESSION_CATEGORIES,
     POS_VARIANT_RETURN_PROPERTIES,
+    STRUCTURAL_VARIANT_SIZE_THRESHOLD,
+    STRUCTURAL_VARIANT_TYPES,
     VARIANT_RETURN_PROPERTIES,
 )
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
