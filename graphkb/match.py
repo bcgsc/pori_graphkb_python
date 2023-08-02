@@ -21,7 +21,7 @@ from .util import (
     looks_like_rid,
     stringifyVariant,
 )
-from .vocab import get_equivalent_terms, get_term_tree
+from .vocab import get_equivalent_terms, get_term_tree, get_terms_set
 
 FEATURES_CACHE: Set[str] = set()
 
@@ -367,6 +367,47 @@ def compare_positional_variants(
     return True
 
 
+def type_screening(
+    conn: GraphKBConnection,
+    parsed: ParsedVariant,
+    updateTypes = False,
+) -> str:
+
+    # Will use either hardcoded type list or an updated list from the API
+    structuralVariantTypes = STRUCTURAL_VARIANT_TYPES
+    if updateTypes:
+        rids = list(get_terms_set(conn, ['structural variant']))
+        records = conn.get_records_by_id(rids)
+        structuralVariantTypes = [el['name'] for el in records]
+    
+    # Returning original type
+    if parsed['type'] not in structuralVariantTypes:
+        return parsed['type']
+    if parsed.get('untemplatedSeqSize', 0) >= STRUCTURAL_VARIANT_SIZE_THRESHOLD:
+        return parsed['type']
+    if parsed['type'] in ['fusion, translocation']:
+        return parsed['type'] 
+
+    # Positions
+    pos_start = parsed.get('break1Start', {}).get('pos', 0)
+    pos_end = parsed.get('break2Start', {}).get('pos', pos_start)
+
+    # Position size
+    pos_size = 1
+    prefix = parsed.get('prefix', 'g')
+    if prefix == 'p':
+        pos_size = 3
+    if prefix == 'y':
+        pos_size = STRUCTURAL_VARIANT_SIZE_THRESHOLD
+
+    # Returning original type, after evaluating variant length
+    if (pos_end - pos_start + 1) * pos_size >= STRUCTURAL_VARIANT_SIZE_THRESHOLD:
+        return parsed['type']
+
+    # Default
+    return 'mutation'
+
+
 def match_positional_variant(
     conn: GraphKBConnection,
     variant_string: str,
@@ -520,10 +561,13 @@ def match_positional_variant(
             )
         )
 
+    # screening type for discrepancies regarding structural variants
+    screened_type = type_screening(conn, parsed)
+
     # disambiguate the variant type
     variant_types_details = get_equivalent_terms(
         conn,
-        parsed["type"],
+        screened_type,
         root_exclude_term="mutation" if secondary_features else "",
         ignore_cache=ignore_cache,
     )
