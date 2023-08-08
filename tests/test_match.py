@@ -7,6 +7,7 @@ import pytest
 
 from graphkb import GraphKBConnection, match
 from graphkb.util import FeatureNotFoundError
+import graphkb
 
 EXCLUDE_INTEGRATION_TESTS = os.environ.get("EXCLUDE_INTEGRATION_TESTS") == "1"
 
@@ -472,8 +473,24 @@ class TestCacheMissingFeatures:
         assert "alice" in match.FEATURES_CACHE
 
 
-# class TestTypeScreening:
-#     def test_type_screening(self, conn):
-#         parsed = 
-#         screened_type = match.type_screening(parsed)
-#         assert 
+class TestTypeScreening:
+    def test_type_screening_update(self, conn, monkeypatch):
+        parsed = {"type": ""}
+
+        # Monkey-patching get_terms_set()
+        def mock_get_terms_set(graphkb_conn, base_terms):
+            nonlocal called
+            called = True
+            return set()
+        monkeypatch.setattr("graphkb.match.get_terms_set", mock_get_terms_set)
+        
+        # Assert get_terms_set() has been called
+        called = False
+        graphkb.match.type_screening(conn, parsed, updateTypes=True)
+        assert called
+
+        # Assert get_terms_set() has not been called
+        called = False
+        graphkb.match.type_screening(conn, parsed, updateTypes=False)
+        assert not called
+
