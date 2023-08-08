@@ -482,8 +482,9 @@ class TestTypeScreening:
             nonlocal called
             called = True
             return set()
+
         monkeypatch.setattr("graphkb.match.get_terms_set", mock_get_terms_set)
-        
+
         # Assert get_terms_set() has been called
         called = False
         graphkb.match.type_screening(conn, parsed, updateTypes=True)
