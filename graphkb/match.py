@@ -414,9 +414,10 @@ def type_screening(
         type_screening(conn, {'type': 'substitution'}) -> 'substitution'
     """
     default_type = DEFAULT_NON_STRUCTURAL_VARIANT_TYPE
+    structuralVariantTypes = STRUCTURAL_VARIANT_TYPES
+    threshold = STRUCTURAL_VARIANT_SIZE_THRESHOLD
 
     # Will use either hardcoded type list or an updated list from the API
-    structuralVariantTypes = STRUCTURAL_VARIANT_TYPES
     if updateTypes:
         rids = list(get_terms_set(conn, ['structural variant']))
         records = conn.get_records_by_id(rids)
@@ -441,7 +442,7 @@ def type_screening(
         return default_type
 
     # When size is given
-    if parsed.get('untemplatedSeqSize', 0) >= STRUCTURAL_VARIANT_SIZE_THRESHOLD:
+    if parsed.get('untemplatedSeqSize', 0) >= threshold:
         return parsed['type']
 
     # When size needs to be computed from positions
@@ -450,7 +451,7 @@ def type_screening(
     pos_size = 1
     if prefix == 'p':
         pos_size = 3
-    if ((pos_end - pos_start) + 1) * pos_size >= STRUCTURAL_VARIANT_SIZE_THRESHOLD:
+    if ((pos_end - pos_start) + 1) * pos_size >= threshold:
         return parsed['type']
 
     # Default
