@@ -425,7 +425,7 @@ def type_screening(
     # Unambiguous non-structural variation type
     if parsed['type'] not in structuralVariantTypes:
         return parsed['type']
-    
+
     # Unambiguous structural variation type
     if parsed['type'] in ['fusion', 'translocation']:
         return parsed['type']
