@@ -6,9 +6,12 @@ from typing import Dict, List, Optional, Set, Union, cast
 from . import GraphKBConnection
 from .constants import (
     AMBIGUOUS_AA,
+    DEFAULT_NON_STRUCTURAL_VARIANT_TYPE,
     INPUT_COPY_CATEGORIES,
     INPUT_EXPRESSION_CATEGORIES,
     POS_VARIANT_RETURN_PROPERTIES,
+    STRUCTURAL_VARIANT_SIZE_THRESHOLD,
+    STRUCTURAL_VARIANT_TYPES,
     VARIANT_RETURN_PROPERTIES,
 )
 from .types import BasicPosition, Ontology, ParsedVariant, PositionalVariant, Record, Variant
@@ -19,7 +22,7 @@ from .util import (
     looks_like_rid,
     stringifyVariant,
 )
-from .vocab import get_equivalent_terms, get_term_tree
+from .vocab import get_equivalent_terms, get_terms_set, get_term_tree
 
 FEATURES_CACHE: Set[str] = set()
 
@@ -363,6 +366,95 @@ def compare_positional_variants(
             return False
 
     return True
+
+
+def type_screening(
+    conn: GraphKBConnection,
+    parsed: ParsedVariant,
+    updateTypes=False,
+) -> str:
+    """
+    [KBDEV-1056]
+    Given a parsed variant notation, ensure that for some structural variant, type
+    (e.g. duplication, deletion, insertion, indel, copy number, inversion, etc.)
+    is only returned when the length of the variation meets a threshold,
+    otherwise 'mutation' is returned as default.
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+        parsed (ParsedVariant): the variant notation parsed as a dictionary by the API
+        updateTypes (boolean): if True the API is queried for an updated list of terms,
+                               otherwise an hard-coded list is used
+
+    Returns:
+        A string describing the variation type
+
+    Example:
+        # structural variant type returned as 'mutation' IF length < threshold (50)
+        type_screening(conn, {
+                'type': 'deletion',
+                'break1Start': {'pos': 1},
+                'break2Start': {'pos': 5},
+            }) -> 'mutation'
+
+    Example:
+        # structural variant type returned as-is IF length >= threshold (50)
+        type_screening(conn, {
+                'type': 'deletion',
+                'break1Start': {'pos': 1},
+                'break2Start': {'pos': 50},
+            }) -> 'deletion'
+
+    Example:
+        # fusion & translocation always returned as-is
+        type_screening(conn, {'type': 'fusion'}) -> 'fusion'
+
+    Example:
+        # non structural always returned as-is
+        type_screening(conn, {'type': 'substitution'}) -> 'substitution'
+    """
+    default_type = DEFAULT_NON_STRUCTURAL_VARIANT_TYPE
+
+    # Will use either hardcoded type list or an updated list from the API
+    structuralVariantTypes = STRUCTURAL_VARIANT_TYPES
+    if updateTypes:
+        rids = list(get_terms_set(conn, ['structural variant']))
+        records = conn.get_records_by_id(rids)
+        structuralVariantTypes = [el['name'] for el in records]
+
+    # Unambiguous non-structural variation type
+    if parsed['type'] not in structuralVariantTypes:
+        return parsed['type']
+    
+    # Unambiguous structural variation type
+    if parsed['type'] in ['fusion', 'translocation']:
+        return parsed['type']
+    if parsed.get('reference2', None):
+        return parsed['type']
+    prefix = parsed.get('prefix', 'g')
+    if prefix == 'y':  # Assuming all variations using cytoband coordiantes meet the size threshold
+        return parsed['type']
+
+    # When size cannot be determined: exonic and intronic coordinates
+    # e.g. "MET:e.14del" meaning "Any deletion occuring at the 14th exon"
+    if prefix in ['e', 'i']:  # Assuming they don't meet the size threshold
+        return default_type
+
+    # When size is given
+    if parsed.get('untemplatedSeqSize', 0) >= STRUCTURAL_VARIANT_SIZE_THRESHOLD:
+        return parsed['type']
+
+    # When size needs to be computed from positions
+    pos_start = parsed.get('break1Start', {}).get('pos', 1)
+    pos_end = parsed.get('break2Start', {}).get('pos', pos_start)
+    pos_size = 1
+    if prefix == 'p':
+        pos_size = 3
+    if ((pos_end - pos_start) + 1) * pos_size >= STRUCTURAL_VARIANT_SIZE_THRESHOLD:
+        return parsed['type']
+
+    # Default
+    return default_type
 
 
 def match_positional_variant(
