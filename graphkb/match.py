@@ -610,10 +610,13 @@ def match_positional_variant(
             )
         )
 
+    # screening type for discrepancies regarding structural variants
+    screened_type = type_screening(conn, parsed)
+
     # disambiguate the variant type
     variant_types_details = get_equivalent_terms(
         conn,
-        parsed["type"],
+        screened_type,
         root_exclude_term="mutation" if secondary_features else "",
         ignore_cache=ignore_cache,
     )
