@@ -13,6 +13,9 @@ from graphkb.constants import (
     DEFAULT_NON_STRUCTURAL_VARIANT_TYPE,
 )
 
+# Test datasets
+from .data import structuralVariants
+
 EXCLUDE_INTEGRATION_TESTS = os.environ.get("EXCLUDE_INTEGRATION_TESTS") == "1"
 
 INCREASE_PREFIXES = ["up", "increase", "over", "gain", "amp"]
@@ -460,6 +463,29 @@ class TestMatchPositionalVariant:
             assert (
                 not nonsense
             ), f"Missense {mut} is not a nonsense variant: {((m['displayName'], m['@rid']) for m in nonsense)}"
+
+    def test_structural_variants(self, conn):
+        """KBDEV-1056"""
+        for variant_string, expected in structuralVariants.items():
+            print(variant_string)
+            # Querying matches for variant_string
+            m = match.match_positional_variant(conn, variant_string)
+            MatchingDisplayNames = [el["displayName"] for el in m]
+            MatchingTypes = [el["type"]["name"] for el in m]
+
+            # Match
+            for displayName in expected.get('matches', {}).get("displayName", []):
+                assert displayName in MatchingDisplayNames
+            for type in expected.get('matches', {}).get("type", []):
+                assert type in MatchingTypes
+
+            # Does not match
+            for displayName in MatchingDisplayNames:
+                assert displayName not in expected.get('does_not_matches', {}).get(
+                    "displayName", []
+                )
+            for type in MatchingTypes:
+                assert type not in expected.get('does_not_matches', {}).get("type", [])
 
 
 class TestCacheMissingFeatures:
