@@ -371,7 +371,7 @@ def compare_positional_variants(
 def type_screening(
     conn: GraphKBConnection,
     parsed: ParsedVariant,
-    updateTypes=False,
+    updateStructuralTypes=False,
 ) -> str:
     """
     [KBDEV-1056]
@@ -383,8 +383,8 @@ def type_screening(
     Args:
         conn (GraphKBConnection): the graphkb connection object
         parsed (ParsedVariant): the variant notation parsed as a dictionary by the API
-        updateTypes (boolean): if True the API is queried for an updated list of terms,
-                               otherwise an hard-coded list is used
+        updateStructuralTypes (boolean): if True the API is queried for an updated list
+                                         of terms, otherwise an hard-coded list is used
 
     Returns:
         A string describing the variation type
@@ -418,7 +418,7 @@ def type_screening(
     threshold = STRUCTURAL_VARIANT_SIZE_THRESHOLD
 
     # Will use either hardcoded type list or an updated list from the API
-    if updateTypes:
+    if updateStructuralTypes:
         rids = list(get_terms_set(conn, ['structural variant']))
         records = conn.get_records_by_id(rids)
         structuralVariantTypes = [el['name'] for el in records]
@@ -466,6 +466,7 @@ def match_positional_variant(
     gene_is_source_id: bool = False,
     gene_source: str = "",
     ignore_cache: bool = False,
+    updateStructuralTypes: bool = False,
 ) -> List[Variant]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
@@ -476,7 +477,10 @@ def match_positional_variant(
         reference1: Explicitly specify the first reference link record (gene1)
         reference2: Explicitly specify the second reference link record (gene2)
         gene_source: The source database the gene is defined by (ex. ensembl)
-        gene_is_source_id: Indicates the gene name(s) input should be treated as sourceIds not names
+        gene_is_source_id: Indicates the gene name(s) input should be treated
+                           as sourceIds not names
+        updateStructuralTypes: Whether or not updating the structural variant list
+                               with an API call, or use the hard-coded one
 
     Raises:
         NotImplementedError: thrown for uncertain position input (ranges)
@@ -612,7 +616,7 @@ def match_positional_variant(
         )
 
     # screening type for discrepancies regarding structural variants
-    screened_type = type_screening(conn, parsed)
+    screened_type = type_screening(conn, parsed, updateStructuralTypes)
 
     # disambiguate the variant type
     variant_types_details = get_equivalent_terms(
