@@ -7,11 +7,8 @@ import pytest
 
 import graphkb
 from graphkb import GraphKBConnection, match
+from graphkb.constants import DEFAULT_NON_STRUCTURAL_VARIANT_TYPE, STRUCTURAL_VARIANT_SIZE_THRESHOLD
 from graphkb.util import FeatureNotFoundError
-from graphkb.constants import (
-    STRUCTURAL_VARIANT_SIZE_THRESHOLD,
-    DEFAULT_NON_STRUCTURAL_VARIANT_TYPE,
-)
 
 # Test datasets
 from .data import structuralVariants
@@ -536,7 +533,7 @@ class TestTypeScreening:
 
         # Assert get_terms_set() has been called
         called = False
-        graphkb.match.type_screening(conn, {"type": ""}, updateTypes=True)
+        graphkb.match.type_screening(conn, {"type": ""}, updateStructuralTypes=True)
         assert called
 
         # Assert get_terms_set() has not been called (default behavior)
