@@ -227,7 +227,7 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
     infer_genes = set()
     variants = {}
 
-    terms: dict = {term:lst for term, lst in RELEVANCE_BASE_TERMS}
+    terms: dict = {term: lst for term, lst in RELEVANCE_BASE_TERMS}
     relevance_rids = list(get_terms_set(conn, terms.get("cancer predisposition", [])))
 
     for record in conn.query(
@@ -242,10 +242,7 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
                         },
                     },
                     {
-                        "relevance": {
-                            "target": "Vocabulary",
-                            "filters": {"@rid": relevance_rids}
-                        },
+                        "relevance": {"target": "Vocabulary", "filters": {"@rid": relevance_rids}},
                     },
                 ],
             },
