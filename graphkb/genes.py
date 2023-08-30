@@ -11,6 +11,7 @@ from .constants import (
     ONCOKB_SOURCE_NAME,
     PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST,
     PREFERRED_GENE_SOURCE,
+    RELEVANCE_BASE_TERMS,
     TUMOUR_SUPPRESSIVE,
 )
 from .match import get_equivalent_features
@@ -226,20 +227,28 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
     infer_genes = set()
     variants = {}
 
-    relevance_rids = list(get_terms_set(conn, "cancer predisposition"))
+    terms: dict = {term:lst for term, lst in RELEVANCE_BASE_TERMS}
+    relevance_rids = list(get_terms_set(conn, terms.get("cancer predisposition", [])))
 
     for record in conn.query(
         {
             "target": "Statement",
-            "filters": [
-                {
-                    "evidence": {
-                        "target": "Source",
-                        "filters": {"@rid": get_rid(conn, "Source", "CGL")},
+            "filters": {
+                "AND": [
+                    {
+                        "evidence": {
+                            "target": "Source",
+                            "filters": {"@rid": get_rid(conn, "Source", "CGL")},
+                        },
                     },
-                    "relevance": {"target": "Vocabulary", "filters": {"@rid": relevance_rids}},
-                }
-            ],
+                    {
+                        "relevance": {
+                            "target": "Vocabulary",
+                            "filters": {"@rid": relevance_rids}
+                        },
+                    },
+                ],
+            },
             "returnProperties": [
                 "conditions.@class",
                 "conditions.@rid",
