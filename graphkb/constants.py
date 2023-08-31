@@ -175,7 +175,7 @@ TYPES_TO_NOTATION: Dict[str, str] = {
 
 # For match.type_screening() [KBDEV-1056]
 DEFAULT_NON_STRUCTURAL_VARIANT_TYPE = 'mutation'
-STRUCTURAL_VARIANT_SIZE_THRESHOLD = 50  # bp
+STRUCTURAL_VARIANT_SIZE_THRESHOLD = 48  # bp
 STRUCTURAL_VARIANT_TYPES = [
     "structural variant",
     "insertion",
