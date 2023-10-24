@@ -28,7 +28,6 @@ def _get_tumourigenesis_genes_list(
     sources: List[str],
     ignore_cache: bool = False,
 ) -> List[Ontology]:
-
     statements = cast(
         List[Statement],
         conn.query(
@@ -37,13 +36,13 @@ def _get_tumourigenesis_genes_list(
                 "filters": {
                     "AND": [
                         {"source": {"target": "Source", "filters": {"name": sources}}},
-                        {"relevance": {"target": "Vocabulary", "filters": {"name": relevance}}}
+                        {"relevance": {"target": "Vocabulary", "filters": {"name": relevance}}},
                     ]
                 },
                 "returnProperties": [f"subject.{prop}" for prop in GENE_RETURN_PROPERTIES],
             },
             ignore_cache=ignore_cache,
-        )
+        ),
     )
 
     genes: Dict[str, Ontology] = {}
@@ -89,7 +88,9 @@ def get_cancer_genes(conn: GraphKBConnection) -> List[Ontology]:
     Returns:
         gene (Feature) records
     """
-    return _get_tumourigenesis_genes_list(conn, CANCER_GENE, [ONCOKB_SOURCE_NAME, TSO500_SOURCE_NAME])
+    return _get_tumourigenesis_genes_list(
+        conn, CANCER_GENE, [ONCOKB_SOURCE_NAME, TSO500_SOURCE_NAME]
+    )
 
 
 def get_therapeutic_associated_genes(graphkb_conn: GraphKBConnection) -> List[Ontology]:
