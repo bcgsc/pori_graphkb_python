@@ -20,25 +20,30 @@ from .util import get_rid, logger
 from .vocab import get_terms_set
 
 
-def _get_oncokb_gene_list(
-    conn: GraphKBConnection, relevance: str, ignore_cache: bool = False
+def _get_tumourigenesis_genes_list(
+    conn: GraphKBConnection,
+    relevance: str,
+    sources: List[str],
+    ignore_cache: bool = False,
 ) -> List[Ontology]:
-    source = conn.get_source(ONCOKB_SOURCE_NAME)["@rid"]
 
     statements = cast(
         List[Statement],
         conn.query(
             {
                 "target": "Statement",
-                "filters": [
-                    {"source": source},
-                    {"relevance": {"target": "Vocabulary", "filters": {"name": relevance}}},
-                ],
+                "filters": {
+                    "AND": [
+                        {"source": {"target": "Source", "filters": {"name": sources}}},
+                        {"relevance": {"target": "Vocabulary", "filters": {"name": relevance}}}
+                    ]
+                },
                 "returnProperties": [f"subject.{prop}" for prop in GENE_RETURN_PROPERTIES],
             },
             ignore_cache=ignore_cache,
-        ),
+        )
     )
+
     genes: Dict[str, Ontology] = {}
 
     for statement in statements:
@@ -58,7 +63,7 @@ def get_oncokb_oncogenes(conn: GraphKBConnection) -> List[Ontology]:
     Returns:
         gene (Feature) records
     """
-    return _get_oncokb_gene_list(conn, ONCOGENE)
+    return _get_tumourigenesis_genes_list(conn, ONCOGENE, [ONCOKB_SOURCE_NAME])
 
 
 def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
@@ -70,7 +75,7 @@ def get_oncokb_tumour_supressors(conn: GraphKBConnection) -> List[Ontology]:
     Returns:
         gene (Feature) records
     """
-    return _get_oncokb_gene_list(conn, TUMOUR_SUPPRESSIVE)
+    return _get_tumourigenesis_genes_list(conn, TUMOUR_SUPPRESSIVE, [ONCOKB_SOURCE_NAME])
 
 
 def get_therapeutic_associated_genes(graphkb_conn: GraphKBConnection) -> List[Ontology]:
