@@ -7,6 +7,7 @@ import pytest
 
 from graphkb import GraphKBConnection
 from graphkb.genes import (
+    get_cancer_genes,
     get_cancer_predisposition_info,
     get_gene_information,
     get_genes_from_variant_types,
@@ -22,6 +23,7 @@ EXCLUDE_INTEGRATION_TESTS = os.environ.get("EXCLUDE_INTEGRATION_TESTS") == "1"
 
 CANONICAL_ONCOGENES = ["kras", "nras", "alk"]
 CANONICAL_TS = ["cdkn2a", "tp53"]
+CANONICAL_CG = ["ercc1", "fanci", "h2bc4", "h2bc17", "acvr1b"]
 CANONICAL_FUSION_GENES = ["alk", "ewsr1", "fli1"]
 CANONICAL_STRUCTURAL_VARIANT_GENES = ["brca1", "dpyd", "pten"]
 CANNONICAL_THERAPY_GENES = ["erbb2", "brca2", "egfr"]
@@ -112,6 +114,8 @@ def test_oncogene(conn):
         assert gene in names
     for gene in CANONICAL_TS:
         assert gene not in names
+    for gene in CANONICAL_CG:
+        assert gene not in names
 
 
 def test_tumour_supressors(conn):
@@ -119,6 +123,19 @@ def test_tumour_supressors(conn):
     names = {row["name"] for row in result}
     for gene in CANONICAL_TS:
         assert gene in names
+    for gene in CANONICAL_ONCOGENES:
+        assert gene not in names
+    for gene in CANONICAL_CG:
+        assert gene not in names
+
+
+def test_cancer_genes(conn):
+    result = get_cancer_genes(conn)
+    names = {row["name"] for row in result}
+    for gene in CANONICAL_CG:
+        assert gene in names
+    for gene in CANONICAL_TS:
+        assert gene not in names
     for gene in CANONICAL_ONCOGENES:
         assert gene not in names
 
