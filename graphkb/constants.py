@@ -60,8 +60,10 @@ STATEMENT_RETURN_PROPERTIES = (
 
 
 ONCOKB_SOURCE_NAME = "oncokb"
+TSO500_SOURCE_NAME = "tso500"
 ONCOGENE = "oncogenic"
 TUMOUR_SUPPRESSIVE = "tumour suppressive"
+CANCER_GENE = "cancer gene"
 FUSION_NAMES = ["structural variant", "fusion"]
 
 PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST = ["cancer genome interpreter", "civic"]
