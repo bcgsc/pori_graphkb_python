@@ -392,7 +392,7 @@ def get_gene_information(
 
     Function is originally from pori_ipr_python::annotate.py
 
-    Gene flags (categories) are: ['cancerRelated', 'knownFusionPartner', 'knownSmallMutation',
+    Gene flags (categories) are: ['cancerGene', 'cancerRelated', 'knownFusionPartner', 'knownSmallMutation',
                                   'oncogene', 'therapeuticAssociated', 'tumourSuppressor']
 
     Args:
@@ -444,8 +444,8 @@ def get_gene_information(
     gene_flags["oncogene"] = convert_to_rid_set(get_oncokb_oncogenes(graphkb_conn))
     logger.info("fetching tumour supressors list")
     gene_flags["tumourSuppressor"] = convert_to_rid_set(get_oncokb_tumour_supressors(graphkb_conn))
-    logger.info("fetching cancer_gene list")
-    gene_flags["cancer_gene"] = convert_to_rid_set(get_cancer_genes(graphkb_conn))
+    logger.info("fetching cancerGene list")
+    gene_flags["cancerGene"] = convert_to_rid_set(get_cancer_genes(graphkb_conn))
 
     logger.info("fetching therapeutic associated genes lists")
     gene_flags["therapeuticAssociated"] = convert_to_rid_set(

@@ -251,5 +251,5 @@ def test_get_gene_information(conn):
 
     for gene in CANONICAL_CG:
         assert gene in [
-            g["name"] for g in gene_info if g.get("cancer_gene")
-        ], f"Missed cancer_gene {gene}"
+            g["name"] for g in gene_info if g.get("cancerGene")
+        ], f"Missed cancerGene {gene}"
