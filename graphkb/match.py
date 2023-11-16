@@ -311,7 +311,6 @@ def compare_positional_variants(
 
     # For break2, check if positions are overlaping between the variant and the reference.
     # Continue only if True or no break2.
-    # TODO: check for variant without break2 but reference_variant with one.
     if reference_variant.get("break2Start"):
         if not variant.get("break2Start"):
             return False
