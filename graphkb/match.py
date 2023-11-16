@@ -267,16 +267,16 @@ def positions_overlap(
 
 
 def compare_positional_variants(
-    variant: Union[PositionalVariant, ParsedVariant],
     reference_variant: Union[PositionalVariant, ParsedVariant],
+    variant: Union[PositionalVariant, ParsedVariant],
     generic: bool = True,
 ) -> bool:
     """
     Compare 2 variant records from GraphKB to determine if they are equivalent
 
     Args:
-        variant: the input variant
-        reference_variant: the reference (matched) variant record
+        reference_variant: record used as a reference to be match to
+        variant: record we are testing for a match to the reference
         generic (bool, optional): also include the more generic variants
 
     Returns:
@@ -286,83 +286,83 @@ def compare_positional_variants(
     # If specific vs more-generic variants are not to be considered as equivalent,
     # check if their stringify representation match and return True or False right away.
     if not generic:
-        variant_str: str = stringifyVariant(
-            variant,
-            withRef=False,  # Reference(s) will not be included in the string repr.
-            withRefSeq=False,  # Reference sequence will not be included in the string repr.
-        )
         reference_variant_str: str = stringifyVariant(
             reference_variant,
             withRef=False,  # Reference(s) will not be included in the string repr.
             withRefSeq=False,  # Reference sequence will not be included in the string repr.
         )
-        return variant_str == reference_variant_str
+        variant_str: str = stringifyVariant(
+            variant,
+            withRef=False,  # Reference(s) will not be included in the string repr.
+            withRefSeq=False,  # Reference sequence will not be included in the string repr.
+        )
+        return reference_variant_str == variant_str
 
     # For break1, check if positions are overlaping between the variant and the reference.
     # Continue only if True.
     if not positions_overlap(
-        cast(BasicPosition, variant["break1Start"]),
         cast(BasicPosition, reference_variant["break1Start"]),
+        cast(BasicPosition, variant["break1Start"]),
         None
-        if "break1End" not in reference_variant
-        else cast(BasicPosition, reference_variant["break1End"]),
+        if "break1End" not in variant
+        else cast(BasicPosition, variant["break1End"]),
     ):
         return False
 
     # For break2, check if positions are overlaping between the variant and the reference.
     # Continue only if True or no break2.
     # TODO: check for variant without break2 but reference_variant with one.
-    if variant.get("break2Start"):
-        if not reference_variant.get("break2Start"):
+    if reference_variant.get("break2Start"):
+        if not variant.get("break2Start"):
             return False
         if not positions_overlap(
-            cast(BasicPosition, variant["break2Start"]),
             cast(BasicPosition, reference_variant["break2Start"]),
+            cast(BasicPosition, variant["break2Start"]),
             None
-            if "break2End" not in reference_variant
-            else cast(BasicPosition, reference_variant["break2End"]),
+            if "break2End" not in variant
+            else cast(BasicPosition, variant["break2End"]),
         ):
             return False
 
     # If both variants have untemplated sequence,
     # check for size and content.
     if (
-        variant.get("untemplatedSeq", None) is not None
-        and reference_variant.get("untemplatedSeq", None) is not None
+        reference_variant.get("untemplatedSeq", None) is not None
+        and variant.get("untemplatedSeq", None) is not None
     ):
         if (
-            variant.get("untemplatedSeqSize", None) is not None
-            and reference_variant.get("untemplatedSeqSize", None) is not None
+            reference_variant.get("untemplatedSeqSize", None) is not None
+            and variant.get("untemplatedSeqSize", None) is not None
         ):
-            if variant["untemplatedSeqSize"] != reference_variant["untemplatedSeqSize"]:
+            if reference_variant["untemplatedSeqSize"] != variant["untemplatedSeqSize"]:
                 return False
 
         if (
-            reference_variant["untemplatedSeq"] is not None
-            and variant["untemplatedSeq"] is not None
+            variant["untemplatedSeq"] is not None
+            and reference_variant["untemplatedSeq"] is not None
         ):
             if (
-                reference_variant["untemplatedSeq"] not in AMBIGUOUS_AA
-                and variant["untemplatedSeq"] not in AMBIGUOUS_AA
+                variant["untemplatedSeq"] not in AMBIGUOUS_AA
+                and reference_variant["untemplatedSeq"] not in AMBIGUOUS_AA
             ):
-                if reference_variant["untemplatedSeq"].lower() != variant["untemplatedSeq"].lower():
+                if variant["untemplatedSeq"].lower() != reference_variant["untemplatedSeq"].lower():
                     return False
-            elif len(variant["untemplatedSeq"]) != len(reference_variant["untemplatedSeq"]):
+            elif len(reference_variant["untemplatedSeq"]) != len(variant["untemplatedSeq"]):
                 return False
 
     # If both variants have a reference sequence,
     # check if they are the same.
     if (
-        variant.get("refSeq", None) is not None
-        and reference_variant.get("refSeq", None) is not None
+        reference_variant.get("refSeq", None) is not None
+        and variant.get("refSeq", None) is not None
     ):
         if (
-            reference_variant["refSeq"] not in AMBIGUOUS_AA
-            and variant["refSeq"] not in AMBIGUOUS_AA
+            variant["refSeq"] not in AMBIGUOUS_AA
+            and reference_variant["refSeq"] not in AMBIGUOUS_AA
         ):
-            if reference_variant["refSeq"].lower() != variant["refSeq"].lower():  # type: ignore
+            if variant["refSeq"].lower() != reference_variant["refSeq"].lower():  # type: ignore
                 return False
-        elif len(variant["refSeq"]) != len(reference_variant["refSeq"]):  # type: ignore
+        elif len(reference_variant["refSeq"]) != len(variant["refSeq"]):  # type: ignore
             return False
 
     return True
@@ -587,14 +587,13 @@ def match_positional_variant(
             {"target": "PositionalVariant", "filters": query_filters}, ignore_cache=ignore_cache
         ),
     ):
-        # TODO: Check if variant and reference_variant should be interchanged
         if compare_positional_variants(
-            variant=parsed, reference_variant=cast(PositionalVariant, row), generic=True
+            reference_variant=parsed, variant=cast(PositionalVariant, row), generic=True
         ):
             filtered_similarAndGeneric.append(row)
             if compare_positional_variants(
-                variant=parsed,
-                reference_variant=cast(PositionalVariant, row),
+                reference_variant=parsed,
+                variant=cast(PositionalVariant, row),
                 generic=False,  # Similar variants only
             ):
                 filtered_similarOnly.append(row)
