@@ -446,8 +446,6 @@ def get_gene_information(
     gene_flags["tumourSuppressor"] = convert_to_rid_set(get_oncokb_tumour_supressors(graphkb_conn))
     logger.info("fetching cancer_gene list")
     gene_flags["cancer_gene"] = convert_to_rid_set(get_cancer_genes(graphkb_conn))
-    logger.info("fetching cancer_gene list")
-    gene_flags["cancer_gene"] = convert_to_rid_set(get_cancer_genes(graphkb_conn))
 
     logger.info("fetching therapeutic associated genes lists")
     gene_flags["therapeuticAssociated"] = convert_to_rid_set(
