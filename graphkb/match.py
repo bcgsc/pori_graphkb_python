@@ -570,11 +570,27 @@ def match_positional_variant(
                 f"unable to find the gene ({gene2}) or any equivalent representations"
             )
 
+    # TYPE
+    # screening type for discrepancies regarding structural variants
+    screened_type = type_screening(conn, parsed, updateStructuralTypes)
+
+    # disambiguate the variant type
+    variant_types_details = get_equivalent_terms(
+        conn,
+        screened_type,
+        root_exclude_term="mutation" if secondary_features else "",
+        ignore_cache=ignore_cache,
+    )
+    types = convert_to_rid_list(variant_types_details)
+
+
+    # MATCHING POSITIONAL VARIANT, REGARDLESS OF POSITIONS
     # match the existing mutations (positional)
     query_filters = [
         {"reference1": features},
         {"reference2": secondary_features},
         {"break1Start.@class": parsed["break1Start"]["@class"]},
+        {"type": types},
     ]
 
     filtered_similarOnly: List[Record] = []  # For post filter match use
@@ -616,18 +632,6 @@ def match_positional_variant(
             )
         )
 
-    # screening type for discrepancies regarding structural variants
-    screened_type = type_screening(conn, parsed, updateStructuralTypes)
-
-    # disambiguate the variant type
-    variant_types_details = get_equivalent_terms(
-        conn,
-        screened_type,
-        root_exclude_term="mutation" if secondary_features else "",
-        ignore_cache=ignore_cache,
-    )
-
-    types = convert_to_rid_list(variant_types_details)
 
     matches.extend(
         conn.query(
