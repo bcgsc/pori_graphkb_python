@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Set, Union, cast
 from . import GraphKBConnection
 from .constants import (
     AMBIGUOUS_AA,
-    DEFAULT_NON_STRUCTURAL_VARIANT_TYPE,
     INPUT_COPY_CATEGORIES,
     INPUT_EXPRESSION_CATEGORIES,
     POS_VARIANT_RETURN_PROPERTIES,
@@ -367,17 +366,14 @@ def compare_positional_variants(
     return True
 
 
-def type_screening(
+def structural_type_screening(
     conn: GraphKBConnection,
     parsed: ParsedVariant,
     updateStructuralTypes=False,
 ) -> str:
     """
-    [KBDEV-1056]
-    Given a parsed variant notation, ensure that for some structural variant, type
-    (e.g. duplication, deletion, insertion, indel, copy number, inversion, etc.)
-    is only returned when the length of the variation meets a threshold,
-    otherwise 'mutation' is returned as default.
+    [KBDEV-1056]; updated in [KBDEV-1133]
+    Given a parsed variant notation, returns a boolean for whether or not a variant is structural
 
     Args:
         conn (GraphKBConnection): the graphkb connection object
@@ -386,33 +382,32 @@ def type_screening(
                                          of terms, otherwise an hard-coded list is used
 
     Returns:
-        A string describing the variation type
+        True | False
 
     Example:
-        # structural variant type returned as 'mutation' IF length < threshold (50)
-        type_screening(conn, {
+        # ambiguous structural type; False IF length < threshold (50)
+        structural_type_screening(conn, {
                 'type': 'deletion',
                 'break1Start': {'pos': 1},
                 'break2Start': {'pos': 5},
-            }) -> 'mutation'
+            }) -> False
 
     Example:
-        # structural variant type returned as-is IF length >= threshold (50)
-        type_screening(conn, {
+        # ambiguous structural type; True IF length >= threshold (50)
+        structural_type_screening(conn, {
                 'type': 'deletion',
                 'break1Start': {'pos': 1},
                 'break2Start': {'pos': 50},
-            }) -> 'deletion'
+            }) -> True
 
     Example:
-        # fusion & translocation always returned as-is
-        type_screening(conn, {'type': 'fusion'}) -> 'fusion'
+        # unambiguous structural type
+        structural_type_screening(conn, {'type': 'fusion'}) -> True
 
     Example:
-        # non structural always returned as-is
-        type_screening(conn, {'type': 'substitution'}) -> 'substitution'
+        # unambiguous non-structural type
+        structural_type_screening(conn, {'type': 'substitution'}) -> False
     """
-    default_type = DEFAULT_NON_STRUCTURAL_VARIANT_TYPE
     structuralVariantTypes = STRUCTURAL_VARIANT_TYPES
     threshold = STRUCTURAL_VARIANT_SIZE_THRESHOLD
 
@@ -424,25 +419,25 @@ def type_screening(
 
     # Unambiguous non-structural variation type
     if parsed['type'] not in structuralVariantTypes:
-        return parsed['type']
+        return False
 
     # Unambiguous structural variation type
     if parsed['type'] in ['fusion', 'translocation']:
-        return parsed['type']
+        return True
     if parsed.get('reference2', None):
-        return parsed['type']
+        return True
     prefix = parsed.get('prefix', 'g')
     if prefix == 'y':  # Assuming all variations using cytoband coordiantes meet the size threshold
-        return parsed['type']
+        return True
 
     # When size cannot be determined: exonic and intronic coordinates
     # e.g. "MET:e.14del" meaning "Any deletion occuring at the 14th exon"
     if prefix in ['e', 'i']:  # Assuming they don't meet the size threshold
-        return default_type
+        return False
 
     # When size is given
     if parsed.get('untemplatedSeqSize', 0) >= threshold:
-        return parsed['type']
+        return True
 
     # When size needs to be computed from positions
     pos_start = parsed.get('break1Start', {}).get('pos', 1)
@@ -451,10 +446,10 @@ def type_screening(
     if prefix == 'p':
         pos_size = 3
     if ((pos_end - pos_start) + 1) * pos_size >= threshold:
-        return parsed['type']
+        return True
 
     # Default
-    return default_type
+    return False
 
 
 def match_positional_variant(

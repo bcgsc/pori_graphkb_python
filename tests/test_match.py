@@ -7,7 +7,7 @@ import pytest
 
 import graphkb
 from graphkb import GraphKBConnection, match
-from graphkb.constants import DEFAULT_NON_STRUCTURAL_VARIANT_TYPE, STRUCTURAL_VARIANT_SIZE_THRESHOLD
+from graphkb.constants import STRUCTURAL_VARIANT_SIZE_THRESHOLD
 from graphkb.util import FeatureNotFoundError
 
 # Test datasets
@@ -502,7 +502,6 @@ class TestCacheMissingFeatures:
 
 class TestTypeScreening:
     # Types as class variables
-    default_type = DEFAULT_NON_STRUCTURAL_VARIANT_TYPE
     threshold = STRUCTURAL_VARIANT_SIZE_THRESHOLD
     unambiguous_structural = [
         "fusion",
@@ -522,7 +521,7 @@ class TestTypeScreening:
         "truncating",
     ]
 
-    def test_type_screening_update(self, conn, monkeypatch):
+    def test_structural_type_screening_update(self, conn, monkeypatch):
         # Monkey-patching get_terms_set()
         def mock_get_terms_set(graphkb_conn, base_terms):
             nonlocal called
@@ -533,35 +532,35 @@ class TestTypeScreening:
 
         # Assert get_terms_set() has been called
         called = False
-        graphkb.match.type_screening(conn, {"type": ""}, updateStructuralTypes=True)
+        graphkb.match.structural_type_screening(conn, {"type": ""}, updateStructuralTypes=True)
         assert called
 
         # Assert get_terms_set() has not been called (default behavior)
         called = False
-        graphkb.match.type_screening(conn, {"type": ""})
+        graphkb.match.structural_type_screening(conn, {"type": ""})
         assert not called
 
-    def test_type_screening_non_structural(self, conn):
+    def test_structural_type_screening_non_structural(self, conn):
         for type in TestTypeScreening.non_structural:
             # type substitution and alike
-            assert match.type_screening(conn, {"type": type}) == type
+            assert match.structural_type_screening(conn, {"type": type}) == False
 
-    def test_type_screening_structural(self, conn):
+    def test_structural_type_screening_structural(self, conn):
         for type in TestTypeScreening.unambiguous_structural:
             # type fusion and alike
-            assert match.type_screening(conn, {"type": type}) == type
+            assert match.structural_type_screening(conn, {"type": type}) == True
         for type in TestTypeScreening.ambiguous_structural:
             # w/ reference2
-            assert match.type_screening(conn, {"type": type, "reference2": "#123:45"}) == type
+            assert match.structural_type_screening(conn, {"type": type, "reference2": "#123:45"}) == True
             # w/ cytoband coordinates
-            assert match.type_screening(conn, {"type": type, "prefix": "y"}) == type
+            assert match.structural_type_screening(conn, {"type": type, "prefix": "y"}) == True
 
-    def test_type_screening_structural_ambiguous_size(self, conn):
+    def test_structural_type_screening_structural_ambiguous_size(self, conn):
         for type in TestTypeScreening.ambiguous_structural:
             # coordinate system with ambiguous size
             for prefix in ['e', 'i']:
                 assert (
-                    match.type_screening(
+                    match.structural_type_screening(
                         conn,
                         {
                             "type": type,
@@ -569,35 +568,35 @@ class TestTypeScreening:
                             "prefix": prefix,
                         },
                     )
-                    == TestTypeScreening.default_type
+                    == False
                 )
 
-    def test_type_screening_structural_untemplatedSeqSize(self, conn):
+    def test_structural_type_screening_structural_untemplatedSeqSize(self, conn):
         for type in TestTypeScreening.ambiguous_structural:
             # Variation length too small (< threshold)
             assert (
-                match.type_screening(
+                match.structural_type_screening(
                     conn,
                     {
                         "type": type,
                         "untemplatedSeqSize": TestTypeScreening.threshold - 1,
                     },
                 )
-                == TestTypeScreening.default_type
+                == False
             )
             # Variation length big enough (>= threshold)
             assert (
-                match.type_screening(
+                match.structural_type_screening(
                     conn,
                     {
                         "type": type,
                         "untemplatedSeqSize": TestTypeScreening.threshold,
                     },
                 )
-                == type
+                == True
             )
 
-    def test_type_screening_structural_positions(self, conn):
+    def test_structural_type_screening_structural_positions(self, conn):
         for type in TestTypeScreening.ambiguous_structural:
             # Variation length too small (< threshold)
             for opt in [
@@ -612,10 +611,7 @@ class TestTypeScreening:
                     "break2Start": {"pos": TestTypeScreening.threshold + 99 - 1},
                 },
             ]:
-                assert (
-                    match.type_screening(conn, {"type": type, **opt})
-                    == TestTypeScreening.default_type
-                )
+                assert match.structural_type_screening(conn, {"type": type, **opt}) == False
             # Variation length big enough (>= threshold)
             for opt in [
                 {"break2Start": {"pos": TestTypeScreening.threshold}},
@@ -629,4 +625,4 @@ class TestTypeScreening:
                     "break2Start": {"pos": TestTypeScreening.threshold + 99},
                 },
             ]:
-                assert match.type_screening(conn, {"type": type, **opt}) == type
+                assert match.structural_type_screening(conn, {"type": type, **opt}) == True

@@ -155,10 +155,10 @@ structuralVariants = {
             ],
         },
     },
-    "STK11:e.1_100del": {
+    "FANCM:e.2del": {
         "matches": {
             "displayName": [
-                "STK11 mutation",
+                "FANCM mutation",
             ],
             "type": [
                 "mutation",
@@ -166,28 +166,10 @@ structuralVariants = {
         },
         "does_not_matches": {
             "displayName": [
-                "STK11 deletion",
+                "FANCM structural variant",
             ],
             "type": [
-                "deletion",
-            ],
-        },
-    },
-    "STK11:i.1_100del": {
-        "matches": {
-            "displayName": [
-                "STK11 mutation",
-            ],
-            "type": [
-                "mutation",
-            ],
-        },
-        "does_not_matches": {
-            "displayName": [
-                "STK11 deletion",
-            ],
-            "type": [
-                "deletion",
+                "structural variant",
             ],
         },
     },
