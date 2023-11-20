@@ -585,8 +585,8 @@ def match_positional_variant(
             get_equivalent_terms(conn, 'structural variant', 'mutation'),
         ) if updateStructuralTypes else STRUCTURAL_VARIANT_ALIASES
         # remove potential structural type aliases
-        variant_types_details = filter(lambda x: False if x['name'] in structural_types else True, variant_types_details)
-    
+        variant_types_details = list(filter(lambda x: False if x['name'] in structural_types else True, variant_types_details))
+
     # convert to RIDs
     types = convert_to_rid_list(variant_types_details)
 
