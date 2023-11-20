@@ -580,6 +580,7 @@ def match_positional_variant(
     filtered_similarOnly: List[Record] = []  # For post filter match use
     filtered_similarAndGeneric: List[Record] = []  # To be added to the matches at the very end
 
+    # FILTERING OUT MISMATCHED POSITIONS
     for row in cast(
         List[Record],
         conn.query(
@@ -587,7 +588,9 @@ def match_positional_variant(
         ),
     ):
         if compare_positional_variants(
-            reference_variant=parsed, variant=cast(PositionalVariant, row), generic=True
+            reference_variant=parsed,
+            variant=cast(PositionalVariant, row),
+            generic=True,
         ):
             filtered_similarAndGeneric.append(row)
             if compare_positional_variants(
