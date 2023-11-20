@@ -272,7 +272,7 @@ def compare_positional_variants(
     generic: bool = True,
 ) -> bool:
     """
-    Compare 2 variant records from GraphKB to determine if they are equivalent
+    Compare 2 positional variant records from GraphKB to determine if they are equivalent
 
     Args:
         reference_variant: record used as a reference to be match to
