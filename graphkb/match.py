@@ -9,6 +9,7 @@ from .constants import (
     INPUT_COPY_CATEGORIES,
     INPUT_EXPRESSION_CATEGORIES,
     POS_VARIANT_RETURN_PROPERTIES,
+    STRUCTURAL_VARIANT_ALIASES,
     STRUCTURAL_VARIANT_SIZE_THRESHOLD,
     STRUCTURAL_VARIANT_TYPES,
     VARIANT_RETURN_PROPERTIES,
@@ -511,6 +512,8 @@ def match_positional_variant(
         )
     if reference2 and not reference1:
         raise ValueError("cannot specify reference2 without reference1")
+
+    # FEATURE
     # disambiguate the gene name
     if reference1:
         gene1 = reference1
@@ -566,16 +569,25 @@ def match_positional_variant(
             )
 
     # TYPE
-    # screening type for discrepancies regarding structural variants
-    screened_type = type_screening(conn, parsed, updateStructuralTypes)
-
     # disambiguate the variant type
     variant_types_details = get_equivalent_terms(
         conn,
-        screened_type,
+        parsed['type'],
         root_exclude_term="mutation" if secondary_features else "",
         ignore_cache=ignore_cache,
     )
+
+    # screening type for discrepancies regarding structural variants
+    if not structural_type_screening(conn, parsed, updateStructuralTypes):
+        # get structural type aliases
+        structural_types = map(
+            lambda x: x['name'],
+            get_equivalent_terms(conn, 'structural variant', 'mutation'),
+        ) if updateStructuralTypes else STRUCTURAL_VARIANT_ALIASES
+        # remove potential structural type aliases
+        variant_types_details = filter(lambda x: False if x['name'] in structural_types else True, variant_types_details)
+    
+    # convert to RIDs
     types = convert_to_rid_list(variant_types_details)
 
 
