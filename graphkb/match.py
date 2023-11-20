@@ -303,9 +303,7 @@ def compare_positional_variants(
     if not positions_overlap(
         cast(BasicPosition, reference_variant["break1Start"]),
         cast(BasicPosition, variant["break1Start"]),
-        None
-        if "break1End" not in variant
-        else cast(BasicPosition, variant["break1End"]),
+        None if "break1End" not in variant else cast(BasicPosition, variant["break1End"]),
     ):
         return False
 
@@ -317,9 +315,7 @@ def compare_positional_variants(
         if not positions_overlap(
             cast(BasicPosition, reference_variant["break2Start"]),
             cast(BasicPosition, variant["break2Start"]),
-            None
-            if "break2End" not in variant
-            else cast(BasicPosition, variant["break2End"]),
+            None if "break2End" not in variant else cast(BasicPosition, variant["break2End"]),
         ):
             return False
 
@@ -580,16 +576,23 @@ def match_positional_variant(
     # screening type for discrepancies regarding structural variants
     if not structural_type_screening(conn, parsed, updateStructuralTypes):
         # get structural type aliases
-        structural_types = map(
-            lambda x: x['name'],
-            get_equivalent_terms(conn, 'structural variant', 'mutation'),
-        ) if updateStructuralTypes else STRUCTURAL_VARIANT_ALIASES
+        structural_types = (
+            map(
+                lambda x: x['name'],
+                get_equivalent_terms(conn, 'structural variant', 'mutation'),
+            )
+            if updateStructuralTypes
+            else STRUCTURAL_VARIANT_ALIASES
+        )
         # remove potential structural type aliases
-        variant_types_details = list(filter(lambda x: False if x['name'] in structural_types else True, variant_types_details))
+        variant_types_details = list(
+            filter(
+                lambda x: False if x['name'] in structural_types else True, variant_types_details
+            )
+        )
 
     # convert to RIDs
     types = convert_to_rid_list(variant_types_details)
-
 
     # MATCHING POSITIONAL VARIANT, REGARDLESS OF POSITIONS
     # match the existing mutations (positional)
@@ -638,7 +641,6 @@ def match_positional_variant(
                 ignore_cache=ignore_cache,
             )
         )
-
 
     matches.extend(
         conn.query(

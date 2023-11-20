@@ -551,7 +551,10 @@ class TestTypeScreening:
             assert match.structural_type_screening(conn, {"type": type}) == True
         for type in TestTypeScreening.ambiguous_structural:
             # w/ reference2
-            assert match.structural_type_screening(conn, {"type": type, "reference2": "#123:45"}) == True
+            assert (
+                match.structural_type_screening(conn, {"type": type, "reference2": "#123:45"})
+                == True
+            )
             # w/ cytoband coordinates
             assert match.structural_type_screening(conn, {"type": type, "prefix": "y"}) == True
 
