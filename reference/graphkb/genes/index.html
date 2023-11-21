@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.7">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
     
     
       
@@ -20,7 +20,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.4b4a2bd9.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.fad675c6.min.css">
       
       
 
@@ -214,63 +214,81 @@
       
         <li class="md-nav__item">
   <a href="#get_oncokb_oncogenes" class="md-nav__link">
-    get_oncokb_oncogenes()
+    <span class="md-ellipsis">
+      get_oncokb_oncogenes()
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#get_oncokb_tumour_supressors" class="md-nav__link">
-    get_oncokb_tumour_supressors()
+    <span class="md-ellipsis">
+      get_oncokb_tumour_supressors()
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#get_cancer_genes" class="md-nav__link">
-    get_cancer_genes()
+    <span class="md-ellipsis">
+      get_cancer_genes()
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#get_therapeutic_associated_genes" class="md-nav__link">
-    get_therapeutic_associated_genes()
+    <span class="md-ellipsis">
+      get_therapeutic_associated_genes()
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#get_genes_from_variant_types" class="md-nav__link">
-    get_genes_from_variant_types()
+    <span class="md-ellipsis">
+      get_genes_from_variant_types()
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#get_preferred_gene_name" class="md-nav__link">
-    get_preferred_gene_name()
+    <span class="md-ellipsis">
+      get_preferred_gene_name()
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#get_cancer_predisposition_info" class="md-nav__link">
-    get_cancer_predisposition_info()
+    <span class="md-ellipsis">
+      get_cancer_predisposition_info()
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#get_pharmacogenomic_info" class="md-nav__link">
-    get_pharmacogenomic_info()
+    <span class="md-ellipsis">
+      get_pharmacogenomic_info()
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#get_gene_information" class="md-nav__link">
-    get_gene_information()
+    <span class="md-ellipsis">
+      get_gene_information()
+    </span>
   </a>
   
 </li>
@@ -422,7 +440,7 @@ return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
 <h2 id="get_gene_information">get_gene_information()</h2>
 <p>Create a list of gene_info flag dicts for IPR report upload.</p>
 <p>Function is originally from pori_ipr_python::annotate.py</p>
-<p>Gene flags (categories) are: ['cancerRelated', 'knownFusionPartner', 'knownSmallMutation',
+<p>Gene flags (categories) are: ['cancerGene', 'cancerRelated', 'knownFusionPartner', 'knownSmallMutation',
 'oncogene', 'therapeuticAssociated', 'tumourSuppressor']</p>
 <pre><code class="language-python">def get_gene_information(
     graphkb_conn: GraphKBConnection, gene_names: Sequence[str]
@@ -478,7 +496,7 @@ return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
     <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.aecac24b.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.6c14ae12.min.js"></script>
       
     
   </body>
