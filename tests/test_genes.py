@@ -23,7 +23,7 @@ EXCLUDE_INTEGRATION_TESTS = os.environ.get("EXCLUDE_INTEGRATION_TESTS") == "1"
 
 CANONICAL_ONCOGENES = ["kras", "nras", "alk"]
 CANONICAL_TS = ["cdkn2a", "tp53"]
-CANONICAL_CG = ["ercc1", "fanci", "h2bc4", "h2bc17", "acvr1b"]
+CANONICAL_CG = ["alb"]
 CANONICAL_FUSION_GENES = ["alk", "ewsr1", "fli1"]
 CANONICAL_STRUCTURAL_VARIANT_GENES = ["brca1", "dpyd", "pten"]
 CANNONICAL_THERAPY_GENES = ["erbb2", "brca2", "egfr"]
@@ -203,6 +203,7 @@ def test_get_gene_information(conn):
         conn,
         CANONICAL_ONCOGENES
         + CANONICAL_TS
+        + CANONICAL_CG
         + CANONICAL_FUSION_GENES
         + CANONICAL_STRUCTURAL_VARIANT_GENES
         + CANNONICAL_THERAPY_GENES
@@ -247,3 +248,8 @@ def test_get_gene_information(conn):
         assert gene in [
             g["name"] for g in gene_info if g.get("cancerRelated")
         ], f"Missed cancerRelated {gene}"
+
+    for gene in CANONICAL_CG:
+        assert gene in [
+            g["name"] for g in gene_info if g.get("cancerGene")
+        ], f"Missed cancerGene {gene}"
