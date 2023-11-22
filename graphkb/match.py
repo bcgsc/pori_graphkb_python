@@ -9,6 +9,7 @@ from .constants import (
     INPUT_COPY_CATEGORIES,
     INPUT_EXPRESSION_CATEGORIES,
     POS_VARIANT_RETURN_PROPERTIES,
+    SMALL_MUTATION_VARIANT_ALIASES,
     STRUCTURAL_VARIANT_ALIASES,
     STRUCTURAL_VARIANT_SIZE_THRESHOLD,
     STRUCTURAL_VARIANT_TYPES,
@@ -505,7 +506,7 @@ def match_positional_variant(
     gene_is_source_id: bool = False,
     gene_source: str = "",
     ignore_cache: bool = False,
-    updateStructuralTypes: bool = False,
+    updateTypeList: bool = False,
 ) -> List[Variant]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
@@ -518,8 +519,8 @@ def match_positional_variant(
         gene_source: The source database the gene is defined by (ex. ensembl)
         gene_is_source_id: Indicates the gene name(s) input should be treated
                            as sourceIds not names
-        updateStructuralTypes: Whether or not updating the structural variant list
-                               with an API call, or use the hard-coded one
+        updateTypeList: Whether or not getting an up-to-date type list
+                        with an API call, or use the hard-coded one
 
     Raises:
         NotImplementedError: thrown for uncertain position input (ranges)
@@ -625,15 +626,33 @@ def match_positional_variant(
         ignore_cache=ignore_cache,
     )
 
-    # screening type for discrepancies regarding structural variants
-    if not structural_type_screening(conn, parsed, updateStructuralTypes):
+    # Screening type for discrepancies regarding structural variants
+    # Either 'structural variant' or 'small mutation'
+    if structural_type_screening(conn, parsed, updateTypeList):
+        # get small mutation type aliases
+        small_mutation_types = (
+            map(
+                lambda x: x["name"],
+                get_equivalent_terms(conn, "small mutation", "mutation"),
+            )
+            if updateTypeList
+            else SMALL_MUTATION_VARIANT_ALIASES
+        )
+        # remove potential small mutation type aliases
+        variant_types_details = list(
+            filter(
+                lambda x: False if x["name"] in small_mutation_types else True,
+                variant_types_details,
+            )
+        )
+    else:
         # get structural type aliases
         structural_types = (
             map(
                 lambda x: x["name"],
                 get_equivalent_terms(conn, "structural variant", "mutation"),
             )
-            if updateStructuralTypes
+            if updateTypeList
             else STRUCTURAL_VARIANT_ALIASES
         )
         # remove potential structural type aliases
