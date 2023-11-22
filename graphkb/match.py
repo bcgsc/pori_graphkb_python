@@ -97,9 +97,7 @@ def get_equivalent_features(
                     ]
                 }
             )
-    elif (
-        FEATURES_CACHE and gene_name.lower() not in FEATURES_CACHE and not ignore_cache
-    ):
+    elif FEATURES_CACHE and gene_name.lower() not in FEATURES_CACHE and not ignore_cache:
         return []
     else:
         filters.append({"OR": [{"sourceId": gene_name}, {"name": gene_name}]})
@@ -184,9 +182,7 @@ def match_category_variant(
     )
 
     if not terms:
-        raise ValueError(
-            f"unable to find the term/category ({category}) or any equivalent"
-        )
+        raise ValueError(f"unable to find the term/category ({category}) or any equivalent")
 
     # find the variant list
     return cast(
@@ -341,9 +337,7 @@ def compare_positional_variants(
     if not positions_overlap(
         cast(BasicPosition, reference_variant["break1Start"]),
         cast(BasicPosition, variant["break1Start"]),
-        None
-        if "break1End" not in variant
-        else cast(BasicPosition, variant["break1End"]),
+        None if "break1End" not in variant else cast(BasicPosition, variant["break1End"]),
     ):
         return False
 
@@ -355,9 +349,7 @@ def compare_positional_variants(
         if not positions_overlap(
             cast(BasicPosition, reference_variant["break2Start"]),
             cast(BasicPosition, variant["break2Start"]),
-            None
-            if "break2End" not in variant
-            else cast(BasicPosition, variant["break2End"]),
+            None if "break2End" not in variant else cast(BasicPosition, variant["break2End"]),
         ):
             return False
 
@@ -382,14 +374,9 @@ def compare_positional_variants(
                 variant["untemplatedSeq"] not in AMBIGUOUS_AA
                 and reference_variant["untemplatedSeq"] not in AMBIGUOUS_AA
             ):
-                if (
-                    variant["untemplatedSeq"].lower()
-                    != reference_variant["untemplatedSeq"].lower()
-                ):
+                if variant["untemplatedSeq"].lower() != reference_variant["untemplatedSeq"].lower():
                     return False
-            elif len(reference_variant["untemplatedSeq"]) != len(
-                variant["untemplatedSeq"]
-            ):
+            elif len(reference_variant["untemplatedSeq"]) != len(variant["untemplatedSeq"]):
                 return False
 
     # If both variants have a reference sequence,
@@ -471,9 +458,7 @@ def structural_type_screening(
     if parsed.get("reference2", None):
         return True
     prefix = parsed.get("prefix", "g")
-    if (
-        prefix == "y"
-    ):  # Assuming all variations using cytoband coordiantes meet the size threshold
+    if prefix == "y":  # Assuming all variations using cytoband coordiantes meet the size threshold
         return True
 
     # When size cannot be determined: exonic and intronic coordinates
@@ -676,9 +661,7 @@ def match_positional_variant(
     ]
 
     filtered_similarOnly: List[Record] = []  # For post filter match use
-    filtered_similarAndGeneric: List[
-        Record
-    ] = []  # To be added to the matches at the very end
+    filtered_similarAndGeneric: List[Record] = []  # To be added to the matches at the very end
 
     # FILTERING OUT MISMATCHED POSITIONS
     for row in cast(
