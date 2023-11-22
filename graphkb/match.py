@@ -492,6 +492,7 @@ def match_positional_variant(
     gene_source: str = "",
     ignore_cache: bool = False,
     updateTypeList: bool = False,
+    delinsSpecialHandling: bool = True,
 ) -> List[Variant]:
     """
     Given the HGVS+ representation of some positional variant, parse it and match it to
@@ -506,6 +507,8 @@ def match_positional_variant(
                            as sourceIds not names
         updateTypeList: Whether or not getting an up-to-date type list
                         with an API call, or use the hard-coded one
+        delinsSpecialHandling: Whether or not delins will be treated appart to be
+                               also matched to more specific deletion and insertion
 
     Raises:
         NotImplementedError: thrown for uncertain position input (ranges)
@@ -647,6 +650,31 @@ def match_positional_variant(
                 variant_types_details,
             )
         )
+
+    # Delins handling [KBDEV-1133]
+    # Matching delins to also the more specific deletion and insertion types
+    if parsed["type"] == "indel" and delinsSpecialHandling:
+        # Get indel children Vocabulary terms.
+        indel_children_types = get_term_tree(
+            conn,
+            "indel",
+            include_superclasses=False,  # term and chlidren terms only
+        )
+        # Remove duplicates between lists
+        variant_types_names = list(
+            map(
+                lambda x: x["name"],
+                variant_types_details,
+            )
+        )
+        indel_children_types = list(
+            filter(
+                lambda x: False if x["name"] in variant_types_names else True,
+                indel_children_types,
+            )
+        )
+        # Add indel children Vocabulary terms to types
+        variant_types_details = variant_types_details + indel_children_types
 
     # convert to RIDs
     types = convert_to_rid_list(variant_types_details)
