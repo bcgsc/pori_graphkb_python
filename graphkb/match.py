@@ -545,16 +545,19 @@ def match_positional_variant(
     annotations in GraphKB
 
     Args:
-        variant_string: the HGVS+ annotation string
-        reference1: Explicitly specify the first reference link record (gene1)
-        reference2: Explicitly specify the second reference link record (gene2)
-        gene_source: The source database the gene is defined by (ex. ensembl)
-        gene_is_source_id: Indicates the gene name(s) input should be treated
-                           as sourceIds not names
-        updateTypeList: Whether or not getting an up-to-date type list
-                        with an API call, or use the hard-coded one
-        delinsSpecialHandling: Whether or not delins will be treated appart to be
-                               also matched to more specific deletion and insertion
+        conn (GraphKBConnection): the graphkb connection object
+        variant_string (str): the HGVS+ annotation string
+        reference1 (str): Explicitly specify the first reference link record (gene1)
+        reference2 (str): Explicitly specify the second reference link record (gene2)
+        gene_is_source_id (bool): Indicates the gene name(s) input should be treated
+                                  as sourceIds not names
+        gene_source (str): The source database the gene is defined by (ex. ensembl)
+        ignore_cache (bool): Whether or not the connection object cache should be ignore
+                             when querying the graphkb API
+        updateTypeList (bool): Whether or not getting an up-to-date type list with an
+                               API call, or use the hard-coded one
+        delinsSpecialHandling (bool): Whether or not delins will be treated appart to be
+                                      also matched to more specific deletion and insertion
 
     Raises:
         NotImplementedError: thrown for uncertain position input (ranges)
