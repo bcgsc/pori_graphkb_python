@@ -532,7 +532,7 @@ def structural_type_adjustment(
     return variant_types_details
 
 
-def category_variant_similarTo(
+def category_variant_extension(
     conn: GraphKBConnection,
     features: List[str],
     variant_types_details: Iterable[Record],
@@ -575,6 +575,7 @@ def category_variant_similarTo(
                     {"reference2": secondary_features},
                 ]
             },
+            "returnProperties": VARIANT_RETURN_PROPERTIES,
         },
         ignore_cache=ignore_cache,
     )
@@ -833,7 +834,7 @@ def match_positional_variant(
     # e.g. "BRAF:c...del" MATCHING "BRAF deletion"
     # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "BRAF and AKAP9 fusion"
     matches.extend(
-        category_variant_similarTo(
+        category_variant_extension(
             conn,
             features,
             variant_types_details,
@@ -847,7 +848,7 @@ def match_positional_variant(
         # a) matching on inverted reference1 and reference2
         # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "AKAP9 and BRAF fusion"
         matches.extend(
-            category_variant_similarTo(
+            category_variant_extension(
                 conn,
                 features = secondary_features,
                 variant_types_details = variant_types_details,
@@ -858,7 +859,7 @@ def match_positional_variant(
         # b) matching on reference1 = primary features, without reference2
         # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "BRAF fusion"
         matches.extend(
-            category_variant_similarTo(
+            category_variant_extension(
                 conn,
                 features,
                 variant_types_details,
@@ -869,7 +870,7 @@ def match_positional_variant(
         # c) matching on reference1 = secondary features, without reference2
         # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "AKAP9 fusion"
         matches.extend(
-            category_variant_similarTo(
+            category_variant_extension(
                 conn,
                 features = secondary_features,
                 variant_types_details = variant_types_details,
