@@ -11,7 +11,7 @@ from graphkb.constants import STRUCTURAL_VARIANT_SIZE_THRESHOLD
 from graphkb.util import FeatureNotFoundError
 
 # Test datasets
-from .data import structuralVariants
+import data
 
 EXCLUDE_INTEGRATION_TESTS = os.environ.get("EXCLUDE_INTEGRATION_TESTS") == "1"
 
@@ -463,7 +463,7 @@ class TestMatchPositionalVariant:
 
     def test_structural_variants(self, conn):
         """KBDEV-1056"""
-        for variant_string, expected in structuralVariants.items():
+        for variant_string, expected in data.structuralVariants.items():
             print(variant_string)
             # Querying matches for variant_string
             m = match.match_positional_variant(conn, variant_string)

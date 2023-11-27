@@ -193,3 +193,75 @@ structuralVariants = {
         },
     },
 }
+
+# 
+smallMutations = {
+    "...": {
+        "matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+        "does_not_matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+    },
+}
+
+# Make sure delins (indel) events are treated appart [KBDEV-1133]
+# delins match deletion/insertion, and deletion/insertion match delins
+delins = {
+    "...": {
+        "matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+        "does_not_matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+    },
+}
+
+# ...
+other = {
+    "VHL:p.T133Lfs*26": {
+        "matches": {
+            "displayName": [
+                "VHL:p.T133fs",
+                "VHL:c.397delA",
+                "VHL deletion",
+                "VHL frameshift mutation",
+                "VHL mutation",
+                "VHL truncating",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+        "does_not_matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+    },
+}
