@@ -1,7 +1,7 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
-from typing import Dict, List, Optional, Set, Union, cast
+from typing import Dict, Iterable, List, Optional, Set, Union, cast
 
 from . import GraphKBConnection
 from .constants import (
@@ -9,7 +9,6 @@ from .constants import (
     INPUT_COPY_CATEGORIES,
     INPUT_EXPRESSION_CATEGORIES,
     POS_VARIANT_RETURN_PROPERTIES,
-    SMALL_MUTATION_VARIANT_ALIASES,
     STRUCTURAL_VARIANT_ALIASES,
     STRUCTURAL_VARIANT_SIZE_THRESHOLD,
     STRUCTURAL_VARIANT_TYPES,
