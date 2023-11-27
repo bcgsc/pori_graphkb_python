@@ -176,9 +176,6 @@ TYPES_TO_NOTATION: Dict[str, str] = {
 }
 
 # For match.structural_type_screening() [KBDEV-1056, KBDEV-1133]
-SMALL_MUTATION_VARIANT_ALIASES = [
-    "small mutation",
-]
 STRUCTURAL_VARIANT_ALIASES = [
     "rearrangement",
     "structural variant",
