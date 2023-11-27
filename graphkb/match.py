@@ -832,20 +832,20 @@ def match_positional_variant(
         )
 
 
+    # 2.3 EXPANDING MATCHES WITH LINKED CATEGORY VARIANTS
+    ###########################################################################
+
+    # I) FOLLOWING EDGES ON THE VARIANT TREE, FROM MATCHING SIMILAR & GENERIC PVs
+
     if filtered_similarAndGeneric:
-        matches.extend(
-            conn.query(
-                {
-                    "target": convert_to_rid_list(filtered_similarAndGeneric),
-                    "queryType": "descendants",
-                    "edges": [],
-                    "returnProperties": POS_VARIANT_RETURN_PROPERTIES,
-                },
-                ignore_cache=ignore_cache,
-            )
-        )
+
+
+    # 3. REFORMATTING MATCHES
+    ###########################################################################
 
     result: Dict[str, Variant] = {}
+
+    # Reformating matches while discarding duplicates
     for row in matches:
         result[row["@rid"]] = cast(Variant, row)
 
