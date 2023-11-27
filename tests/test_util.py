@@ -124,6 +124,7 @@ class TestStripDisplayName:
             ],
             # TODO: [{'displayName': 'VHL:c.330_331delCAinsTT', 'withRef': False, 'withRefSeq': False}, 'c.330_331delinsTT'],
             # TODO: [{'displayName': 'VHL:c.464-2G>A', 'withRef': False, 'withRefSeq': False}, 'c.464-2>A'],
+            # TODO: fusion variant
         ],
     )
     def test_stripDisplayName(self, opt, stripDisplayName):
