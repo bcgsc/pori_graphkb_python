@@ -747,6 +747,7 @@ def match_positional_variant(
     # 2. MATCHING
     ###########################################################################
 
+    matches: List[Record] = []
 
 
     # 2.1 
@@ -757,26 +758,42 @@ def match_positional_variant(
     # Note: The coordinate systems (genomic, cds, protein, etc.) need to be same
     # for the parsed variant and any other positional variants to match.
     # Variants from diff. coord. sys. can be linked in the database with Infers edges.
+    all_pv_matches = cast(
         List[Record],
         conn.query(
-            {"target": "PositionalVariant", "filters": query_filters},
+            {
+                "target": "PositionalVariant",
+                "filters": [
+                    {"reference1": features},
+                    {"reference2": secondary_features},
+                    {"break1Start.@class": parsed["break1Start"]["@class"]},
+                    {"type": convert_to_rid_list(variant_types_details)},
+                ]
+            },
             ignore_cache=ignore_cache,
         ),
+    )
+    
     # E) FILTERING OUT MISMATCHED POSITIONS
     # Populate two seperated lists:
     # - 1st list (similar + more generic matches): a first one for ...
     # - 2nd list (similar matches only): one for ...
+    filtered_similarAndGeneric: List[Record] = []
+    filtered_similarOnly: List[Record] = []
+    
+    for record in all_pv_matches:
         if compare_positional_variants(
             reference_variant=parsed,
-            variant=cast(PositionalVariant, row),
+            variant=cast(PositionalVariant, record),
             generic=True,
         ):
-            filtered_similarAndGeneric.append(row)
+            filtered_similarAndGeneric.append(record)
             if compare_positional_variants(
                 reference_variant=parsed,
-                variant=cast(PositionalVariant, row),
+                variant=cast(PositionalVariant, record),
                 generic=False,  # Similar variants only
             ):
+                filtered_similarOnly.append(record)
 
 
     # 2.2 EXPANDING MATCHES WITH VARIANTS LINKED TO FILTERED POSITIONAL VARIANTS
@@ -786,6 +803,26 @@ def match_positional_variant(
     # Starting with similar matches only, and expanding to linked PositionalVariant
     # e.g. NRAS:p.Q61K  <--Infers-- chr1:g.115256530G>T
     if filtered_similarOnly:
+        pv_similarOnly_matches = conn.query(
+            {
+                "target": convert_to_rid_list(filtered_similarOnly),
+                "queryType": "similarTo",
+                "edges": [
+                    "AliasOf",
+                    "DeprecatedBy",
+                    "CrossReferenceOf",
+                    "GeneralizationOf",
+                ],
+                "treeEdges": ["Infers"],
+                "returnProperties": POS_VARIANT_RETURN_PROPERTIES,
+            },
+            ignore_cache=ignore_cache,
+        )
+        # Extending matches with newly matched variants
+        matches.extend(pv_similarOnly_matches)
+        # TODO: Extending types with ones from newly matched variants
+
+
     # 2.3 EXPANDING MATCHES WITH VARIANTS LINKED TO CATEGORY VARIANTS
     ###########################################################################
     # note: There is no edges in-between CategoryVariants,
@@ -848,6 +885,16 @@ def match_positional_variant(
     # I) FOLLOWING EDGES ON THE VARIANT TREE, FROM MATCHING SIMILAR & GENERIC PVs
 
     if filtered_similarAndGeneric:
+        pv_similarAndGeneric_matches = conn.query(
+            {
+                "target": convert_to_rid_list(filtered_similarAndGeneric),
+                "queryType": "descendants",
+                "edges": [],
+                "returnProperties": POS_VARIANT_RETURN_PROPERTIES,
+            },
+            ignore_cache=ignore_cache,
+        )
+        matches.extend(pv_similarAndGeneric_matches)
 
 
     # 3. REFORMATTING MATCHES
