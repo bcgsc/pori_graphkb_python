@@ -732,6 +732,16 @@ def match_positional_variant(
     # Delins (indel) handling [KBDEV-1133]
     # Matching delins to also the more specific terms (i.e. deletion, insertion, ...)
     if parsed["type"] == "indel" and delinsSpecialHandling:
+        variant_types_details.extend(
+            filter(
+                lambda x: False if x["name"] == "indel" else True,  # remove duplicated term
+                get_term_tree(
+                    conn,
+                    "indel",
+                    include_superclasses=False,  # term and chlidren terms only
+                ),
+            )
+        )
 
 
     # 2. MATCHING
