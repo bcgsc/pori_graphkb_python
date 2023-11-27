@@ -483,6 +483,52 @@ def structural_type_screening(
     return False
 
 
+def structural_type_adjustment(
+    conn: GraphKBConnection,
+    parsed: ParsedVariant,
+    variant_types_details: List[Ontology],
+    updateTypeList: Optional[bool] = False,
+) -> List[Ontology]:
+    """
+    Given a variant and a list of Vocabuilary records (variant's types), the variant get
+    screened for meeting structural criterias. If not a structural variant, then we
+    remove potential structural variant terms/aliases from the list before returning it.
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+        parsed (ParsedVariant): variant parsed as a dictionary
+        variant_types_details (Iterable[Record]): List of Vocabulary records as variant's type
+        updateTypeList (bool): Whether or not getting an up-to-date type list with an
+                               API call, or use the hard-coded one
+
+    Returns:
+        A filtered Vocabuilary records list
+
+    Note:
+        If a structural variant, the list is returned as-is, without removing
+        small variant terms/aliases since since we still want to match them.
+    """
+    # Screening type for discrepancies regarding structural variants
+    if not structural_type_screening(conn, parsed, updateTypeList):
+        # get structural type aliases
+        structural_types = (
+            map(
+                lambda x: x["name"],
+                get_equivalent_terms(conn, "structural variant"),
+            )
+            if updateTypeList
+            else STRUCTURAL_VARIANT_ALIASES
+        )
+        # filters out potential structural type aliases
+        return list(
+            filter(
+                lambda x: False if x["name"] in structural_types else True,
+                variant_types_details,
+            )
+        )
+    return variant_types_details
+
+
 def match_positional_variant(
     conn: GraphKBConnection,
     variant_string: str,
@@ -614,45 +660,14 @@ def match_positional_variant(
         ignore_cache=ignore_cache,
     )
 
-    # Screening type for discrepancies regarding structural variants
-    # Either 'structural variant' or 'small mutation'
-    if structural_type_screening(conn, parsed, updateTypeList):
-        # get small mutation type aliases
-        small_mutation_types = (
-            map(
-                lambda x: x["name"],
-                get_equivalent_terms(conn, "small mutation", "mutation"),
-            )
-            if updateTypeList
-            else SMALL_MUTATION_VARIANT_ALIASES
-        )
-        # remove potential small mutation type aliases
-        variant_types_details = list(
-            filter(
-                lambda x: False if x["name"] in small_mutation_types else True,
-                variant_types_details,
-            )
-        )
-    else:
-        # get structural type aliases
-        structural_types = (
-            map(
-                lambda x: x["name"],
-                get_equivalent_terms(conn, "structural variant", "mutation"),
-            )
-            if updateTypeList
-            else STRUCTURAL_VARIANT_ALIASES
-        )
-        # remove potential structural type aliases
-        variant_types_details = list(
-            filter(
-                lambda x: False if x["name"] in structural_types else True,
-                variant_types_details,
-            )
-        )
+    # Adjustment for structural variants [KBDEV-1056]
+    variant_types_details = structural_type_adjustment(
+        conn,
+        parsed,
+        variant_types_details,
+        updateTypeList,
+    )
 
-    # Delins handling [KBDEV-1133]
-    # Matching delins to also the more specific deletion and insertion types
     if parsed["type"] == "indel" and delinsSpecialHandling:
         # Get indel children Vocabulary terms.
         indel_children_types = get_term_tree(
