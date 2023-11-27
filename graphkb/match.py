@@ -319,15 +319,19 @@ def compare_positional_variants(
     # If specific vs more-generic variants are not to be considered as equivalent,
     # check if their stringify representation match and return True or False right away.
     if not generic:
+        # Reference(s) will not be included in the string repr. since the variant has been
+        # pre-filtered to match any equivalent features.
+        # Templated sequences will also not be included in the string repr. since
+        # it's unnecessary and not always available.
         reference_variant_str: str = stringifyVariant(
             reference_variant,
-            withRef=False,  # Reference(s) will not be included in the string repr.
-            withRefSeq=False,  # Reference sequence will not be included in the string repr.
+            withRef=False,
+            withRefSeq=False,
         )
         variant_str: str = stringifyVariant(
             variant,
-            withRef=False,  # Reference(s) will not be included in the string repr.
-            withRefSeq=False,  # Reference sequence will not be included in the string repr.
+            withRef=False,
+            withRefSeq=False,
         )
         return reference_variant_str == variant_str
 
