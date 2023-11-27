@@ -532,6 +532,54 @@ def structural_type_adjustment(
     return variant_types_details
 
 
+def category_variant_similarTo(
+    conn: GraphKBConnection,
+    features: List[str],
+    variant_types_details: Iterable[Record],
+    secondary_features: Optional[List[str]] = None,
+    ignore_cache: Optional[bool] = False,
+) -> List[Variant]:
+    """
+    Given some filters options (types and references), returns a list of matching
+    category variants.
+
+    Args:
+        conn (GraphKBConnection): the graphkb connection object
+        features (List[str]): List of RIDs to filters reference1 for
+        variant_types_details (Iterable[Record]): List of Vocabulary records as variant's type
+        ignore_cache (bool): Whether or not the connection object cache should be ignore
+                             when querying the graphkb API
+        secondary_features (List[str]): List of RIDs to filters reference2 for
+
+    Returns:
+        A list of Variant records matching the filters options
+
+    Note:
+        Since CategoryVariants aren't linked together with similarity "edges" (AliasOf, etc.),
+        a "similarTo" queryType is not required.
+          
+        Also, on a "similarTo" queryType, a query with "treeEdges" = ["Infers"] could be
+        detrimental since some PositionalVariants infers CategoryVariants (a PositionalVariant
+        could be matched to an incompatible PositionalVariant through Infers edges to a common
+        CategoryVariant).
+        e.g. (BCR,ABL1):fusion(r.2030,r.461) --Infers--> BCR and ABL1 fusion
+             (BCR,ABL1):fusion(r.3458,r.635) --Infers--> BCR and ABL1 fusion
+    """
+    return conn.query(
+        {
+            "target": "CategoryVariant",
+            "filters": {
+                "AND": [
+                    {"reference1": features},
+                    {"type": convert_to_rid_list(variant_types_details)},
+                    {"reference2": secondary_features},
+                ]
+            },
+        },
+        ignore_cache=ignore_cache,
+    )
+
+
 def match_positional_variant(
     conn: GraphKBConnection,
     variant_string: str,
@@ -736,77 +784,62 @@ def match_positional_variant(
     # post filter matches
     matches: List[Record] = []
     if filtered_similarOnly:
-        matches.extend(
-            conn.query(
-                {
-                    "target": convert_to_rid_list(filtered_similarOnly),
-                    "queryType": "similarTo",
-                    "edges": [
-                        "AliasOf",
-                        "DeprecatedBy",
-                        "CrossReferenceOf",
-                        "GeneralizationOf",
-                    ],
-                    "treeEdges": ["Infers"],
-                    "returnProperties": POS_VARIANT_RETURN_PROPERTIES,
-                },
-                ignore_cache=ignore_cache,
-            )
-        )
+    # 2.3 EXPANDING MATCHES WITH VARIANTS LINKED TO CATEGORY VARIANTS
+    ###########################################################################
+    # note: There is no edges in-between CategoryVariants,
+    #       only incomming Infers edges from a handfull of PositionalVariant
 
+    # G) MATCHING ON BOTH REFERENCES
+    # (whether or not there is secondary features)
+    # e.g. "BRAF:c...del" MATCHING "BRAF deletion"
+    # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "BRAF and AKAP9 fusion"
     matches.extend(
-        conn.query(
-            {
-                "target": {
-                    "target": "CategoryVariant",
-                    "filters": [
-                        {"reference1": features},
-                        {"type": types},
-                        {"reference2": secondary_features},
-                    ],
-                },
-                "queryType": "similarTo",
-                "edges": ["AliasOf", "DeprecatedBy", "CrossReferenceOf"],
-                "treeEdges": ["Infers"],
-                "returnProperties": POS_VARIANT_RETURN_PROPERTIES,
-            },
-            ignore_cache=ignore_cache,
+        category_variant_similarTo(
+            conn,
+            features,
+            variant_types_details,
+            secondary_features,
+            ignore_cache,
         )
     )
 
-    def cat_variant_query(
-        cat_features: List[str],
-        cat_types: List[str],
-        cat_secondary_features: Optional[List[str]] = None,
-    ) -> None:
+    # H) MATCHING ON EVERY COMBINATION OF REFERENCES
+    if secondary_features:
+        # a) matching on inverted reference1 and reference2
+        # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "AKAP9 and BRAF fusion"
         matches.extend(
-            conn.query(
-                {
-                    "target": {
-                        "target": "CategoryVariant",
-                        "filters": [
-                            {"reference1": cat_features},
-                            {"type": cat_types},
-                            {"reference2": cat_secondary_features},
-                        ],
-                    },
-                    "queryType": "similarTo",
-                    "edges": ["AliasOf", "DeprecatedBy", "CrossReferenceOf"],
-                    "treeEdges": [],
-                    "returnProperties": VARIANT_RETURN_PROPERTIES,
-                },
-                ignore_cache=ignore_cache,
+            category_variant_similarTo(
+                conn,
+                features = secondary_features,
+                variant_types_details = variant_types_details,
+                secondary_features = features,
+                ignore_cache = ignore_cache,
+            )
+        )
+        # b) matching on reference1 = primary features, without reference2
+        # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "BRAF fusion"
+        matches.extend(
+            category_variant_similarTo(
+                conn,
+                features,
+                variant_types_details,
+                secondary_features = None,
+                ignore_cache = ignore_cache,
+            )
+        )
+        # c) matching on reference1 = secondary features, without reference2
+        # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "AKAP9 fusion"
+        matches.extend(
+            category_variant_similarTo(
+                conn,
+                features = secondary_features,
+                variant_types_details = variant_types_details,
+                secondary_features = None,
+                ignore_cache = ignore_cache,
             )
         )
 
-    cat_variant_query(features, types, secondary_features)
 
-    if secondary_features:
-        # match single gene fusions for either gene
-        cat_variant_query(features, types, None)
-        cat_variant_query(secondary_features, types, None)
-
-    # Adding back generic PositionalVariant to the matches
     if filtered_similarAndGeneric:
         matches.extend(
             conn.query(
