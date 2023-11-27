@@ -636,7 +636,11 @@ def match_positional_variant(
     Example:
         match_positional_variant(conn, 'p.G12D', 'KRAS')
     """
-    # parse the representation
+    # 1. ORIGINAL VARIANT
+    ###########################################################################
+
+    # A) PARSING
+    # Parsing the variant representation using the GraphKB Parser
     parsed = conn.parse(variant_string, not (reference1 or reference2))
 
     if "break1End" in parsed or "break2End" in parsed:  # uncertain position
@@ -646,8 +650,8 @@ def match_positional_variant(
     if reference2 and not reference1:
         raise ValueError("cannot specify reference2 without reference1")
 
-    # FEATURE
-    # disambiguate the gene name
+    # B) FEATURES
+    # PRIMARY FEATURES
     if reference1:
         gene1 = reference1
         if "reference1" in parsed:
@@ -657,6 +661,7 @@ def match_positional_variant(
     else:
         gene1 = parsed["reference1"]
 
+    # Get equivalent features
     gene1_features = get_equivalent_features(
         conn,
         gene1,
@@ -671,6 +676,7 @@ def match_positional_variant(
             f"unable to find the gene ({gene1}) or any equivalent representations"
         )
 
+    # SECONDARY FEATURES
     secondary_features = None
 
     gene2: Optional[str] = None
@@ -692,6 +698,7 @@ def match_positional_variant(
         gene2 = parsed["reference2"]
 
     if gene2:
+        # Get equivalent features
         gene2_features = get_equivalent_features(
             conn,
             gene2,
@@ -705,12 +712,12 @@ def match_positional_variant(
                 f"unable to find the gene ({gene2}) or any equivalent representations"
             )
 
-    # TYPE
-    # disambiguate the variant type
+    # C) TYPES
+    # Get equivalent (i.e. same or more generic) variant types
     variant_types_details = get_equivalent_terms(
         conn,
         parsed["type"],
-        root_exclude_term="mutation" if secondary_features else "",
+        # root_exclude_term="mutation" if secondary_features else "",
         ignore_cache=ignore_cache,
     )
 
@@ -722,52 +729,33 @@ def match_positional_variant(
         updateTypeList,
     )
 
+    # Delins (indel) handling [KBDEV-1133]
+    # Matching delins to also the more specific terms (i.e. deletion, insertion, ...)
     if parsed["type"] == "indel" and delinsSpecialHandling:
-        # Get indel children Vocabulary terms.
-        indel_children_types = get_term_tree(
-            conn,
-            "indel",
-            include_superclasses=False,  # term and chlidren terms only
-        )
-        # Remove duplicates between lists
-        variant_types_names = list(
-            map(
-                lambda x: x["name"],
-                variant_types_details,
-            )
-        )
-        indel_children_types = list(
-            filter(
-                lambda x: False if x["name"] in variant_types_names else True,
-                indel_children_types,
-            )
-        )
-        # Add indel children Vocabulary terms to types
-        variant_types_details = variant_types_details + indel_children_types
 
-    # convert to RIDs
-    types = convert_to_rid_list(variant_types_details)
 
-    # MATCHING POSITIONAL VARIANT, REGARDLESS OF POSITIONS
-    # match the existing mutations (positional)
-    query_filters = [
-        {"reference1": features},
-        {"reference2": secondary_features},
-        {"break1Start.@class": parsed["break1Start"]["@class"]},
-        {"type": types},
-    ]
+    # 2. MATCHING
+    ###########################################################################
 
-    filtered_similarOnly: List[Record] = []  # For post filter match use
-    filtered_similarAndGeneric: List[Record] = []  # To be added to the matches at the very end
 
-    # FILTERING OUT MISMATCHED POSITIONS
-    for row in cast(
+
+    # 2.1 
+    ###########################################################################
+
+    # D) SELECTING ALL MATCHING POSITIONAL VARIANTS, REGARDLESS OF POSITIONS
+    # Matching based on features, coord. sys. and types only.
+    # Note: The coordinate systems (genomic, cds, protein, etc.) need to be same
+    # for the parsed variant and any other positional variants to match.
+    # Variants from diff. coord. sys. can be linked in the database with Infers edges.
         List[Record],
         conn.query(
             {"target": "PositionalVariant", "filters": query_filters},
             ignore_cache=ignore_cache,
         ),
-    ):
+    # E) FILTERING OUT MISMATCHED POSITIONS
+    # Populate two seperated lists:
+    # - 1st list (similar + more generic matches): a first one for ...
+    # - 2nd list (similar matches only): one for ...
         if compare_positional_variants(
             reference_variant=parsed,
             variant=cast(PositionalVariant, row),
@@ -779,10 +767,14 @@ def match_positional_variant(
                 variant=cast(PositionalVariant, row),
                 generic=False,  # Similar variants only
             ):
-                filtered_similarOnly.append(row)
 
-    # post filter matches
-    matches: List[Record] = []
+
+    # 2.2 EXPANDING MATCHES WITH VARIANTS LINKED TO FILTERED POSITIONAL VARIANTS
+    ###########################################################################
+
+    # F) FOLLOWING EDGES ON THE VARIANT TREE
+    # Starting with similar matches only, and expanding to linked PositionalVariant
+    # e.g. NRAS:p.Q61K  <--Infers-- chr1:g.115256530G>T
     if filtered_similarOnly:
     # 2.3 EXPANDING MATCHES WITH VARIANTS LINKED TO CATEGORY VARIANTS
     ###########################################################################
