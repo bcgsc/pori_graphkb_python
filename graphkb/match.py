@@ -404,7 +404,7 @@ def structural_type_screening(
     conn: GraphKBConnection,
     parsed: ParsedVariant,
     updateStructuralTypes=False,
-) -> str:
+) -> bool:
     """
     [KBDEV-1056]; updated in [KBDEV-1133]
     Given a parsed variant notation, returns a boolean for whether or not a variant is structural
