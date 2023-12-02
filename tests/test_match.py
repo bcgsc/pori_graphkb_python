@@ -471,18 +471,18 @@ class TestMatchPositionalVariant:
             MatchingTypes = [el["type"]["name"] for el in m]
 
             # Match
-            for displayName in expected.get('matches', {}).get("displayName", []):
+            for displayName in expected.get("matches", {}).get("displayName", []):
                 assert displayName in MatchingDisplayNames
-            for type in expected.get('matches', {}).get("type", []):
+            for type in expected.get("matches", {}).get("type", []):
                 assert type in MatchingTypes
 
             # Does not match
             for displayName in MatchingDisplayNames:
-                assert displayName not in expected.get('does_not_matches', {}).get(
+                assert displayName not in expected.get("does_not_matches", {}).get(
                     "displayName", []
                 )
             for type in MatchingTypes:
-                assert type not in expected.get('does_not_matches', {}).get("type", [])
+                assert type not in expected.get("does_not_matches", {}).get("type", [])
 
 
 class TestCacheMissingFeatures:
@@ -504,23 +504,9 @@ class TestTypeScreening:
     # Types as class variables
     default_type = DEFAULT_NON_STRUCTURAL_VARIANT_TYPE
     threshold = STRUCTURAL_VARIANT_SIZE_THRESHOLD
-    unambiguous_structural = [
-        "fusion",
-        "translocation",
-    ]
-    ambiguous_structural = [
-        "duplication",
-        "deletion",
-        "insertion",
-        "indel",
-    ]
-    non_structural = [
-        "substitution",
-        "missense",
-        "nonsense",
-        "frameshift",
-        "truncating",
-    ]
+    unambiguous_structural = ["fusion", "translocation"]
+    ambiguous_structural = ["duplication", "deletion", "insertion", "indel"]
+    non_structural = ["substitution", "missense", "nonsense", "frameshift", "truncating"]
 
     def test_type_screening_update(self, conn, monkeypatch):
         # Monkey-patching get_terms_set()
@@ -559,7 +545,7 @@ class TestTypeScreening:
     def test_type_screening_structural_ambiguous_size(self, conn):
         for type in TestTypeScreening.ambiguous_structural:
             # coordinate system with ambiguous size
-            for prefix in ['e', 'i']:
+            for prefix in ["e", "i"]:
                 assert (
                     match.type_screening(
                         conn,
@@ -577,22 +563,14 @@ class TestTypeScreening:
             # Variation length too small (< threshold)
             assert (
                 match.type_screening(
-                    conn,
-                    {
-                        "type": type,
-                        "untemplatedSeqSize": TestTypeScreening.threshold - 1,
-                    },
+                    conn, {"type": type, "untemplatedSeqSize": TestTypeScreening.threshold - 1}
                 )
                 == TestTypeScreening.default_type
             )
             # Variation length big enough (>= threshold)
             assert (
                 match.type_screening(
-                    conn,
-                    {
-                        "type": type,
-                        "untemplatedSeqSize": TestTypeScreening.threshold,
-                    },
+                    conn, {"type": type, "untemplatedSeqSize": TestTypeScreening.threshold}
                 )
                 == type
             )

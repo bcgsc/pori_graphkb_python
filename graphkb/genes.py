@@ -23,10 +23,7 @@ from .vocab import get_terms_set
 
 
 def _get_tumourigenesis_genes_list(
-    conn: GraphKBConnection,
-    relevance: str,
-    sources: List[str],
-    ignore_cache: bool = False,
+    conn: GraphKBConnection, relevance: str, sources: List[str], ignore_cache: bool = False
 ) -> List[Ontology]:
     statements = cast(
         List[Statement],
@@ -259,12 +256,10 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
                         "evidence": {
                             "target": "Source",
                             "filters": {"@rid": get_rid(conn, "Source", "CGL")},
-                        },
+                        }
                     },
-                    {
-                        "relevance": {"target": "Vocabulary", "filters": {"@rid": relevance_rids}},
-                    },
-                ],
+                    {"relevance": {"target": "Vocabulary", "filters": {"@rid": relevance_rids}}},
+                ]
             },
             "returnProperties": [
                 "conditions.@class",
