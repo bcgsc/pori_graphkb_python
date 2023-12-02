@@ -392,8 +392,10 @@ def get_gene_information(
 
     Function is originally from pori_ipr_python::annotate.py
 
-    Gene flags (categories) are: ['cancerGene', 'cancerRelated', 'knownFusionPartner', 'knownSmallMutation',
-                                  'oncogene', 'therapeuticAssociated', 'tumourSuppressor']
+    Gene flags (categories) are: [
+        'cancerGeneListMatch', 'kbStatementRelated', 'knownFusionPartner',
+        'knownSmallMutation', 'oncogene', 'therapeuticAssociated', 'tumourSuppressor'
+    ]
 
     Args:
         graphkb_conn ([type]): [description]
@@ -401,7 +403,7 @@ def get_gene_information(
     Returns:
         List of gene_info dicts of form [{'name':<gene_str>, <flag>: True}]
         Keys of False values are simply omitted from ipr upload to reduce info transfer.
-            eg. [{'cancerRelated': True,
+            eg. [{'kbStatementRelated': True,
                   'knownFusionPartner': True,
                   'knownSmallMutation': True,
                   'name': 'TERT',
@@ -423,7 +425,7 @@ def get_gene_information(
     statements = [s for s in statements if s.get("reviewStatus") != FAILED_REVIEW_STATUS]
 
     gene_flags: Dict[str, Set[str]] = {
-        "cancerRelated": set(),
+        "kbStatementRelated": set(),
         "knownFusionPartner": set(),
         "knownSmallMutation": set(),
     }
@@ -432,9 +434,9 @@ def get_gene_information(
         for condition in statement["conditions"]:
             if not condition.get("reference1"):
                 continue
-            gene_flags["cancerRelated"].add(condition["reference1"])
+            gene_flags["kbStatementRelated"].add(condition["reference1"])
             if condition["reference2"]:
-                gene_flags["cancerRelated"].add(condition["reference2"])
+                gene_flags["kbStatementRelated"].add(condition["reference2"])
                 gene_flags["knownFusionPartner"].add(condition["reference1"])
                 gene_flags["knownFusionPartner"].add(condition["reference2"])
             elif condition["@class"] == "PositionalVariant":
@@ -444,8 +446,8 @@ def get_gene_information(
     gene_flags["oncogene"] = convert_to_rid_set(get_oncokb_oncogenes(graphkb_conn))
     logger.info("fetching tumour supressors list")
     gene_flags["tumourSuppressor"] = convert_to_rid_set(get_oncokb_tumour_supressors(graphkb_conn))
-    logger.info("fetching cancerGene list")
-    gene_flags["cancerGene"] = convert_to_rid_set(get_cancer_genes(graphkb_conn))
+    logger.info("fetching cancerGeneListMatch list")
+    gene_flags["cancerGeneListMatch"] = convert_to_rid_set(get_cancer_genes(graphkb_conn))
 
     logger.info("fetching therapeutic associated genes lists")
     gene_flags["therapeuticAssociated"] = convert_to_rid_set(
