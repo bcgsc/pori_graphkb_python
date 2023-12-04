@@ -246,10 +246,10 @@ def test_get_gene_information(conn):
         + CANNONICAL_THERAPY_GENES
     ):
         assert gene in [
-            g["name"] for g in gene_info if g.get("cancerRelated")
-        ], f"Missed cancerRelated {gene}"
+            g["name"] for g in gene_info if g.get("kbStatementRelated")
+        ], f"Missed kbStatementRelated {gene}"
 
     for gene in CANONICAL_CG:
         assert gene in [
-            g["name"] for g in gene_info if g.get("cancerGene")
-        ], f"Missed cancerGene {gene}"
+            g["name"] for g in gene_info if g.get("cancerGeneListMatch")
+        ], f"Missed cancerGeneListMatch {gene}"
