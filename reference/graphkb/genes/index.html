@@ -12,7 +12,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.14">
     
     
       
@@ -169,6 +169,7 @@
     
       
       
+  
   
   
   
@@ -440,8 +441,10 @@ return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
 <h2 id="get_gene_information">get_gene_information()</h2>
 <p>Create a list of gene_info flag dicts for IPR report upload.</p>
 <p>Function is originally from pori_ipr_python::annotate.py</p>
-<p>Gene flags (categories) are: ['cancerGene', 'cancerRelated', 'knownFusionPartner', 'knownSmallMutation',
-'oncogene', 'therapeuticAssociated', 'tumourSuppressor']</p>
+<p>Gene flags (categories) are: [
+'cancerGeneListMatch', 'kbStatementRelated', 'knownFusionPartner',
+'knownSmallMutation', 'oncogene', 'therapeuticAssociated', 'tumourSuppressor'
+]</p>
 <pre><code class="language-python">def get_gene_information(
     graphkb_conn: GraphKBConnection, gene_names: Sequence[str]
 ) -&gt; List[Dict[str, bool]]:
@@ -453,7 +456,7 @@ return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
-<li><code>List[Dict]</code>: <gene_str>, <flag>: True}] Keys of False values are simply omitted from ipr upload to reduce info transfer. eg. [{'cancerRelated': True, 'knownFusionPartner': True, 'knownSmallMutation': True, 'name': 'TERT', 'oncogene': True}]</li>
+<li><code>List[Dict]</code>: <gene_str>, <flag>: True}] Keys of False values are simply omitted from ipr upload to reduce info transfer. eg. [{'kbStatementRelated': True, 'knownFusionPartner': True, 'knownSmallMutation': True, 'name': 'TERT', 'oncogene': True}]</li>
 </ul>
 
 
@@ -496,7 +499,7 @@ return KRAS for get_preferred_gene_name(conn, 'ENSG00000133703.11')
     <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.cd18aaf1.min.js"></script>
       
     
   </body>
