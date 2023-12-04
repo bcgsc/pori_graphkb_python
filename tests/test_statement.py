@@ -5,7 +5,9 @@ import pytest
 
 from graphkb import statement
 
-from .test_match import conn
+from .test_match import (  # noqa - 'F401 imported but unused' is being fooled by pytest conventions
+    conn,
+)
 
 EXCLUDE_INTEGRATION_TESTS = os.environ.get("EXCLUDE_INTEGRATION_TESTS") == "1"
 
@@ -86,7 +88,7 @@ class TestCategorizeRelevance:
 
 @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding long running integration tests")
 class TestStatementMatch:
-    def test_truncating_categories(self, conn):
+    def test_truncating_categories(self, conn):  # noqa - pytest fixture, not redefinition
         variant = {"@class": "CategoryVariant", "@rid": "#161:429", "displayName": "RB1 truncating"}
         statements = statement.get_statements_from_variants(conn, [variant])
         assert statements
