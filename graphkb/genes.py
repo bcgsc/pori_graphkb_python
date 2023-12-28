@@ -219,7 +219,9 @@ def get_preferred_gene_name(
 
     gene_names = [g["displayName"] for g in genes if g]
     if 'ENS' in gene_name:
-        import pdb; pdb.set_trace()
+        import pdb
+
+        pdb.set_trace()
     if len(gene_names) > 1:
         logger.error(
             f"Multiple gene names found for: {gene_name} - using {gene_names[0]}, ignoring {gene_names[1:]}"
@@ -227,7 +229,9 @@ def get_preferred_gene_name(
     return gene_names[0]
 
 
-def get_cancer_predisposition_info(conn: GraphKBConnection, source: str = PREFERRED_GENE_SOURCE) -> Tuple[List[str], Dict[str, str]]:
+def get_cancer_predisposition_info(
+    conn: GraphKBConnection, source: str = PREFERRED_GENE_SOURCE
+) -> Tuple[List[str], Dict[str, str]]:
     """
     Return two lists from GraphKB, one of cancer predisposition genes and one of associated variants.
 
@@ -308,7 +312,9 @@ def get_cancer_predisposition_info(conn: GraphKBConnection, source: str = PREFER
     return sorted(genes), variants
 
 
-def get_pharmacogenomic_info(conn: GraphKBConnection, source: str = PREFERRED_GENE_SOURCE) -> Tuple[List[str], Dict[str, str]]:
+def get_pharmacogenomic_info(
+    conn: GraphKBConnection, source: str = PREFERRED_GENE_SOURCE
+) -> Tuple[List[str], Dict[str, str]]:
     """
     Return two lists from GraphKB, one of pharmacogenomic genes and one of associated variants.
 
