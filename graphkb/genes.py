@@ -218,10 +218,6 @@ def get_preferred_gene_name(
             genes = source_filtered_genes
 
     gene_names = [g["displayName"] for g in genes if g]
-    if 'ENS' in gene_name:
-        import pdb
-
-        pdb.set_trace()
     if len(gene_names) > 1:
         logger.error(
             f"Multiple gene names found for: {gene_name} - using {gene_names[0]}, ignoring {gene_names[1:]}"
