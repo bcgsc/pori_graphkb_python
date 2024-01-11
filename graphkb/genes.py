@@ -225,7 +225,9 @@ def get_preferred_gene_name(
     return gene_names[0]
 
 
-def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[str, str]]:
+def get_cancer_predisposition_info(
+    conn: GraphKBConnection, source: str = PREFERRED_GENE_SOURCE
+) -> Tuple[List[str], Dict[str, str]]:
     """
     Return two lists from GraphKB, one of cancer predisposition genes and one of associated variants.
 
@@ -287,7 +289,7 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
                     if name and biotype == "gene":
                         genes.add(name)
                     elif name:
-                        gene = get_preferred_gene_name(conn, name)
+                        gene = get_preferred_gene_name(conn, name, source)
                         if gene:
                             infer_genes.add((gene, name, biotype))
                         else:
@@ -306,7 +308,9 @@ def get_cancer_predisposition_info(conn: GraphKBConnection) -> Tuple[List[str], 
     return sorted(genes), variants
 
 
-def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[str, str]]:
+def get_pharmacogenomic_info(
+    conn: GraphKBConnection, source: str = PREFERRED_GENE_SOURCE
+) -> Tuple[List[str], Dict[str, str]]:
     """
     Return two lists from GraphKB, one of pharmacogenomic genes and one of associated variants.
 
@@ -362,7 +366,7 @@ def get_pharmacogenomic_info(conn: GraphKBConnection) -> Tuple[List[str], Dict[s
                     if name and biotype == "gene":
                         genes.add(name)
                     elif name:
-                        gene = get_preferred_gene_name(conn, name)
+                        gene = get_preferred_gene_name(conn, name, source)
                         if gene:
                             infer_genes.add((gene, name, biotype))
                         else:
