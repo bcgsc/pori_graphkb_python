@@ -389,6 +389,9 @@ def stripDisplayName(displayName: str, withRef: bool = True, withRefSeq: bool = 
     # TODO: Deal with more complex cases like fusion, cds with offset (ex. 'VHL:c.464-2G>A')
     # and other complex cases (ex. 'VHL:c.330_331delCAinsTT')
 
+    # In case of fusion, match.group(2) can equal to ":" so strip it
+    displayName = displayName.strip(':')
+
     return displayName
 
 

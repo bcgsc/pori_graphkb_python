@@ -155,10 +155,10 @@ structuralVariants = {
             ],
         },
     },
-    "STK11:e.1_100del": {
+    "FANCM:e.2del": {
         "matches": {
             "displayName": [
-                "STK11 mutation",
+                "FANCM mutation",
             ],
             "type": [
                 "mutation",
@@ -166,28 +166,10 @@ structuralVariants = {
         },
         "does_not_matches": {
             "displayName": [
-                "STK11 deletion",
+                "FANCM structural variant",
             ],
             "type": [
-                "deletion",
-            ],
-        },
-    },
-    "STK11:i.1_100del": {
-        "matches": {
-            "displayName": [
-                "STK11 mutation",
-            ],
-            "type": [
-                "mutation",
-            ],
-        },
-        "does_not_matches": {
-            "displayName": [
-                "STK11 deletion",
-            ],
-            "type": [
-                "deletion",
+                "structural variant",
             ],
         },
     },
@@ -207,6 +189,78 @@ structuralVariants = {
             ],
             "type": [
                 "rearrangement",
+            ],
+        },
+    },
+}
+
+# 
+smallMutations = {
+    "...": {
+        "matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+        "does_not_matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+    },
+}
+
+# Make sure delins (indel) events are treated appart [KBDEV-1133]
+# delins match deletion/insertion, and deletion/insertion match delins
+delins = {
+    "...": {
+        "matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+        "does_not_matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+    },
+}
+
+# ...
+other = {
+    "VHL:p.T133Lfs*26": {
+        "matches": {
+            "displayName": [
+                "VHL:p.T133fs",
+                "VHL:c.397delA",
+                "VHL deletion",
+                "VHL frameshift mutation",
+                "VHL mutation",
+                "VHL truncating",
+            ],
+            "type": [
+                "...",
+            ],
+        },
+        "does_not_matches": {
+            "displayName": [
+                "...",
+            ],
+            "type": [
+                "...",
             ],
         },
     },
