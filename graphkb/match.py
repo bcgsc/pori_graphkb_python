@@ -396,6 +396,8 @@ def compare_positional_variants(
                 return False
         elif len(reference_variant["refSeq"]) != len(variant["refSeq"]):  # type: ignore
             return False
+        
+    # TOTO: Add logic for Frame shifts
 
     return True
 
@@ -494,7 +496,9 @@ def structural_type_adjustment(
 ) -> List[Ontology]:
     """
     Given a variant and a list of Vocabuilary records (variant's types), the variant get
-    screened for meeting structural criterias. If not a structural variant, then we
+    screened for meeting structural criterias.
+    
+    If not a structural variant, then we
     remove potential structural variant terms/aliases from the list before returning it.
 
     Args:
@@ -512,7 +516,13 @@ def structural_type_adjustment(
         small variant terms/aliases since since we still want to match them.
     """
     # Screening type for discrepancies regarding structural variants
-    if not structural_type_screening(conn, parsed, updateTypeList):
+
+    if 1==1:
+        pass
+    elif structural_type_screening(conn, parsed, updateTypeList):       
+       pass 
+
+    else:
         # get structural type aliases
         structural_types = (
             map(
@@ -529,7 +539,12 @@ def structural_type_adjustment(
                 variant_types_details,
             )
         )
-    return variant_types_details
+    return list(
+            filter(
+                lambda x: False if x["name"] in ['mutation', 'mutations'] else True,
+                variant_types_details,
+            )
+        )
 
 
 def category_variant_extension(
@@ -637,7 +652,7 @@ def match_positional_variant(
     Example:
         match_positional_variant(conn, 'p.G12D', 'KRAS')
     """
-    # 1. ORIGINAL VARIANT
+    # 1. VARIANT TO MATCH
     ###########################################################################
 
     # A) PARSING
@@ -678,6 +693,7 @@ def match_positional_variant(
         )
 
     # SECONDARY FEATURES
+    gene2_features = None  # just for tests
     secondary_features = None
 
     gene2: Optional[str] = None
@@ -714,11 +730,11 @@ def match_positional_variant(
             )
 
     # C) TYPES
-    # Get equivalent (i.e. same or more generic) variant types
+    # Get equivalent variant types, i.e. same or more generic
     variant_types_details = get_equivalent_terms(
         conn,
         parsed["type"],
-        # root_exclude_term="mutation" if secondary_features else "",
+        root_exclude_term="mutation" if secondary_features else "",
         ignore_cache=ignore_cache,
     )
 
@@ -743,6 +759,23 @@ def match_positional_variant(
                 ),
             )
         )
+
+
+    # # PRINT FEATURES
+    # print('\ngene1_features:')
+    # for feature in gene1_features:
+    #     print(f"""{feature['@rid']}\t{feature['displayName']}""")
+    # if gene2_features:
+    #     print('\ngene2_features:')
+    #     for feature in gene2_features:
+    #         print(f"""{feature['@rid']}\t{feature['displayName']}""")
+    # # PRINT TYPES
+    # print('\nvariant_types_details:')
+    # for type in variant_types_details:
+    #     print(f"""{type['@rid']}\t{type['name']}""")
+    # return []
+
+    
 
 
     # 2. MATCHING
@@ -796,13 +829,46 @@ def match_positional_variant(
             ):
                 filtered_similarOnly.append(record)
 
+    # print("filtered_similarAndGeneric:", len(filtered_similarAndGeneric))
+    # for i in filtered_similarAndGeneric:
+    #     print(i['displayName'])
+    # print("filtered_similarOnly:", len(filtered_similarOnly))
+    # for i in filtered_similarOnly:
+    #     print(i['displayName'])
+    
 
-    # 2.2 EXPANDING MATCHES WITH VARIANTS LINKED TO FILTERED POSITIONAL VARIANTS
+
+    # 2.2 EXPANDING MATCHES WITH FILTERED POSITIONAL VARIANTS
+    #     AND VARIANTS LINKED TO THEM
     ###########################################################################
 
     # F) FOLLOWING EDGES ON THE VARIANT TREE
     # Starting with similar matches only, and expanding to linked PositionalVariant
     # e.g. NRAS:p.Q61K  <--Infers-- chr1:g.115256530G>T
+
+    if filtered_similarAndGeneric:
+        pv_similarAndGeneric_matches = conn.query(
+            {
+                "target": convert_to_rid_list(filtered_similarAndGeneric),
+                "queryType": "similarTo", # "descendants" ?
+                "edges": [
+                    "AliasOf",
+                    "DeprecatedBy",
+                    "CrossReferenceOf",
+                    "GeneralizationOf",
+                ], # or [] ?
+                "treeEdges": ["Infers"],
+                "returnProperties": POS_VARIANT_RETURN_PROPERTIES,
+            },
+            ignore_cache=ignore_cache,
+        )
+        # Extending matches with newly matched variants
+        matches.extend(pv_similarAndGeneric_matches)
+
+        # print("pv_similarAndGeneric_matches:", len(pv_similarAndGeneric_matches))
+        # for i in pv_similarAndGeneric_matches:
+        #     print(i['displayName'])
+
     if filtered_similarOnly:
         pv_similarOnly_matches = conn.query(
             {
@@ -823,11 +889,16 @@ def match_positional_variant(
         matches.extend(pv_similarOnly_matches)
         # TODO: Extending types with ones from newly matched variants
 
+        # print("\npv_similarOnly_matches:", len(pv_similarOnly_matches))
+        # for i in pv_similarOnly_matches:
+        #     print(i['displayName'])
 
-    # 2.3 EXPANDING MATCHES WITH VARIANTS LINKED TO CATEGORY VARIANTS
+
+    # 2.3 EXPANDING MATCHES WITH FILTERED CATEGORY VARIANTS
     ###########################################################################
     # note: There is no edges in-between CategoryVariants,
-    #       only incomming Infers edges from a handfull of PositionalVariant
+    #       only incomming Infers edges from a handfull of PositionalVariant,
+    #       which we avoid matching here
 
     # G) MATCHING ON BOTH REFERENCES
     # (whether or not there is secondary features)
@@ -843,7 +914,7 @@ def match_positional_variant(
         )
     )
 
-    # H) MATCHING ON EVERY COMBINATION OF REFERENCES
+    # H) MATCHING ON EVERY REMAINING COMBINATION OF REFERENCES 1 & 2
     if secondary_features:
         # a) matching on inverted reference1 and reference2
         # e.g. "(BRAF,AKAP9):fusion(...)" MATCHING "AKAP9 and BRAF fusion"
@@ -880,22 +951,26 @@ def match_positional_variant(
         )
 
 
-    # 2.3 EXPANDING MATCHES WITH LINKED CATEGORY VARIANTS
-    ###########################################################################
+    # # 2.3 EXPANDING MATCHES WITH LINKED CATEGORY VARIANTS
+    # ###########################################################################
 
-    # I) FOLLOWING EDGES ON THE VARIANT TREE, FROM MATCHING SIMILAR & GENERIC PVs
+    # # I) FOLLOWING EDGES ON THE VARIANT TREE, FROM MATCHING SIMILAR & GENERIC PVs
 
-    if filtered_similarAndGeneric:
-        pv_similarAndGeneric_matches = conn.query(
-            {
-                "target": convert_to_rid_list(filtered_similarAndGeneric),
-                "queryType": "descendants",
-                "edges": [],
-                "returnProperties": POS_VARIANT_RETURN_PROPERTIES,
-            },
-            ignore_cache=ignore_cache,
-        )
-        matches.extend(pv_similarAndGeneric_matches)
+    # # print("I)", len(matches))
+    # # for i in matches:
+    # #     print(i['displayName'])
+
+    # if filtered_similarAndGeneric:
+    #     pv_similarAndGeneric_matches = conn.query(
+    #         {
+    #             "target": convert_to_rid_list(filtered_similarAndGeneric),
+    #             "queryType": "descendants",
+    #             "edges": [],
+    #             "returnProperties": POS_VARIANT_RETURN_PROPERTIES,
+    #         },
+    #         ignore_cache=ignore_cache,
+    #     )
+    #     matches.extend(pv_similarAndGeneric_matches)
 
 
     # 3. REFORMATTING MATCHES

@@ -8,7 +8,7 @@ variant_strings = {
         "TSC2:c.3365G>C",
         "NM_000548.5:c.3365G>A",
         "NM_000548.5:p.Arg1122His",
-        "TSC2: p.R112H",
+        "TSC2:p.R112H",
     ],
     "KBDEV-1038": [
         "FGFR4:p.N535K",
@@ -21,8 +21,8 @@ variant_strings = {
         "EGFR:c.28246G>A",
         "chr7:g.55198839G>A",
         "EGFR:p.D942N",
-        # dummy test for Infers edges
-        "(PCM1,JAK2):fusion(r.6280,r.1821)",
+        "ERBB2:e.20ins",
+        # "(PCM1,JAK2):fusion(r.6280,r.1821)", # dummy test for Infers edges
     ],
     "KBDEV-1054": [
         "ERBB2:p.R814C",
@@ -40,13 +40,13 @@ variant_strings = {
         "FGFR3:c.9002_9051delinsTTT",
     ],
     "KBDEV-1066": [
-        # "(TMPRSS2,ERG):fusion(r.150,r.312)",
+        "(TMPRSS2,ERG):fusion(r.150,r.312)",
         "(FUS,CREB3L2):fusion(r.904,r.936)",
     ],
     "KBDEV-1133": [
-        # "EGFR:p.C797S",
+        "EGFR:p.C797S",
         # "EGFR:c.2127A>T",
-        "EGFR:p.V30_R297del",
+        # "EGFR:p.V30_R297del",
         # "EGFR:p.E746_S752delinsI",
         # "EGFR:p.E746_S752del",
         # "VHL:p.T133Lfs*26",
@@ -62,16 +62,16 @@ variant_strings = {
 
     ],
     "SDEV-3872": [
-        # "(FGFR3,BRCA2):fusion(g.1234567,g.1234567)",
-        # "STK11:g.1_100del",
-        # "STK11:g.1_10del",
-        # "STK11:e.1_100del",
-        # "STK11:i.1_100del",
-        # "FGFR3:c.1200_1300dup",
+        "(FGFR3,BRCA2):fusion(g.1234567,g.1234567)",
+        "STK11:g.1_100del",
+        "STK11:g.1_10del",
+        "STK11:e.1_100del",
+        "STK11:i.1_100del",
+        "FGFR3:c.1200_1300dup",
         # "NC_000002.12:g.233760247_233760248dup",
-        # "chr2:g.233760247_233760248dup",
-        # "UGT1A1:g.233760247_233760248dup",
-        # "NM_000548.5:c.3365G>A",
+        "chr2:g.233760247_233760248dup",
+        "UGT1A1:g.233760247_233760248dup",
+        "NM_000548.5:c.3365G>A",
         'chr7:g.55181378C>T',
     ],
     "SDEV-3892": [
@@ -85,4 +85,11 @@ variant_strings = {
         "TSC2:p.G1567D",
         "KRAS:p.G12D",
     ],
+    "MatchingUpdate": [
+        "(BCR,ABL1):fusion(e.13,e.3)",
+    ],
+    "SDEV-4079" : [
+        "TERT:c.-134G>A",
+        "TERT:g.1295113G>A",
+    ]
 }

@@ -11,17 +11,40 @@ def main():
 
     # DATA
     ##############################################################
-    source_name = 'entrez gene'
-    gene_name = 'H3F3B'
+    gene_is_source_id = False
+    # gene_source = 'entrez gene'
+    # gene_is_source_id = True
+    # gene1 = 'EGFR'
+    # gene1 = 'NP_001333828'
+    # gene1 = 'NP_001333828.1'
+    # gene1 = 'NM_001346899'
+    # gene1 = 'NP_001333826.1'
+    # gene1 = 'NM_001346897.2'
+    # gene1 = '1956'; gene_is_source_id = True
+    # gene1 = 'TERT';
+
+    # SDEV-4080
+    # gene1 = 'CHEK2';
+    # gene1 = 'ENST00000404276';
+    # gene1 = 'ENST00000404276.6';
+    gene1 = 'NM_007194';
 
     # PROCESSING
     ##############################################################
-    features = get_equivalent_features(conn, gene_name)
+    features = get_equivalent_features(
+        conn,
+        gene1,
+        # source=gene_source,
+        is_source_id=gene_is_source_id,
+    )
 
-    source_rid = conn.get_source(source_name)['@rid']
-    features = [el for el in features if el['source'] == source_rid]
+    displayNames = [f['displayName'] for f in features]
+    displayNames.sort()
 
-    if len(features) == 1:
-        return features[0]
+    print(f'Equivalent features for {gene1} ({len(displayNames)}):')
+    for displayName in displayNames:
+        print('-', displayName)
+
+    print(displayNames)
 
 main()
