@@ -10,7 +10,7 @@ from .constants import (
     GENE_RETURN_PROPERTIES,
     ONCOGENE,
     ONCOKB_SOURCE_NAME,
-    PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST,
+    GSC_PHARMACOGENOMIC_SOURCE_DISPLAYNAME_EXCLUDE_LIST,
     PREFERRED_GENE_SOURCE,
     RELEVANCE_BASE_TERMS,
     TSO500_SOURCE_NAME,
@@ -349,12 +349,13 @@ def get_pharmacogenomic_info(
                 "conditions.reference2.biotype",
                 "conditions.reference2.displayName",
                 "source.name",
+                "source.displayName",
             ],
         },
         ignore_cache=False,
     ):
         if record["source"]:  # type: ignore
-            if record["source"]["name"].lower() in PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST:  # type: ignore
+            if record["source"]["displayName"] in GSC_PHARMACOGENOMIC_SOURCE_DISPLAYNAME_EXCLUDE_LIST:  # type: ignore
                 continue
 
         for condition in record["conditions"]:  # type: ignore

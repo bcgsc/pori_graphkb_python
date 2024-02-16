@@ -66,7 +66,7 @@ TUMOUR_SUPPRESSIVE = "tumour suppressive"
 CANCER_GENE = "cancer gene"
 FUSION_NAMES = ["structural variant", "fusion"]
 
-PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST = ["cancer genome interpreter", "civic"]
+GSC_PHARMACOGENOMIC_SOURCE_DISPLAYNAME_EXCLUDE_LIST = ["CGI", "CIViC"]
 
 BASE_THERAPEUTIC_TERMS = ["therapeutic efficacy", "eligibility"]
 # the order here is the order these are applied, the first category matched is returned
