@@ -10,7 +10,7 @@ from .constants import (
     GENE_RETURN_PROPERTIES,
     ONCOGENE,
     ONCOKB_SOURCE_NAME,
-    PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST,
+    GSC_PHARMACOGENOMIC_SOURCE_DISPLAYNAME_EXCLUDE_LIST,
     PREFERRED_GENE_SOURCE,
     RELEVANCE_BASE_TERMS,
     TSO500_SOURCE_NAME,
@@ -309,7 +309,9 @@ def get_cancer_predisposition_info(
 
 
 def get_pharmacogenomic_info(
-    conn: GraphKBConnection, source: str = PREFERRED_GENE_SOURCE
+    conn: GraphKBConnection,
+    source: str = PREFERRED_GENE_SOURCE,
+    excluded_statement_sources: List[str]=GSC_PHARMACOGENOMIC_SOURCE_DISPLAYNAME_EXCLUDE_LIST
 ) -> Tuple[List[str], Dict[str, str]]:
     """
     Return two lists from GraphKB, one of pharmacogenomic genes and one of associated variants.
@@ -322,6 +324,11 @@ def get_pharmacogenomic_info(
     * gene is gotten from any associated 'PositionalVariant' records
 
     Example: https://graphkb.bcgsc.ca/view/Statement/154:9574
+
+    Args:
+        conn (GraphKBConnection): GraphKB connection object
+        source (str): Gene name source id - for form of gene name symbols used
+        excluded_statement_sources (List): List of displayNames for statement sources to exclude
 
     Returns:
         genes: list of pharmacogenomic genes
@@ -349,12 +356,13 @@ def get_pharmacogenomic_info(
                 "conditions.reference2.biotype",
                 "conditions.reference2.displayName",
                 "source.name",
+                "source.displayName",
             ],
         },
         ignore_cache=False,
     ):
         if record["source"]:  # type: ignore
-            if record["source"]["name"].lower() in PHARMACOGENOMIC_SOURCE_EXCLUDE_LIST:  # type: ignore
+            if record["source"]["displayName"] in excluded_statement_sources:  # type: ignore
                 continue
 
         for condition in record["conditions"]:  # type: ignore
