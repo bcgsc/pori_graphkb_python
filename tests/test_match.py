@@ -79,6 +79,135 @@ class TestGetEquivalentFeatures:
         ]
         assert "KRAS" in kras
 
+    # KBDEV-1163
+    # Testing if the addition of Ensembl protein Features are limiting results
+    # returned by get_equivalent_features() since SimilatTo queryType queries
+    # aren't traversing the graph to it's whole depth.
+    @pytest.mark.skipif(EXCLUDE_INTEGRATION_TESTS, reason="excluding data-specific test")
+    def test_ensembl_protein(self, conn):
+        for feature, expected in [
+            # Sample
+            (
+                'EGFR',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',
+                    'ENSG00000146648.17',
+                    'ENST00000275493',
+                    'ENST00000275493.6',
+                    'NM_001346897',
+                    'NM_001346897.2',
+                    'NP_001333826',
+                    'NP_001333826.1',
+                ],
+            ),
+            (
+                'NM_001346897',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',
+                    'ENSG00000146648.17',
+                    'NM_001346897',
+                    'NM_001346897.2',
+                    'NP_001333826',
+                    'NP_001333826.1',
+                ],
+            ),
+            (
+                'NM_001346897.2',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',
+                    'ENSG00000146648.17',
+                    'NM_001346897',
+                    'NM_001346897.2',
+                    'NP_001333826',
+                    'NP_001333826.1',
+                ],
+            ),
+            (
+                'NP_001333826',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',  # Warn: Versionized ENSG won't be returned due to API limitations
+                    'NM_001346897',
+                    'NM_001346897.2',
+                    'NP_001333826',
+                    'NP_001333826.1',
+                ],
+            ),
+            (
+                'NP_001333826.1',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',  # Warn: Versionized ENSG won't be returned due to API limitations
+                    'NM_001346897',
+                    'NM_001346897.2',
+                    'NP_001333826',
+                    'NP_001333826.1',
+                ],
+            ),
+            (
+                'ENSG00000146648',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',
+                    'ENSG00000146648.17',
+                    'ENST00000275493',
+                    'ENST00000275493.6',
+                    'NM_001346897',
+                    'NM_001346897.2',
+                    'NP_001333826',  # Warn: Versionized NP won't be returned due to API limitations
+                ],
+            ),
+            (
+                'ENSG00000146648.17',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',
+                    'ENSG00000146648.17',
+                    'ENST00000275493',
+                    'ENST00000275493.6',
+                    'NM_001346897',
+                    'NM_001346897.2',
+                    'NP_001333826',  # Warn: Versionized NP won't be returned due to API limitations
+                ],
+            ),
+            (
+                'ENST00000275493',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',
+                    'ENSG00000146648.17',
+                    'ENST00000275493',
+                    'ENST00000275493.6',
+                ],
+            ),
+            (
+                'ENST00000275493.6',
+                [
+                    'EGFR',
+                    'ERBB',
+                    'ENSG00000146648',
+                    'ENSG00000146648.17',
+                    'ENST00000275493',
+                    'ENST00000275493.6',
+                ],
+            ),
+        ]:
+            equivalent_features = match.get_equivalent_features(conn, feature)
+            equivalent_features = [el['displayName'] for el in equivalent_features]
+            for equivalent_feature in expected:
+                assert equivalent_feature in equivalent_features
+
 
 class TestMatchCopyVariant:
     def test_bad_category(self, conn):
