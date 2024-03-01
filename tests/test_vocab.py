@@ -1,6 +1,7 @@
 """
 Tests here depend on specific data in GraphKB which can change. To avoid this, expected/stable values are chosen
 """
+
 import os
 
 import pytest
