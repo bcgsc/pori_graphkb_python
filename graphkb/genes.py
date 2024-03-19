@@ -1,4 +1,5 @@
 """Methods for retrieving gene annotation lists from GraphKB."""
+
 from typing import Any, Dict, List, Sequence, Set, Tuple, cast
 
 from . import GraphKBConnection

@@ -5,7 +5,6 @@
         Array of variants (diplayName and type) that MUST NOT be matching, but not restricted to
 """
 
-
 # Screening structural variant to rule out small events [KBDEV_1056]
 structuralVariants = {
     # Unambiguous structural variations

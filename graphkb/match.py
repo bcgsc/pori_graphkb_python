@@ -1,6 +1,7 @@
 """
 Functions which return Variants from GraphKB which match some input variant definition
 """
+
 from typing import Dict, List, Optional, Set, Union, cast
 
 from . import GraphKBConnection
@@ -303,9 +304,11 @@ def compare_positional_variants(
     if not positions_overlap(
         cast(BasicPosition, variant["break1Start"]),
         cast(BasicPosition, reference_variant["break1Start"]),
-        None
-        if "break1End" not in reference_variant
-        else cast(BasicPosition, reference_variant["break1End"]),
+        (
+            None
+            if "break1End" not in reference_variant
+            else cast(BasicPosition, reference_variant["break1End"])
+        ),
     ):
         return False
 
@@ -318,9 +321,11 @@ def compare_positional_variants(
         if not positions_overlap(
             cast(BasicPosition, variant["break2Start"]),
             cast(BasicPosition, reference_variant["break2Start"]),
-            None
-            if "break2End" not in reference_variant
-            else cast(BasicPosition, reference_variant["break2End"]),
+            (
+                None
+                if "break2End" not in reference_variant
+                else cast(BasicPosition, reference_variant["break2End"])
+            ),
         ):
             return False
 
