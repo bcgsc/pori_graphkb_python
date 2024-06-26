@@ -458,7 +458,7 @@ def get_gene_information(
     result = []
     for gene_name in gene_names:
         equivalent = convert_to_rid_set(get_equivalent_features(graphkb_conn, gene_name))
-        row = {"name": gene_name}
+        row: Dict[str, Any] = {"name": gene_name}
         flagged = False
         for flag in gene_flags:
             # make smaller JSON to upload since all default to false already
