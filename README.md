@@ -1,4 +1,10 @@
 
+# ⚠️ DEPRECATED
+
+This repository is no longer supported or maintained. No further issues or pull requests will be considered.
+
+Functionalities of both BCGSC's [pori_graphkb_python](https://github.com/bcgsc/pori_graphkb_python) and [pori_ipr_python](https://github.com/bcgsc/pori_ipr_python) can now be found in BCGSC's [pori_python](https://github.com/bcgsc/pori_python), respectively in [pori_python/graphkb](https://github.com/bcgsc/pori_python/tree/develop/pori_python/graphkb) and in [pori_python/ipr](https://github.com/bcgsc/pori_python/tree/develop/pori_python/ipr).
+
 # GraphKB (Python)
 
 ![build](https://github.com/bcgsc/pori_graphkb_python/workflows/build/badge.svg) [![PyPi](https://img.shields.io/pypi/v/graphkb.svg)](https://pypi.org/project/graphkb) [![codecov](https://codecov.io/gh/bcgsc/pori_graphkb_python/branch/master/graph/badge.svg)](https://codecov.io/gh/bcgsc/pori_graphkb_python) [![PyPI - Downloads](https://img.shields.io/pypi/dm/graphkb)](https://pypistats.org/packages/graphkb) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5730523.svg)](https://doi.org/10.5281/zenodo.5730523)
